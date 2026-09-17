@@ -3,7 +3,7 @@
 Deployable mobile-first PWA dashboard with a FastAPI API, PostgreSQL, Redis worker, Docker Compose, and Railway configuration.
 
 ## Deploy
-1. Copy `.env.example` to `.env` and set strong secrets.
+1. Copy `.env` and set strong secrets.
 2. Run locally: `docker compose up --build`.
 3. Open `http://localhost:5173`.
 4. For Android, deploy the web app over HTTPS, open it in Chrome, then choose **⋮ → Add to Home screen**.
