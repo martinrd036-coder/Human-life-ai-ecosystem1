@@ -1,197 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Agent 1 Money Command</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Human Life AI Ecosystem</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#0d1424;color:#eef3ff;font-family:Arial,sans-serif}
-header{padding:24px 18px;background:#141e32;border-bottom:1px solid #263653}
-h1{margin:0;font-size:26px}
-h2{font-size:18px;margin-top:0}
-p{color:#aebbd1}
-main{max-width:900px;margin:auto;padding:16px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.card{background:#18243a;border:1px solid #2a3a57;border-radius:14px;padding:16px;margin-bottom:14px}
-.stat{font-size:27px;font-weight:bold;margin-top:8px}
-.green{color:#4ade80}
-.yellow{color:#facc15}
-.red{color:#fb7185}
-button{background:#2563eb;color:white;border:0;border-radius:8px;padding:10px 14px;font-weight:bold;cursor:pointer}
-button.secondary{background:#334155}
-input,select,textarea{width:100%;padding:11px;margin:6px 0 10px;background:#0d1424;color:white;border:1px solid #334155;border-radius:8px}
-.item{background:#101a2d;border-radius:10px;padding:12px;margin:8px 0}
-.small{font-size:13px;color:#9fb0ca}
-.bar{height:9px;background:#263653;border-radius:10px;overflow:hidden;margin:10px 0}
-.fill{height:100%;background:#4ade80}
-nav{display:flex;gap:8px;overflow:auto;margin-bottom:15px}
-nav button{white-space:nowrap}
-section{display:none}
-section.active{display:block}
-.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#243552;font-size:12px;margin:2px}
+body {
+  margin: 0;
+  padding: 20px;
+  background: #111827;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+h1 { color: #60a5fa; }
+.card {
+  background: #1f2937;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 12px;
+}
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px;
+  margin: 5px;
+  border-radius: 8px;
+  font-size: 16px;
+}
 </style>
 </head>
 <body>
-<header>
-<h1>Agent 1 — Money Command</h1>
-<p>Central control for the Human Life AI Ecosystem</p>
-</header>
 
-<main>
-<nav>
-<button onclick="show('overview')">Command Center</button>
-<button class="secondary" onclick="show('opportunities')">Opportunities</button>
-<button class="secondary" onclick="show('tasks')">Tasks</button>
-<button class="secondary" onclick="show('agents')">Agents</button>
-</nav>
+<h1>Human Life AI Ecosystem</h1>
 
-<section id="overview" class="active">
-<div class="grid">
-<div class="card"><div class="small">DAILY GOAL</div><div class="stat">$50</div></div>
-<div class="card"><div class="small">REVENUE TODAY</div><div class="stat green" id="revenue">$0</div></div>
-<div class="card"><div class="small">OPPORTUNITIES</div><div class="stat" id="oppCount">0</div></div>
-<div class="card"><div class="small">OPEN TASKS</div><div class="stat" id="taskCount">0</div></div>
+<div class="card">
+<h2>Agent 1 — Command Center</h2>
+<p>Your central AI control system is online.</p>
+<button onclick="alert('Agent 1 is ready')">Check Agent 1</button>
 </div>
 
 <div class="card">
-<h2>Today's Command</h2>
-<p id="command">Agent 1 is waiting for income opportunities.</p>
-<div class="bar"><div class="fill" id="progress" style="width:0%"></div></div>
-<button onclick="addTask('Find legitimate remote jobs')">Find Remote Jobs</button>
-<button onclick="addTask('Research affiliate products')">Research Products</button>
-<button onclick="addTask('Create two short videos')">Create Content</button>
+<h2>Today's Mission</h2>
+<p>Build legitimate income opportunities through content, affiliate marketing, remote work, and automation.</p>
 </div>
 
 <div class="card">
-<h2>Priority Rules</h2>
-<div class="item">1. Protect time and money.</div>
-<div class="item">2. Prioritize legitimate income.</div>
-<div class="item">3. Score every opportunity.</div>
-<div class="item">4. Require approval before publishing or spending money.</div>
+<h2>Active Agents</h2>
+<p>🟢 Agent 1 — Central Control</p>
+<p>🟢 Affiliate Intelligence</p>
+<p>🟢 Viral Content Agent</p>
+<p>🟢 Job Hunter Agent</p>
+<p>🟢 Analytics Agent</p>
 </div>
-</section>
 
-<section id="opportunities">
 <div class="card">
-<h2>Add Opportunity</h2>
-<input id="oppName" placeholder="Opportunity name">
-<select id="oppType">
-<option>Remote Job</option>
-<option>Affiliate Product</option>
-<option>Local Service</option>
-<option>Content Idea</option>
-<option>Freelance Work</option>
-</select>
-<input id="oppScore" type="number" min="0" max="100" placeholder="Score 0–100">
-<button onclick="addOpportunity()">Add Opportunity</button>
+<h2>Status</h2>
+<p>Dashboard successfully loaded.</p>
 </div>
-<div class="card">
-<h2>Opportunity Pipeline</h2>
-<div id="opportunitiesList"></div>
-</div>
-</section>
 
-<section id="tasks">
-<div class="card">
-<h2>Add Task</h2>
-<input id="taskName" placeholder="Task for Agent 1">
-<button onclick="addTask()">Add Task</button>
-</div>
-<div class="card">
-<h2>Task Queue</h2>
-<div id="tasksList"></div>
-</div>
-</section>
-
-<section id="agents">
-<div class="card"><h2>Agent Registry</h2>
-<div id="agentList"></div>
-</div>
-</section>
-</main>
-
-<script>
-let data=JSON.parse(localStorage.getItem('agent1data')||'{"revenue":0,"opportunities":[],"tasks":[]}');
-
-const agents=[
-['Agent 1','Central command and approval','ONLINE'],
-['Job Hunter','Find legitimate remote employment','READY'],
-['Affiliate Intelligence','Research products and commissions','READY'],
-['Viral Content','Create TikTok, YouTube, and Reels ideas','READY'],
-['Local Business Scout','Find businesses needing services','READY'],
-['Market Research','Find problems customers will pay to solve','READY'],
-['Automation','Connect approved workflows','READY'],
-['Analytics','Track applications, clicks, sales, and revenue','READY'],
-['Safety Review','Reject scams and unsafe activity','ONLINE']
-];
-
-function save(){
-localStorage.setItem('agent1data',JSON.stringify(data));
-render();
-}
-
-function show(id){
-document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-render();
-}
-
-function addOpportunity(){
-let name=document.getElementById('oppName').value.trim();
-let type=document.getElementById('oppType').value;
-let score=Number(document.getElementById('oppScore').value||0);
-if(!name)return;
-data.opportunities.push({name,type,score,status:'New'});
-document.getElementById('oppName').value='';
-document.getElementById('oppScore').value='';
-save();
-}
-
-function addTask(text){
-let input=document.getElementById('taskName');
-let name=text||input.value.trim();
-if(!name)return;
-data.tasks.push({name,done:false});
-if(input)input.value='';
-save();
-}
-
-function completeTask(i){
-data.tasks[i].done=!data.tasks[i].done;
-save();
-}
-
-function removeOpportunity(i){
-data.opportunities.splice(i,1);
-save();
-}
-
-function render(){
-document.getElementById('revenue').textContent='$'+Number(data.revenue).toFixed(2);
-document.getElementById('oppCount').textContent=data.opportunities.length;
-document.getElementById('taskCount').textContent=data.tasks.filter(x=>!x.done).length;
-let pct=Math.min(100,Number(data.revenue)/50*100);
-document.getElementById('progress').style.width=pct+'%';
-document.getElementById('command').textContent=
-data.tasks.length?'Agent 1 has '+data.tasks.filter(x=>!x.done).length+' active tasks.':'Agent 1 is waiting for income opportunities.';
-
-document.getElementById('opportunitiesList').innerHTML=data.opportunities.length?
-data.opportunities.map((o,i)=>'<div class="item"><b>'+escapeHtml(o.name)+'</b><br><span class="badge">'+o.type+'</span><span class="badge">Score: '+o.score+'/100</span><br><span class="small">Status: '+o.status+'</span><br><button class="secondary" onclick="removeOpportunity('+i+')">Remove</button></div>').join('')
-:'<p>No opportunities added yet.</p>';
-
-document.getElementById('tasksList').innerHTML=data.tasks.length?
-data.tasks.map((t,i)=>'<div class="item"><input type="checkbox" '+(t.done?'checked':'')+' onchange="completeTask('+i+')"> '+escapeHtml(t.name)+'</div>').join('')
-:'<p>No tasks yet.</p>';
-
-document.getElementById('agentList').innerHTML=agents.map(a=>'<div class="item"><b>'+a[0]+'</b><br><span class="small">'+a[1]+'</span><br><span class="badge">'+a[2]+'</span></div>').join('');
-}
-
-function escapeHtml(s){
-return s.replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});
-}
-
-render();
-</script>
 </body>
 </html>
+
+<script>
+async function loadAgent1Status() {
+  try {
+    const response = await fetch('/api/agent1/status');
+    const data = await response.json();
+
+    console.log('Agent 1 status:', data);
+
+    const statusBox = document.getElementById('agent1-live-status');
+
+    if (statusBox) {
+      statusBox.textContent =
+        'Agent 1 is online — ' +
+        data.agents.length +
+        ' agents under command.';
+    }
+  } catch (error) {
+    console.error('Agent 1 connection failed:', error);
+  }
+}
+
+window.addEventListener('load', loadAgent1Status);
+</script>
+
