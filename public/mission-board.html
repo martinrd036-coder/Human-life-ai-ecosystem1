@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 1 Mission Board</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0d1525;
+  color: white;
+}
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+h1 { color: #62a5ff; }
+.card {
+  background: #202b3d;
+  border-radius: 14px;
+  padding: 20px;
+  margin: 16px 0;
+}
+.stat {
+  display: inline-block;
+  width: 44%;
+  margin: 1%;
+  background: #182235;
+  padding: 15px;
+  border-radius: 10px;
+}
+.stat strong {
+  display: block;
+  font-size: 28px;
+  color: #63e6be;
+}
+.task {
+  background: #182235;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+.status {
+  float: right;
+  padding: 5px 9px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.waiting { background: #806000; }
+.progress { background: #145da0; }
+.done { background: #087f5b; }
+button {
+  background: #2563eb;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  font-size: 15px;
+}
+input {
+  width: 90%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 0;
+  margin: 5px 0;
+}
+.small { color: #aeb9ca; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>Agent 1 — Mission Board</h1>
+<p class="small">Central command system for the Human Life AI Ecosystem.</p>
+
+<div class="card">
+  <h2>Current Mission</h2>
+  <p id="mission">Build legitimate income opportunities through content, affiliate marketing, remote work, and automation.</p>
+  <button onclick="startMission()">Start Mission</button>
+</div>
+
+<div class="card">
+  <h2>Command Status</h2>
+
+  <div class="stat">
+    <strong id="activeAgents">5</strong>
+    Active Agents
+  </div>
+
+  <div class="stat">
+    <strong id="taskCount">4</strong>
+    Total Tasks
+  </div>
+
+  <div class="stat">
+    <strong id="completedCount">0</strong>
+    Completed
+  </div>
+
+  <div class="stat">
+    <strong id="income">$0</strong>
+    Estimated Income
+  </div>
+</div>
+
+<div class="card">
+  <h2>Tasks Assigned by Agent 1</h2>
+  <div id="tasks"></div>
+</div>
+
+<div class="card">
+  <h2>Add a New Mission Task</h2>
+  <input id="taskName" placeholder="Example: Find 10 profitable TikTok Shop products">
+  <input id="assignedAgent" placeholder="Assigned agent name">
+  <button onclick="addTask()">Assign Task</button>
+</div>
+
+<div class="card">
+  <h2>Active Agents</h2>
+  <p>🟢 Agent 1 — Central Leader</p>
+  <p>🟢 Affiliate Intelligence</p>
+  <p>🟢 Viral Content Agent</p>
+  <p>🟢 Job Hunter Agent</p>
+  <p>🟢 Analytics Agent</p>
+</div>
+
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("agent1Tasks")) || [
+  {
+    name: "Find profitable affiliate products",
+    agent: "Affiliate Intelligence",
+    status: "waiting"
+  },
+  {
+    name: "Find viral video opportunities",
+    agent: "Viral Content Agent",
+    status: "waiting"
+  },
+  {
+    name: "Find legitimate remote jobs",
+    agent: "Job Hunter Agent",
+    status: "waiting"
+  },
+  {
+    name: "Prepare income tracking system",
+    agent: "Analytics Agent",
+    status: "waiting"
+  }
+];
+
+function save() {
+  localStorage.setItem("agent1Tasks", JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  const box = document.getElementById("tasks");
+  box.innerHTML = "";
+
+  tasks.forEach((task, index) => {
+    const div = document.createElement("div");
+    div.className = "task";
+
+    div.innerHTML = `
+      <span class="status ${task.status}">${task.status}</span>
+      <strong>${task.name}</strong>
+      <p class="small">Assigned to: ${task.agent}</p>
+      <button onclick="changeStatus(${index})">
+        Change Status
+      </button>
+    `;
+
+    box.appendChild(div);
+  });
+
+  document.getElementById("taskCount").textContent = tasks.length;
+  document.getElementById("completedCount").textContent =
+    tasks.filter(t => t.status === "done").length;
+
+  save();
+}
+
+function changeStatus(index) {
+  const order = ["waiting", "progress", "done"];
+  const current = order.indexOf(tasks[index].status);
+  tasks[index].status = order[(current + 1) % order.length];
+  renderTasks();
+}
+
+function addTask() {
+  const name = document.getElementById("taskName").value.trim();
+  const agent = document.getElementById("assignedAgent").value.trim();
+
+  if (!name || !agent) {
+    alert("Enter both a task and an agent.");
+    return;
+  }
+
+  tasks.push({
+    name: name,
+    agent: agent,
+    status: "waiting"
+  });
+
+  document.getElementById("taskName").value = "";
+  document.getElementById("assignedAgent").value = "";
+
+  renderTasks();
+}
+
+function startMission() {
+  document.getElementById("mission").textContent =
+    "Agent 1 mission is active. Agents are being coordinated.";
+  alert("Agent 1 mission started.");
+}
+
+renderTasks();
+</script>
+
+</body>
+</html>

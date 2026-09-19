@@ -1,0 +1,103 @@
+{
+  "status": "online",
+  "mission": {
+    "title": "Build legitimate income opportunities",
+    "description": "Coordinate content, affiliate marketing, remote work, and automation.",
+    "dailyGoal": 50,
+    "progress": 0
+  },
+  "agents": [
+    {
+      "id": "affiliate",
+      "name": "Affiliate Intelligence Agent",
+      "role": "Find products and affiliate income opportunities",
+      "status": "ready"
+    },
+    {
+      "id": "viral",
+      "name": "Viral Content Agent",
+      "role": "Find content ideas and create short-form videos",
+      "status": "ready"
+    },
+    {
+      "id": "jobs",
+      "name": "Job Hunter Agent",
+      "role": "Find legitimate remote work opportunities",
+      "status": "ready"
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics Agent",
+      "role": "Track results, clicks, income, and progress",
+      "status": "ready"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1789682138061",
+      "title": "Find three legitimate affiliate products worth researching",
+      "agentId": "affiliate",
+      "status": "pending",
+      "createdAt": "2026-09-17T21:55:38.063Z"
+    },
+    {
+      "id": "1789682138064",
+      "title": "Create three short-form content ideas",
+      "agentId": "viral",
+      "status": "pending",
+      "createdAt": "2026-09-17T21:55:38.064Z"
+    },
+    {
+      "id": "1789682138066",
+      "title": "Find three legitimate remote jobs",
+      "agentId": "jobs",
+      "status": "pending",
+      "createdAt": "2026-09-17T21:55:38.066Z"
+    },
+    {
+      "id": "1789682138067",
+      "title": "Create the first income tracking report",
+      "agentId": "analytics",
+      "status": "pending",
+      "createdAt": "2026-09-17T21:55:38.067Z"
+    },
+    {
+      "id": "task-1789696053348",
+      "title": "Find three legitimate ways to earn money online",
+      "agentId": "affiliate-intelligence",
+      "priority": "high",
+      "status": "pending",
+      "createdAt": "2026-09-18T01:47:33.348Z"
+    }
+  ],
+  "activity": [
+    {
+      "message": "Task assigned to affiliate-intelligence: Find three legitimate ways to earn money online",
+      "time": "2026-09-18T01:47:33.349Z"
+    },
+    {
+      "message": "Agent 1 started the ecosystem mission.",
+      "time": "2026-09-18T01:31:47.469Z"
+    },
+    {
+      "message": "Agent 1 assigned: Create the first income tracking report",
+      "time": "2026-09-17T21:55:38.067Z"
+    },
+    {
+      "message": "Agent 1 assigned: Find three legitimate remote jobs",
+      "time": "2026-09-17T21:55:38.066Z"
+    },
+    {
+      "message": "Agent 1 assigned: Create three short-form content ideas",
+      "time": "2026-09-17T21:55:38.064Z"
+    },
+    {
+      "message": "Agent 1 assigned: Find three legitimate affiliate products worth researching",
+      "time": "2026-09-17T21:55:38.063Z"
+    },
+    {
+      "message": "Agent 1 started the ecosystem mission.",
+      "time": "2026-09-17T21:55:38.058Z"
+    }
+  ]
+}

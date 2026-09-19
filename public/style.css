@@ -1,0 +1,96 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b1020;
+  color: white;
+}
+
+header {
+  padding: 24px;
+  background: #141d33;
+  border-bottom: 1px solid #2b3854;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 25px;
+}
+
+header p {
+  color: #aebbd3;
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
+.hero,
+.panel,
+.card {
+  background: #141d33;
+  border: 1px solid #2b3854;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.hero,
+.panel {
+  margin-bottom: 25px;
+}
+
+.hero p,
+.card p {
+  color: #aebbd3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.card button {
+  width: 100%;
+}
+
+.badge {
+  background: #173f35;
+  color: #72e6b3;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+#message,
+#activity {
+  color: #72e6b3;
+}
+
+footer {
+  text-align: center;
+  color: #71809c;
+  padding: 30px;
+}

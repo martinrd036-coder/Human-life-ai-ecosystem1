@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from agent1.agent1 import get_agent_status, run_agent1
@@ -85,3 +86,5 @@ def start_agent1():
         "message": "Agent 1 must be started from the worker process.",
         "status": "ready",
     }
+
+app.mount("/", StaticFiles(directory=".", html=True), name="static")

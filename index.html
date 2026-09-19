@@ -1,1 +1,152 @@
-<!doctype html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#172033"/><link rel="manifest" href="/manifest.webmanifest"/><title>AI Agent Ecosystem</title></head><body><div id="root"></div><script type="module" src="/src.jsx"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111111">
+  <title>Human-Life AI Ecosystem</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: white;
+    }
+
+    .container {
+      padding: 24px;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .card {
+      background: #1f2937;
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-size: 16px;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    button:active {
+      opacity: .8;
+    }
+
+    .status {
+      color: #4ade80;
+      font-weight: bold;
+    }
+
+    .agent {
+      background: #374151;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Human-Life AI Ecosystem</h1>
+  <p>Agent 1 Central Control Dashboard</p>
+
+  <div class="card">
+    <h2>System Status</h2>
+    <p class="status" id="status">Checking connection...</p>
+    <p>Server Port: 3000</p>
+  </div>
+
+  <div class="card">
+    <h2>Agents</h2>
+    <div id="agents">Loading agents...</div>
+  </div>
+
+  <div class="card">
+    <h2>Agent 1</h2>
+    <p>Central coordinator for the AI ecosystem.</p>
+    <button onclick="startAgent1()">Start Agent 1</button>
+    <p id="result"></p>
+  </div>
+</div>
+
+<script>
+async function loadDashboard() {
+  try {
+    const response = await fetch("/api/dashboard");
+
+    if (!response.ok) {
+      throw new Error("Dashboard API returned " + response.status);
+    }
+
+    const data = await response.json();
+
+    document.getElementById("status").textContent =
+      "Connected and online";
+
+    loadAgents();
+
+  } catch (error) {
+    document.getElementById("status").textContent =
+      "Connection error: " + error.message;
+  }
+}
+
+async function loadAgents() {
+  try {
+    const response = await fetch("/api/agents");
+    const data = await response.json();
+
+    const agents = data.agents || [];
+    const container = document.getElementById("agents");
+
+    if (agents.length === 0) {
+      container.innerHTML = "<p>No agents registered yet.</p>";
+      return;
+    }
+
+    container.innerHTML = agents.map(agent => `
+      <div class="agent">
+        <strong>${agent.name}</strong>
+        <br>
+        <small>${agent.purpose || ""}</small>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    document.getElementById("agents").textContent =
+      "Could not load agents.";
+  }
+}
+
+async function startAgent1() {
+  const result = document.getElementById("result");
+  result.textContent = "Starting Agent 1...";
+
+  try {
+    const response = await fetch("/api/agent1/start", {
+      method: "POST"
+    });
+
+    const data = await response.json();
+
+    result.textContent = data.message || "Agent 1 started.";
+  } catch (error) {
+    result.textContent = "Error: " + error.message;
+  }
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>
