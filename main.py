@@ -8,7 +8,12 @@ from pydantic import BaseModel
 
 from agent1.agent1 import get_agent_status, run_agent1
 
-
+from revenue_engine import (
+    get_engine_status,
+    get_opportunities,
+    get_priority_opportunities,
+    get_revenue_summary,
+)
 app = FastAPI(title="Human-Life AI Ecosystem")
 
 
