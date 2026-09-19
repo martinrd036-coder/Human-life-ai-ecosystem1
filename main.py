@@ -83,7 +83,42 @@ def create_agent(item: AgentCreate):
     agents.append(agent)
     return agent
 
+@app.get("/api/revenue")
+def revenue_dashboard():
+    """
+    Revenue Command Center data.
 
+    Keeps opportunities separate from verified revenue.
+    """
+    return {
+        "engine": get_engine_status(),
+        "opportunities": get_opportunities(),
+        "priority_opportunities": get_priority_opportunities(5),
+        "revenue": get_revenue_summary(),
+    }
+
+
+@app.get("/api/revenue/opportunities")
+def revenue_opportunities():
+    """Return all known revenue opportunities."""
+    return {
+        "count": len(get_opportunities()),
+        "opportunities": get_opportunities(),
+    }
+
+
+@app.get("/api/revenue/top")
+def revenue_top_opportunities():
+    """Return the highest-priority revenue opportunities."""
+    return {
+        "opportunities": get_priority_opportunities(5),
+    }
+
+
+@app.get("/api/revenue/status")
+def revenue_status():
+    """Return truthful revenue-engine status."""
+    return get_engine_status()
 @app.post("/api/agent1/start")
 def start_agent1():
     return {
