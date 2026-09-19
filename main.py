@@ -1,4 +1,5 @@
- # Railway sync
+from guardian_system import guardian
+from engineering_guardian import engineering_guardian # Railway sync
 from datetime import date
 from pathlib import Path
 
@@ -125,4 +126,31 @@ def start_agent1():
     return {
         "message": "Agent 1 must be started from the worker process.",
         "status": "ready",
+    }@app.get("/api/guardian")
+def guardian_dashboard():
+    agents = get_agent_status()
+    return guardian.run(agents)
+
+
+@app.get("/api/guardian/status")
+def guardian_status():
+    return guardian.status()
+
+
+@app.get("/api/engineering")
+def engineering_status():
+    return engineering_guardian.inspect()
+
+
+@app.get("/api/guardian/permission/{action}")
+def guardian_permission(action: str):
+    return {
+        "action": action,
+        "allowed_without_human_approval": guardian.permission(
+            action,
+            False
+        ),
+        "requires_human_approval": (
+            action in guardian.PROTECTED_ACTIONS
+        ),
     }
