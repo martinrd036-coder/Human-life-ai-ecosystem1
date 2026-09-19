@@ -1,5 +1,5 @@
 from guardian_system import guardian
-from engineering_guardian import engineering_guardian # Railway sync
+from engineering_guardian import engineering_guardian
 from datetime import date
 from pathlib import Path
 
@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from agent1.agent1 import get_agent_status, run_agent1
+from agent1.agent1 import get_agent_status
 
 from revenue_engine import (
     get_engine_status,
@@ -16,6 +16,7 @@ from revenue_engine import (
     get_priority_opportunities,
     get_revenue_summary,
 )
+
 app = FastAPI(title="Human-Life AI Ecosystem")
 
 
@@ -41,7 +42,9 @@ def home():
     index_path = Path(__file__).parent / "index.html"
 
     if not index_path.exists():
-        return {"message": "Human-Life AI Ecosystem is running"}
+        return {
+            "message": "Human-Life AI Ecosystem is running"
+        }
 
     return FileResponse(index_path)
 
@@ -83,15 +86,14 @@ def create_agent(item: AgentCreate):
     }
 
     agents.append(agent)
+
     return agent
+
 
 @app.get("/api/revenue")
 def revenue_dashboard():
-    """
-    Revenue Command Center data.
+    """Revenue Command Center data."""
 
-    Keeps opportunities separate from verified revenue.
-    """
     return {
         "engine": get_engine_status(),
         "opportunities": get_opportunities(),
@@ -103,15 +105,19 @@ def revenue_dashboard():
 @app.get("/api/revenue/opportunities")
 def revenue_opportunities():
     """Return all known revenue opportunities."""
+
+    opportunities = get_opportunities()
+
     return {
-        "count": len(get_opportunities()),
-        "opportunities": get_opportunities(),
+        "count": len(opportunities),
+        "opportunities": opportunities,
     }
 
 
 @app.get("/api/revenue/top")
 def revenue_top_opportunities():
-    """Return the highest-priority revenue opportunities."""
+    """Return highest-priority revenue opportunities."""
+
     return {
         "opportunities": get_priority_opportunities(5),
     }
@@ -120,16 +126,26 @@ def revenue_top_opportunities():
 @app.get("/api/revenue/status")
 def revenue_status():
     """Return truthful revenue-engine status."""
+
     return get_engine_status()
+
+
 @app.post("/api/agent1/start")
 def start_agent1():
     return {
-        "message": "Agent 1 must be started from the worker process.",
+        "message": (
+            "Agent 1 must be started from "
+            "the worker process."
+        ),
         "status": "ready",
-    }@app.get("/api/guardian")
+    }
+
+
+@app.get("/api/guardian")
 def guardian_dashboard():
-    agents = get_agent_status()
-    return guardian.run(agents)
+    agent_status = get_agent_status()
+
+    return guardian.run(agent_status)
 
 
 @app.get("/api/guardian/status")
@@ -146,11 +162,13 @@ def engineering_status():
 def guardian_permission(action: str):
     return {
         "action": action,
-        "allowed_without_human_approval": guardian.permission(
-            action,
-            False
+        "allowed_without_human_approval": (
+            guardian.permission(
+                action,
+                False,
+            )
         ),
         "requires_human_approval": (
             action in guardian.PROTECTED_ACTIONS
         ),
-    }
+}
