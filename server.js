@@ -13,7 +13,19 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/health", (req, res) => {
   res.json({ status: "online" });
   });
-
+// Agent 1 status
+app.get("/api/agent1/status", (req, res) => {
+  res.json({
+    status: "configured",
+    agents: [
+      {
+        id: "agent1",
+        name: "Football Intelligence",
+        status: "configured"
+      }
+    ]
+  });
+});
   // Send homepage
   app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
