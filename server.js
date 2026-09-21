@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const commandCenter = require("./command-center");
 const { researchOpportunities } = require("./exa-research");
+
 const {
   DEFAULT_RESEARCH_SOURCES,
   getResearchConfig
@@ -15,6 +16,7 @@ app.use(express.json());
 const opportunities = [];
 let lastOpportunityScoutRun = null;
 let opportunityScoutRunning = false;
+
 const OPPORTUNITY_SCOUT_COOLDOWN_MS = 15 * 60 * 1000;
 
 const agentRegistry = [
@@ -122,6 +124,7 @@ app.get("/api/agent1/status", (req, res) => {
 
 app.get("/api/guardian/status", (req, res) => {
   const guardian = agentRegistry.find((item) => item.id === "guardian");
+
   const engineeringGuardian = agentRegistry.find(
     (item) => item.id === "engineering-guardian"
   );
@@ -181,6 +184,7 @@ app.post("/api/opportunity-scout/run", async (req, res) => {
     opportunities.splice(100);
 
     lastOpportunityScoutRun = new Date().toISOString();
+
     scout.status = "online";
     scout.lastActivity =
       `Research scan completed: ${discovered.length} opportunities found`;
@@ -192,14 +196,28 @@ app.post("/api/opportunity-scout/run", async (req, res) => {
       searchedAt: research.searchedAt
     });
   } catch (error) {
+    scout.status = "error";
+    scout.lastActivity = "Research scan failed";
+
+    res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  } finally {
+    opportunityScoutRunning = false;
+  }
+});
+
 app.get("/api/opportunities/status", (req, res) => {
   const opportunityScout = agentRegistry.find(
     (item) => item.id === "opportunity-scout"
   );
 
   res.json({
-    status: "building",
+    status: opportunityScout.status,
     agent: opportunityScout,
+    lastRunAt: lastOpportunityScoutRun,
+    running: opportunityScoutRunning,
     opportunities
   });
 });
