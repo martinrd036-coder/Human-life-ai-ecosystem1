@@ -1,4 +1,5 @@
 const express = require("express");
+const { researchOpportunities } = require("./exa-research");
 const path = require("path");
 const {
   DEFAULT_RESEARCH_SOURCES,
