@@ -8,6 +8,23 @@ app.use(express.json());
 
 const opportunities = [];
 
+const opportunityCategories = [
+  "Remote Jobs",
+  "Freelance Work",
+  "Affiliate Marketing",
+  "TikTok Shop",
+  "YouTube",
+  "Creator Content",
+  "Local Services",
+  "Digital Products",
+  "Market Research",
+  "AI Services",
+  "Automation Services",
+  "Lead Generation",
+  "Research and Data Products",
+  "Business Opportunities"
+];
+
 const agentRegistry = [
   {
     id: "agent1",
