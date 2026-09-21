@@ -24,6 +24,14 @@ const opportunityCategories = [
   "Research and Data Products",
   "Business Opportunities"
 ];
+const researchSources = [
+  "official company career pages",
+  "official affiliate programs",
+  "official creator programs",
+  "official freelance platforms",
+  "official government job resources",
+  "reputable business opportunity sources"
+];
 
 const agentRegistry = [
   {
