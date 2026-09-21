@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 const opportunities = [];
+
 const agentRegistry = [
   {
     id: "agent1",
@@ -120,17 +121,19 @@ app.get("/api/opportunities/status", (req, res) => {
   res.json({
     status: "building",
     agent: opportunityScout,
-    opportunities: []
+    opportunities
   });
 });
+
 app.get("/api/opportunities", (req, res) => {
   res.json({
     status: "ready",
     agent: "Opportunity Scout",
-    opportunities: [],
+    opportunities,
     message: "Opportunity Scout is ready to begin scanning."
   });
 });
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
