@@ -39,7 +39,6 @@ async function initializeDatabase() {
   `);
 }
 
-const opportunities = [];
 let lastOpportunityScoutRun = null;
 let opportunityScoutRunning = false;
 
@@ -48,8 +47,8 @@ const OPPORTUNITY_SCOUT_COOLDOWN_MS = 15 * 60 * 1000;
 const agentRegistry = [
   {
     id: "agent1",
-    name: "Football Intelligence",
-    purpose: "Football research and intelligence",
+    name: "Command Center",
+    purpose: "Coordinate the AI Agent Ecosystem and direct work between agents",
     status: "online",
     lastActivity: "System connected"
   },
@@ -200,24 +199,73 @@ app.post("/api/opportunity-scout/run", async (req, res) => {
       id: `opp-${Date.now()}-${index}`,
       title: result.title,
       revenueSource: result.source || "Research source",
-      url: result.url,
-      description: result.description,
+      url: result.url || null,
+      description: result.description || null,
+      estimatedPotential: "Unknown",
+      difficulty: "Unknown",
+      cost: "Unknown",
+      riskNotes: "None provided",
       status: "new",
       discoveredAt: new Date().toISOString()
     }));
 
-    opportunities.unshift(...discovered);
-    opportunities.splice(100);
+    for (const opportunity of discovered) {
+      await pool.query(
+        `
+        INSERT INTO opportunities (
+          id,
+          title,
+          revenue_source,
+          url,
+          description,
+          estimated_potential,
+          difficulty,
+          cost,
+          risk_notes,
+          status,
+          discovered_at
+        )
+        VALUES (
+          $1,
+          $2,
+          $3,
+          $4,
+          $5,
+          $6,
+          $7,
+          $8,
+          $9,
+          $10,
+          $11
+        )
+        ON CONFLICT (id) DO NOTHING
+        `,
+        [
+          opportunity.id,
+          opportunity.title,
+          opportunity.revenueSource,
+          opportunity.url,
+          opportunity.description,
+          opportunity.estimatedPotential,
+          opportunity.difficulty,
+          opportunity.cost,
+          opportunity.riskNotes,
+          opportunity.status,
+          opportunity.discoveredAt
+        ]
+      );
+    }
 
     lastOpportunityScoutRun = new Date().toISOString();
 
     scout.status = "online";
     scout.lastActivity =
-      `Research scan completed: ${discovered.length} opportunities found`;
+      `Research scan completed: ${discovered.length} opportunities found and saved`;
 
     res.json({
       status: "success",
       found: discovered.length,
+      saved: discovered.length,
       opportunities: discovered,
       searchedAt: research.searchedAt
     });
@@ -234,18 +282,43 @@ app.post("/api/opportunity-scout/run", async (req, res) => {
   }
 });
 
-app.get("/api/opportunities/status", (req, res) => {
+app.get("/api/opportunities/status", async (req, res) => {
   const opportunityScout = agentRegistry.find(
     (item) => item.id === "opportunity-scout"
   );
 
-  res.json({
-    status: opportunityScout.status,
-    agent: opportunityScout,
-    lastRunAt: lastOpportunityScoutRun,
-    running: opportunityScoutRunning,
-    opportunities
-  });
+  try {
+    const result = await pool.query(`
+      SELECT
+        id,
+        title,
+        revenue_source AS "revenueSource",
+        url,
+        description,
+        estimated_potential AS "estimatedPotential",
+        difficulty,
+        cost,
+        risk_notes AS "riskNotes",
+        status,
+        discovered_at AS "discoveredAt"
+      FROM opportunities
+      ORDER BY discovered_at DESC
+      LIMIT 100
+    `);
+
+    res.json({
+      status: opportunityScout.status,
+      agent: opportunityScout,
+      lastRunAt: lastOpportunityScoutRun,
+      running: opportunityScoutRunning,
+      opportunities: result.rows
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
 });
 
 app.get("/api/research/config", (req, res) => {
@@ -259,16 +332,41 @@ app.get("/api/research/config", (req, res) => {
   });
 });
 
-app.get("/api/opportunities", (req, res) => {
-  res.json({
-    status: "ready",
-    agent: "Opportunity Scout",
-    opportunities,
-    message: "Opportunity Scout is ready to begin scanning."
-  });
+app.get("/api/opportunities", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        id,
+        title,
+        revenue_source AS "revenueSource",
+        url,
+        description,
+        estimated_potential AS "estimatedPotential",
+        difficulty,
+        cost,
+        risk_notes AS "riskNotes",
+        status,
+        discovered_at AS "discoveredAt"
+      FROM opportunities
+      ORDER BY discovered_at DESC
+      LIMIT 100
+    `);
+
+    res.json({
+      status: "ready",
+      agent: "Opportunity Scout",
+      opportunities: result.rows,
+      message: "Opportunity Scout is ready to continue scanning."
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
 });
 
-app.post("/api/opportunities", (req, res) => {
+app.post("/api/opportunities", async (req, res) => {
   if (!req.body.title || !req.body.revenueSource) {
     return res.status(400).json({
       status: "error",
@@ -280,6 +378,8 @@ app.post("/api/opportunities", (req, res) => {
     id: `opp-${Date.now()}`,
     title: req.body.title,
     revenueSource: req.body.revenueSource,
+    url: req.body.url || null,
+    description: req.body.description || null,
     estimatedPotential: req.body.estimatedPotential || "Unknown",
     difficulty: req.body.difficulty || "Unknown",
     cost: req.body.cost || "Unknown",
@@ -288,12 +388,61 @@ app.post("/api/opportunities", (req, res) => {
     discoveredAt: new Date().toISOString()
   };
 
-  opportunities.push(opportunity);
+  try {
+    await pool.query(
+      `
+      INSERT INTO opportunities (
+        id,
+        title,
+        revenue_source,
+        url,
+        description,
+        estimated_potential,
+        difficulty,
+        cost,
+        risk_notes,
+        status,
+        discovered_at
+      )
+      VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11
+      )
+      `,
+      [
+        opportunity.id,
+        opportunity.title,
+        opportunity.revenueSource,
+        opportunity.url,
+        opportunity.description,
+        opportunity.estimatedPotential,
+        opportunity.difficulty,
+        opportunity.cost,
+        opportunity.riskNotes,
+        opportunity.status,
+        opportunity.discoveredAt
+      ]
+    );
 
-  res.status(201).json({
-    status: "created",
-    opportunity
-  });
+    res.status(201).json({
+      status: "created",
+      opportunity
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
 });
 
 app.get("/", (req, res) => {
