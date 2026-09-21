@@ -2,33 +2,50 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Human Life AI Ecosystem</title>
-
 <style>
-body {
-  margin: 0;
-  padding: 20px;
-  background: #111827;
-  color: white;
-  font-family: Arial, sans-serif;
-}
+body{margin:0;padding:20px;background:#111827;color:white;font-family:Arial}
+h1{color:#60a5fa}.card{background:#1f2937;padding:20px;margin:15px 0;border-radius:12px}
+button{background:#2563eb;color:white;border:0;padding:14px;border-radius:8px;font-size:16px}
+</style>
+</head>
+<body>
 
-h1 {
-  color: #60a5fa;
-}
+<h1>Human Life AI Ecosystem</h1>
 
-.card {
-  background: #1f2937;
-  padding: 20px;
-  margin: 15px 0;
-  border-radius: 12px;
-}
+<div class="card">
+<h2>Command Center</h2>
+<p id="status">🟡 Checking status...</p>
+<button onclick="runCycle()">Run Command Center</button>
+</div>
 
-button {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 12px;
-  margin: 5px;
-  border-radius
+<div class="card">
+<h2>Today's Mission</h2>
+<p>Build legitimate income opportunities through content, affiliate marketing, remote work, and automation.</p>
+</div>
+
+<div class="card">
+<h2>Registered Agents</h2>
+<p>🟢 Command Center — Central Control</p>
+<p>🟡 Affiliate Intelligence — Building</p>
+<p>🟡 Viral Content — Building</p>
+<p>🟡 Job Hunter — Building</p>
+<p>🟡 Analytics — Building</p>
+<p>🟡 Opportunity Scout — Building</p>
+<p>🟡 Product Scout — Building</p>
+<p>🟡 Guardian — Building</p>
+<p>🟡 Engineering Guardian — Building</p>
+</div>
+
+<div class="card">
+<h2>Command Center Events</h2>
+<p id="cycle">No command cycle has run yet.</p>
+</div>
+
+<script>
+async function checkStatus(){
+try{
+const r=await fetch('/api/command-center/status');
+const d=await r.json();
+document.getElementById('status').textContent='🟢 Command Center online — '+d.agents.length
