@@ -114,26 +114,6 @@ app.get("/api/guardian/status", (req, res) => {
 });
 
 app.get("/api/opportunities/status", (req, res) => {
-  app.post("/api/opportunities", (req, res) => {
-  const opportunity = {
-    id: `opp-${Date.now()}`,
-    title: req.body.title || "Untitled opportunity",
-    revenueSource: req.body.revenueSource || "Unknown",
-    estimatedPotential: req.body.estimatedPotential || "Unknown",
-    difficulty: req.body.difficulty || "Unknown",
-    cost: req.body.cost || "Unknown",
-    riskNotes: req.body.riskNotes || "None provided",
-    status: "new",
-    discoveredAt: new Date().toISOString()
-  };
-
-  opportunities.push(opportunity);
-
-  res.status(201).json({
-    status: "created",
-    opportunity
-  });
-});
   const opportunityScout = agentRegistry.find(
     (item) => item.id === "opportunity-scout"
   );
@@ -151,6 +131,34 @@ app.get("/api/opportunities", (req, res) => {
     agent: "Opportunity Scout",
     opportunities,
     message: "Opportunity Scout is ready to begin scanning."
+  });
+});
+
+app.post("/api/opportunities", (req, res) => {
+  if (!req.body.title || !req.body.revenueSource) {
+    return res.status(400).json({
+      status: "error",
+      message: "An opportunity must have a title and revenue source."
+    });
+  }
+
+  const opportunity = {
+    id: `opp-${Date.now()}`,
+    title: req.body.title,
+    revenueSource: req.body.revenueSource,
+    estimatedPotential: req.body.estimatedPotential || "Unknown",
+    difficulty: req.body.difficulty || "Unknown",
+    cost: req.body.cost || "Unknown",
+    riskNotes: req.body.riskNotes || "None provided",
+    status: "new",
+    discoveredAt: new Date().toISOString()
+  };
+
+  opportunities.push(opportunity);
+
+  res.status(201).json({
+    status: "created",
+    opportunity
   });
 });
 
