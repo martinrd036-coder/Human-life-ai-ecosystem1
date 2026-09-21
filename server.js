@@ -154,7 +154,16 @@ app.get("/api/opportunities/status", (req, res) => {
     opportunities
   });
 });
+app.get("/api/research/config", (req, res) => {
+  const config = getResearchConfig();
 
+  res.json({
+    status: "ready",
+    provider: config.provider,
+    apiKeyConfigured: config.apiKeyConfigured,
+    sources: DEFAULT_RESEARCH_SOURCES
+  });
+});
 app.get("/api/opportunities", (req, res) => {
   res.json({
     status: "ready",
