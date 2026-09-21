@@ -48,4 +48,22 @@ async function checkStatus(){
 try{
 const r=await fetch('/api/command-center/status');
 const d=await r.json();
-document.getElementById('status').textContent='🟢 Command Center online — '+d.agents.length
+document.getElementById('status').textContent='🟢 Command Center online — '+d.agents.length+' registered agents.';
+document.getElementById('cycle').textContent='Last cycle: '+(d.cycle||0);
+}catch(e){
+document.getElementById('status').textContent='🔴 Connection failed.';
+}}
+async function runCycle(){
+try{
+const r=await fetch('/api/command-center/cycle',{method:'POST'});
+const d=await r.json();
+const c=d.cycle;
+document.getElementById('cycle').textContent='🟢 Cycle #'+c.cycle+' completed — '+c.onlineAgents+'/'+c.totalAgents+' agents reporting.';
+alert('Command Center cycle #'+c.cycle+' completed.');
+}catch(e){alert('Command Center error: '+e.message);}
+}
+window.addEventListener('load',checkStatus);
+</script>
+
+</body>
+</html>
