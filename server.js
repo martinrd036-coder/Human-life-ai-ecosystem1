@@ -114,6 +114,26 @@ app.get("/api/guardian/status", (req, res) => {
 });
 
 app.get("/api/opportunities/status", (req, res) => {
+  app.post("/api/opportunities", (req, res) => {
+  const opportunity = {
+    id: `opp-${Date.now()}`,
+    title: req.body.title || "Untitled opportunity",
+    revenueSource: req.body.revenueSource || "Unknown",
+    estimatedPotential: req.body.estimatedPotential || "Unknown",
+    difficulty: req.body.difficulty || "Unknown",
+    cost: req.body.cost || "Unknown",
+    riskNotes: req.body.riskNotes || "None provided",
+    status: "new",
+    discoveredAt: new Date().toISOString()
+  };
+
+  opportunities.push(opportunity);
+
+  res.status(201).json({
+    status: "created",
+    opportunity
+  });
+});
   const opportunityScout = agentRegistry.find(
     (item) => item.id === "opportunity-scout"
   );
