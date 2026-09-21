@@ -4,9 +4,7 @@ const commandCenter = require("./command-center");
 
 const {
   DEFAULT_RESEARCH_SOURCES,
-  getResearchConfig,
-  buildResearchQuery,
-  normalizeOpportunity
+  getResearchConfig
 } = require("./research");
 
 const app = express();
@@ -15,32 +13,6 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 const opportunities = [];
-
-const opportunityCategories = [
-  "Remote Jobs",
-  "Freelance Work",
-  "Affiliate Marketing",
-  "TikTok Shop",
-  "YouTube",
-  "Creator Content",
-  "Local Services",
-  "Digital Products",
-  "Market Research",
-  "AI Services",
-  "Automation Services",
-  "Lead Generation",
-  "Research and Data Products",
-  "Business Opportunities"
-];
-
-const researchSources = [
-  "official company career pages",
-  "official affiliate programs",
-  "official creator programs",
-  "official freelance platforms",
-  "official government job resources",
-  "reputable business opportunity sources"
-];
 
 const agentRegistry = [
   {
@@ -79,4 +51,15 @@ const agentRegistry = [
     lastActivity: "Not connected yet"
   },
   {
-    id
+    id: "opportunity-scout",
+    name: "Opportunity Scout",
+    purpose: "Discover and prioritize legitimate revenue opportunities",
+    status: "building",
+    lastActivity: "Agent registry created"
+  },
+  {
+    id: "product-scout",
+    name: "Product Scout",
+    purpose: "Find products with affiliate and content potential",
+    status: "building",
+    last
