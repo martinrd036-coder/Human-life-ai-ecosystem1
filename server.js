@@ -5,7 +5,33 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-
+const agentRegistry = [
+  {
+    id: "agent1",
+    name: "Football Intelligence",
+    status: "online"
+  },
+  {
+    id: "affiliate-intelligence",
+    name: "Affiliate Intelligence",
+    status: "not_connected"
+  },
+  {
+    id: "viral-content",
+    name: "Viral Content Agent",
+    status: "not_connected"
+  },
+  {
+    id: "job-hunter",
+    name: "Job Hunter Agent",
+    status: "not_connected"
+  },
+  {
+    id: "analytics",
+    name: "Analytics Agent",
+    status: "not_connected"
+  }
+];
 // Serve website files from the public folder
 app.use(express.static(path.join(__dirname, "public")));
 
