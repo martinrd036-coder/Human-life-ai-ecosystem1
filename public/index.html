@@ -4,65 +4,348 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Human Life AI Ecosystem</title>
+
 <style>
-body{margin:0;padding:20px;background:#111827;color:white;font-family:Arial}
-h1{color:#60a5fa}.card{background:#1f2937;padding:20px;margin:15px 0;border-radius:12px}
-button{background:#2563eb;color:white;border:0;padding:14px;border-radius:8px;font-size:16px}
+body{
+  margin:0;
+  padding:20px;
+  background:#111827;
+  color:white;
+  font-family:Arial;
+}
+
+h1{
+  color:#60a5fa;
+}
+
+.card{
+  background:#1f2937;
+  padding:20px;
+  margin:15px 0;
+  border-radius:12px;
+}
+
+button{
+  background:#2563eb;
+  color:white;
+  border:0;
+  padding:14px;
+  border-radius:8px;
+  font-size:16px;
+  margin:6px 0;
+}
+
+button:disabled{
+  opacity:.6;
+}
+
+.result{
+  background:#111827;
+  padding:12px;
+  margin:10px 0;
+  border-radius:8px;
+}
+
+a{
+  color:#60a5fa;
+}
 </style>
 </head>
+
 <body>
 
 <h1>Human Life AI Ecosystem</h1>
 
 <div class="card">
 <h2>Command Center</h2>
+
 <p id="status">🟡 Checking status...</p>
-<button onclick="runCycle()">Run Command Center</button>
+
+<button onclick="runCycle()">
+Run Command Center
+</button>
 </div>
 
+
 <div class="card">
+
 <h2>Today's Mission</h2>
-<p>Build legitimate income opportunities through content, affiliate marketing, remote work, and automation.</p>
+
+<p>
+Build legitimate income opportunities through content,
+affiliate marketing, remote work, and automation.
+</p>
+
 </div>
 
+
 <div class="card">
+
+<h2>Opportunity Scout</h2>
+
+<p id="scout-status">
+🟡 Ready to research.
+</p>
+
+<button id="scout-button" onclick="runOpportunityScout()">
+Run Opportunity Scout
+</button>
+
+<div id="scout-results"></div>
+
+</div>
+
+
+<div class="card">
+
 <h2>Registered Agents</h2>
+
 <p>🟢 Command Center — Central Control</p>
+
 <p>🟡 Affiliate Intelligence — Building</p>
+
 <p>🟡 Viral Content — Building</p>
+
 <p>🟡 Job Hunter — Building</p>
+
 <p>🟡 Analytics — Building</p>
+
 <p>🟡 Opportunity Scout — Building</p>
+
 <p>🟡 Product Scout — Building</p>
+
 <p>🟡 Guardian — Building</p>
+
 <p>🟡 Engineering Guardian — Building</p>
+
 </div>
 
+
 <div class="card">
+
 <h2>Command Center Events</h2>
-<p id="cycle">No command cycle has run yet.</p>
+
+<p id="cycle">
+No command cycle has run yet.
+</p>
+
 </div>
+
 
 <script>
+
 async function checkStatus(){
+
 try{
+
 const r=await fetch('/api/command-center/status');
+
 const d=await r.json();
-document.getElementById('status').textContent='🟢 Command Center online — '+d.agents.length+' registered agents.';
-document.getElementById('cycle').textContent='Last cycle: '+(d.cycle||0);
+
+document.getElementById('status').textContent=
+'🟢 Command Center online — '+
+d.agents.length+
+' registered agents.';
+
+document.getElementById('cycle').textContent=
+'Last cycle: '+
+(d.cycle||0);
+
 }catch(e){
-document.getElementById('status').textContent='🔴 Connection failed.';
-}}
-async function runCycle(){
-try{
-const r=await fetch('/api/command-center/cycle',{method:'POST'});
-const d=await r.json();
-const c=d.cycle;
-document.getElementById('cycle').textContent='🟢 Cycle #'+c.cycle+' completed — '+c.onlineAgents+'/'+c.totalAgents+' agents reporting.';
-alert('Command Center cycle #'+c.cycle+' completed.');
-}catch(e){alert('Command Center error: '+e.message);}
+
+document.getElementById('status').textContent=
+'🔴 Connection failed.';
+
 }
-window.addEventListener('load',checkStatus);
+
+}
+
+
+async function runCycle(){
+
+try{
+
+const r=await fetch(
+'/api/command-center/cycle',
+{
+method:'POST'
+}
+);
+
+const d=await r.json();
+
+const c=d.cycle;
+
+document.getElementById('cycle').textContent=
+'🟢 Cycle #'+
+c.cycle+
+' completed — '+
+c.onlineAgents+
+'/'+
+c.totalAgents+
+' agents reporting.';
+
+alert(
+'Command Center cycle #'+
+c.cycle+
+' completed.'
+);
+
+}catch(e){
+
+alert(
+'Command Center error: '+
+e.message
+);
+
+}
+
+}
+
+
+async function runOpportunityScout(){
+
+const button=
+document.getElementById('scout-button');
+
+const status=
+document.getElementById('scout-status');
+
+const results=
+document.getElementById('scout-results');
+
+button.disabled=true;
+
+status.textContent=
+'🔵 Opportunity Scout is researching...';
+
+results.innerHTML='';
+
+
+try{
+
+const r=await fetch(
+'/api/opportunity-scout/run',
+{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+}
+}
+);
+
+const d=await r.json();
+
+
+if(!r.ok){
+
+status.textContent=
+'🟠 Scout could not run: '+
+(d.message||'Unknown error');
+
+return;
+
+}
+
+
+status.textContent=
+'🟢 Research completed — '+
+d.found+
+' opportunities found.';
+
+
+if(
+!d.opportunities ||
+d.opportunities.length===0
+){
+
+results.innerHTML=
+'<div class="result">'+
+'No opportunities were returned from this scan.'+
+'</div>';
+
+return;
+
+}
+
+
+d.opportunities.forEach(item=>{
+
+const div=document.createElement('div');
+
+div.className='result';
+
+div.innerHTML=
+'<strong>'+
+escapeHtml(
+item.title||
+'Untitled opportunity'
+)+
+'</strong><br><small>'+
+escapeHtml(
+item.revenueSource||
+'Research source'
+)+
+'</small><br>'+
+escapeHtml(
+item.description||
+''
+)+
+(
+item.url
+?
+'<br><a href="'+
+escapeHtml(item.url)+
+'" target="_blank" rel="noopener">'+
+'Open source</a>'
+:
+''
+);
+
+results.appendChild(div);
+
+});
+
+}catch(e){
+
+status.textContent=
+'🔴 Scout error: '+
+e.message;
+
+}finally{
+
+button.disabled=false;
+
+}
+
+}
+
+
+function escapeHtml(value){
+
+return String(value).replace(
+/[&<>"']/g,
+function(char){
+
+return {
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#039;'
+}[char];
+
+}
+);
+
+}
+
+
+window.addEventListener(
+'load',
+checkStatus
+);
+
 </script>
 
 </body>
