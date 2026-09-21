@@ -16,7 +16,23 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 app.use(express.json());
-
+async function initializeDatabase() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS opportunities (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      revenue_source TEXT NOT NULL,
+      url TEXT,
+      description TEXT,
+      estimated_potential TEXT,
+      difficulty TEXT,
+      cost TEXT,
+      risk_notes TEXT,
+      status TEXT NOT NULL,
+      discovered_at TIMESTAMPTZ NOT NULL
+    )
+  `);
+}
 const opportunities = [];
 let lastOpportunityScoutRun = null;
 let opportunityScoutRunning = false;
