@@ -2,6 +2,11 @@ const path = require("path");
 const express = require("express");
 const { Pool } = require("pg");
 const commandCenter = require("./command-center");
+const {
+  assignTask,
+  completeTask,
+  failTask
+} = commandCenter;
 const { researchOpportunities } = require("./exa-research");
 
 const {
