@@ -37,7 +37,7 @@ button {
 <div class="card">
 <h2>Agent 1 — Command Center</h2>
 <p>Your central AI control system is online.</p>
-<button onclick="alert('Agent 1 is ready')">Check Agent 1</button>
+<button onclick="fetch('/api/command-center/cycle',{method:'POST'}).then(r=>r.json()).then(d=>alert('Command Center cycle #' + d.cycle + ' completed.')).catch(e=>alert('Command Center error: ' + e.message))">Run Command Center</button>
 </div>
 
 <div class="card">
