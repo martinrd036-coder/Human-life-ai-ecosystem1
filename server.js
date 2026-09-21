@@ -11,11 +11,16 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  ssl: process.env.DATABASE_URL
+    ? { rejectUnauthorized: false }
+    : false
 });
+
 app.use(express.json());
+
 async function initializeDatabase() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS opportunities (
@@ -33,6 +38,7 @@ async function initializeDatabase() {
     )
   `);
 }
+
 const opportunities = [];
 let lastOpportunityScoutRun = null;
 let opportunityScoutRunning = false;
@@ -294,6 +300,13 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Human Life AI Ecosystem running on port ${PORT}`);
-});
+initializeDatabase()
+  .then(() => {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Human Life AI Ecosystem running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Database initialization failed:", error);
+    process.exit(1);
+  });
