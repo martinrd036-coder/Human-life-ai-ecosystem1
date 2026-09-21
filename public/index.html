@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Human Life AI Ecosystem</title>
+
 <style>
 body {
   margin: 0;
@@ -12,165 +13,22 @@ body {
   color: white;
   font-family: Arial, sans-serif;
 }
-h1 { color: #60a5fa; }
+
+h1 {
+  color: #60a5fa;
+}
+
 .card {
   background: #1f2937;
   padding: 20px;
   margin: 15px 0;
   border-radius: 12px;
 }
+
 button {
   background: #2563eb;
   color: white;
   border: none;
   padding: 12px;
   margin: 5px;
-  border-radius: 8px;
-  font-size: 16px;
-}
-</style>
-</head>
-
-<body>
-
-<h1>Human Life AI Ecosystem</h1>
-
-<div class="card">
-<h2>Command Center</h2>
-<p id="agent1-live-status">🟡 Command Center — Checking status...</p>
-<button onclick="runCommandCenter()">Run Command Center</button>
-</div>
-
-<div class="card">
-<h2>Today's Mission</h2>
-<p>Build legitimate income opportunities through content, affiliate marketing, remote work, and automation.</p>
-</div>
-
-<div class="card">
-<h2>Registered Agents</h2>
-<p>🟢 Command Center — Central Control</p>
-<p>🟡 Affiliate Intelligence — Building</p>
-<p>🟡 Viral Content Agent — Building</p>
-<p>🟡 Job Hunter Agent — Building</p>
-<p>🟡 Analytics Agent — Building</p>
-<p>🟡 Opportunity Scout — Building</p>
-<p>🟡 Product Scout — Building</p>
-<p>🟡 Guardian — Building</p>
-<p>🟡 Engineering Guardian — Building</p>
-</div>
-
-<div class="card">
-<h2>Command Center Events</h2>
-<p id="cycle-status">No command cycle has run yet.</p>
-</div>
-
-<div class="card">
-<h2>Status</h2>
-<p>Dashboard successfully loaded.</p>
-</div>
-
-<script>
-
-async function runCommandCenter() {
-
-  try {
-
-    const response = await fetch(
-      '/api/command-center/cycle',
-      {
-        method: 'POST'
-      }
-    );
-
-    const data = await response.json();
-    const cycle = data.cycle;
-
-    document.getElementById('cycle-status').textContent =
-      '🟢 Cycle #' +
-      cycle.cycle +
-      ' completed — ' +
-      cycle.onlineAgents +
-      '/' +
-      cycle.totalAgents +
-      ' agents reporting.';
-
-    alert(
-      'Command Center cycle #' +
-      cycle.cycle +
-      ' completed.'
-    );
-
-  } catch (error) {
-
-    alert(
-      'Command Center error: ' +
-      error.message
-    );
-  }
-}
-
-    const response = await fetch('/api/command-center/status');
-    const data = await response.json();
-
-    document.getElementById('agent1-live-status').textContent =
-      '🟢 Command Center is online — ' +
-      data.agents.length +
-      ' registered agents.';
-
-    document.getElementById('cycle-status').textContent =
-      'Last cycle: ' +
-      (data.cycle || 0);
-
-  } catch (error) {
-
-    document.getElementById('agent1-live-status').textContent =
-      '🔴 Command Center connection failed.';
-  }
-}
-
-async function runCommandCenter() {
-
-  try {
-
-    const response = await fetch(
-      '/api/command-center/cycle',
-      {
-        method: 'POST'
-      }
-    );
-
-    const data = await response.json();
-
-    document.getElementById('cycle-status').textContent =
-      '🟢 Cycle #' +
-      data.cycle +
-      ' completed — ' +
-      data.onlineAgents +
-      '/' +
-      data.totalAgents +
-      ' agents reporting.';
-
-    alert(
-      'Command Center cycle #' +
-      data.cycle +
-      ' completed.'
-    );
-
-  } catch (error) {
-
-    alert(
-      'Command Center error: ' +
-      error.message
-    );
-  }
-}
-
-window.addEventListener(
-  'load',
-  loadCommandCenter
-);
-
-</script>
-
-</body>
-</html>
+  border-radius
