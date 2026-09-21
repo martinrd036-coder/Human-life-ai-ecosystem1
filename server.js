@@ -1,6 +1,11 @@
 const express = require("express");
 const path = require("path");
-
+const {
+  DEFAULT_RESEARCH_SOURCES,
+  getResearchConfig,
+  buildResearchQuery,
+  normalizeOpportunity
+} = require("./research");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
