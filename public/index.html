@@ -35,9 +35,9 @@ button {
 <h1>Human Life AI Ecosystem</h1>
 
 <div class="card">
-<h2>Agent 1 — Command Center</h2>
-<p>Your central AI control system is online.</p>
-<button onclick="fetch('/api/command-center/cycle',{method:'POST'}).then(r=>r.json()).then(d=>alert('Command Center cycle #' + d.cycle + ' completed.')).catch(e=>alert('Command Center error: ' + e.message))">Run Command Center</button>
+<h2>Command Center</h2>
+<p id="agent1-live-status">🟡 Command Center — Checking status...</p>
+<button onclick="runCommandCenter()">Run Command Center</button>
 </div>
 
 <div class="card">
@@ -46,12 +46,21 @@ button {
 </div>
 
 <div class="card">
-<h2>Active Agents</h2>
-<p id="agent1-live-status">🟡 Agent 1 — Checking status...</p>
-<p>⚪ Affiliate Intelligence — Not connected yet</p>
-<p>⚪ Viral Content Agent — Not connected yet</p>
-<p>⚪ Job Hunter Agent — Not connected yet</p>
-<p>⚪ Analytics Agent — Not connected yet</p>
+<h2>Registered Agents</h2>
+<p>🟢 Command Center — Central Control</p>
+<p>🟡 Affiliate Intelligence — Building</p>
+<p>🟡 Viral Content Agent — Building</p>
+<p>🟡 Job Hunter Agent — Building</p>
+<p>🟡 Analytics Agent — Building</p>
+<p>🟡 Opportunity Scout — Building</p>
+<p>🟡 Product Scout — Building</p>
+<p>🟡 Guardian — Building</p>
+<p>🟡 Engineering Guardian — Building</p>
+</div>
+
+<div class="card">
+<h2>Command Center Events</h2>
+<p id="cycle-status">No command cycle has run yet.</p>
 </div>
 
 <div class="card">
@@ -59,30 +68,26 @@ button {
 <p>Dashboard successfully loaded.</p>
 </div>
 
-</body>
-</html>
-
 <script>
-async function loadAgent1Status() {
+async function loadCommandCenter() {
   try {
-    const response = await fetch('/api/agent1/status');
+    const response = await fetch('/api/command-center/status');
     const data = await response.json();
 
-    console.log('Agent 1 status:', data);
+    document.getElementById('agent1-live-status').textContent =
+      '🟢 Command Center is online — ' +
+      data.agents.length +
+      ' registered agents.';
 
-    const statusBox = document.getElementById('agent1-live-status');
-
-    if (statusBox) {
-      statusBox.textContent =
-        'Agent 1 is online — ' +
-        data.agents.length +
-        ' agents under command.';
-    }
+    document.getElementById('cycle-status').textContent =
+      'Last cycle: ' +
+      (data.cycle || 0);
   } catch (error) {
-    console.error('Agent 1 connection failed:', error);
+    document.getElementById('agent1-live-status').textContent =
+      '🔴 Command Center connection failed.';
   }
 }
 
-window.addEventListener('load', loadAgent1Status);
-</script>
-
+async function runCommandCenter() {
+  try {
+    const response = await fetch('/api/command
