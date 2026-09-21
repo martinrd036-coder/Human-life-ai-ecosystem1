@@ -30,6 +30,7 @@ button {
 }
 </style>
 </head>
+
 <body>
 
 <h1>Human Life AI Ecosystem</h1>
@@ -69,6 +70,7 @@ button {
 </div>
 
 <script>
+
 async function loadCommandCenter() {
   try {
     const response = await fetch('/api/command-center/status');
@@ -82,12 +84,57 @@ async function loadCommandCenter() {
     document.getElementById('cycle-status').textContent =
       'Last cycle: ' +
       (data.cycle || 0);
+
   } catch (error) {
+
     document.getElementById('agent1-live-status').textContent =
       '🔴 Command Center connection failed.';
   }
 }
 
 async function runCommandCenter() {
+
   try {
-    const response = await fetch('/api/command
+
+    const response = await fetch(
+      '/api/command-center/cycle',
+      {
+        method: 'POST'
+      }
+    );
+
+    const data = await response.json();
+
+    document.getElementById('cycle-status').textContent =
+      '🟢 Cycle #' +
+      data.cycle +
+      ' completed — ' +
+      data.onlineAgents +
+      '/' +
+      data.totalAgents +
+      ' agents reporting.';
+
+    alert(
+      'Command Center cycle #' +
+      data.cycle +
+      ' completed.'
+    );
+
+  } catch (error) {
+
+    alert(
+      'Command Center error: ' +
+      error.message
+    );
+  }
+}
+
+window.addEventListener(
+  'load',
+  loadCommandCenter
+);
+
+</script>
+
+</body>
+</html>
