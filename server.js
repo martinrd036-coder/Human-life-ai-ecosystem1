@@ -123,7 +123,62 @@ app.get("/health", (req, res) => {
     service: "Human Life AI Ecosystem"
   });
 });
+app.post("/api/command-center/assign", (req, res) => {
+  const { agentId, taskName, details } = req.body;
 
+  if (!agentId || !taskName) {
+    return res.status(400).json({
+      error: "agentId and taskName are required"
+    });
+  }
+
+  const assignment = assignTask(agentId, taskName, details || {});
+
+  res.json({
+    status: "assigned",
+    assignment
+  });
+});
+
+app.post("/api/command-center/complete", (req, res) => {
+  const { assignmentId, result } = req.body;
+
+  const assignment = completeTask(
+    assignmentId,
+    result || {}
+  );
+
+  if (!assignment) {
+    return res.status(404).json({
+      error: "Assignment not found"
+    });
+  }
+
+  res.json({
+    status: "completed",
+    assignment
+  });
+});
+
+app.post("/api/command-center/fail", (req, res) => {
+  const { assignmentId, errorMessage } = req.body;
+
+  const assignment = failTask(
+    assignmentId,
+    errorMessage || "Unknown error"
+  );
+
+  if (!assignment) {
+    return res.status(404).json({
+      error: "Assignment not found"
+    });
+  }
+
+  res.json({
+    status: "failed",
+    assignment
+  });
+});
 app.get("/api/command-center/status", (req, res) => {
   res.json(commandCenter.getStatus(agentRegistry));
 });
