@@ -122,7 +122,14 @@ app.get("/api/opportunities/status", (req, res) => {
     opportunities: []
   });
 });
-
+app.get("/api/opportunities", (req, res) => {
+  res.json({
+    status: "ready",
+    agent: "Opportunity Scout",
+    opportunities: [],
+    message: "Opportunity Scout is ready to begin scanning."
+  });
+});
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
