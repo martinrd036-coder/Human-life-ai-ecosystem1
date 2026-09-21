@@ -202,7 +202,80 @@ e.message
 
 }
 
+async function loadSavedOpportunities(){
 
+const results=
+document.getElementById('scout-results');
+
+try{
+
+const r=await fetch('/api/opportunities');
+
+const d=await r.json();
+
+if(
+!d.opportunities ||
+d.opportunities.length===0
+){
+
+results.innerHTML=
+'<div class="result">'+
+'No saved opportunities yet.'+
+'</div>';
+
+return;
+
+}
+
+results.innerHTML='';
+
+d.opportunities.forEach(item=>{
+
+const div=document.createElement('div');
+
+div.className='result';
+
+div.innerHTML=
+'<strong>'+
+escapeHtml(
+item.title||
+'Untitled opportunity'
+)+
+'</strong><br><small>'+
+escapeHtml(
+item.revenueSource||
+'Research source'
+)+
+'</small><br>'+
+escapeHtml(
+item.description||
+''
+)+
+(
+item.url
+?
+'<br><a href="'+
+escapeHtml(item.url)+
+'" target="_blank" rel="noopener">'+
+'Open source</a>'
+:
+''
+);
+
+results.appendChild(div);
+
+});
+
+}catch(e){
+
+results.innerHTML=
+'<div class="result">'+
+'Could not load saved opportunities.'+
+'</div>';
+
+}
+
+}
 async function runOpportunityScout(){
 
 const button=
