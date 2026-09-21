@@ -13,6 +13,9 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 const opportunities = [];
+let lastOpportunityScoutRun = null;
+let opportunityScoutRunning = false;
+const OPPORTUNITY_SCOUT_COOLDOWN_MS = 15 * 60 * 1000;
 
 const agentRegistry = [
   {
