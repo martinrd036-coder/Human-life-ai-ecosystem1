@@ -38,8 +38,13 @@ app.use(express.static(path.join(__dirname, "public")));
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "online" });
+// Agent registry status
+app.get("/api/agents/status", (req, res) => {
+  res.json({
+    status: "online",
+    agents: agentRegistry
   });
-// Agent 1 status
+});
 app.get("/api/agent1/status", (req, res) => {
   res.json({
     status: "configured",
