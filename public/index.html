@@ -71,8 +71,44 @@ button {
 
 <script>
 
-async function loadCommandCenter() {
+async function runCommandCenter() {
+
   try {
+
+    const response = await fetch(
+      '/api/command-center/cycle',
+      {
+        method: 'POST'
+      }
+    );
+
+    const data = await response.json();
+    const cycle = data.cycle;
+
+    document.getElementById('cycle-status').textContent =
+      '🟢 Cycle #' +
+      cycle.cycle +
+      ' completed — ' +
+      cycle.onlineAgents +
+      '/' +
+      cycle.totalAgents +
+      ' agents reporting.';
+
+    alert(
+      'Command Center cycle #' +
+      cycle.cycle +
+      ' completed.'
+    );
+
+  } catch (error) {
+
+    alert(
+      'Command Center error: ' +
+      error.message
+    );
+  }
+}
+
     const response = await fetch('/api/command-center/status');
     const data = await response.json();
 
