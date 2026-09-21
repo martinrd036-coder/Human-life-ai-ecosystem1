@@ -1,5 +1,6 @@
 const path = require("path");
 const express = require("express");
+const { Pool } = require("pg");
 const commandCenter = require("./command-center");
 const { researchOpportunities } = require("./exa-research");
 
