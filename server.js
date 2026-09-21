@@ -133,6 +133,65 @@ app.get("/api/guardian/status", (req, res) => {
   });
 });
 
+app.post("/api/opportunity-scout/run", async (req, res) => {
+  if (opportunityScoutRunning) {
+    return res.status(409).json({
+      status: "busy",
+      message: "Opportunity Scout is already running."
+    });
+  }
+
+  if (
+    lastOpportunityScoutRun &&
+    Date.now() - new Date(lastOpportunityScoutRun).getTime() <
+      OPPORTUNITY_SCOUT_COOLDOWN_MS
+  ) {
+    return res.status(429).json({
+      status: "cooldown",
+      message: "Opportunity Scout recently ran.",
+      lastRunAt: lastOpportunityScoutRun
+    });
+  }
+
+  const scout = agentRegistry.find(
+    (item) => item.id === "opportunity-scout"
+  );
+
+  opportunityScoutRunning = true;
+  scout.status = "running";
+  scout.lastActivity = "Research scan started";
+
+  try {
+    const research = await researchOpportunities(
+      req.body?.topic ||
+        "legitimate ways to make money online through AI automation, affiliate programs, creator programs, freelance work, remote jobs, digital products, and reputable opportunities"
+    );
+
+    const discovered = research.results.map((result, index) => ({
+      id: `opp-${Date.now()}-${index}`,
+      title: result.title,
+      revenueSource: result.source || "Research source",
+      url: result.url,
+      description: result.description,
+      status: "new",
+      discoveredAt: new Date().toISOString()
+    }));
+
+    opportunities.unshift(...discovered);
+    opportunities.splice(100);
+
+    lastOpportunityScoutRun = new Date().toISOString();
+    scout.status = "online";
+    scout.lastActivity =
+      `Research scan completed: ${discovered.length} opportunities found`;
+
+    res.json({
+      status: "success",
+      found: discovered.length,
+      opportunities: discovered,
+      searchedAt: research.searchedAt
+    });
+  } catch (error) {
 app.get("/api/opportunities/status", (req, res) => {
   const opportunityScout = agentRegistry.find(
     (item) => item.id === "opportunity-scout"
