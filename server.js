@@ -1,6 +1,6 @@
 const path = require("path");
 const express = require("express");
-
+const commandCenter = require("./command-center");
 const {
   DEFAULT_RESEARCH_SOURCES,
   getResearchConfig,
