@@ -1,7 +1,7 @@
 const path = require("path");
 const express = require("express");
 const commandCenter = require("./command-center");
-
+const { researchOpportunities } = require("./exa-research");
 const {
   DEFAULT_RESEARCH_SOURCES,
   getResearchConfig
