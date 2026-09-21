@@ -5,6 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
 const agentRegistry = [
   {
     id: "agent1",
@@ -32,19 +33,20 @@ const agentRegistry = [
     status: "not_connected"
   }
 ];
-// Serve website files from the public folder
+
 app.use(express.static(path.join(__dirname, "public")));
 
-// Health check
 app.get("/health", (req, res) => {
   res.json({ status: "online" });
-// Agent registry status
+});
+
 app.get("/api/agents/status", (req, res) => {
-  res.json({});
+  res.json({
     status: "online",
     agents: agentRegistry
   });
 });
+
 app.get("/api/agent1/status", (req, res) => {
   res.json({
     status: "configured",
@@ -57,13 +59,11 @@ app.get("/api/agent1/status", (req, res) => {
     ]
   });
 });
-  // Send homepage
-  app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-    });
 
-    // Start server
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Human Life AI Ecosystem running on port ${PORT}`);
-      });
-      
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Human Life AI Ecosystem running on port ${PORT}`);
+});
