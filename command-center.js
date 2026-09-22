@@ -5,6 +5,15 @@ const state = {
   cycle: 0,
   lastCycleAt: null,
 
+  automation: {
+    enabled: true,
+    intervalMinutes: 5,
+    cursor: 0,
+    lastAgentId: null,
+    lastRunAt: null,
+    lastResult: null
+  },
+
   events: [
     {
       time: startedAt,
@@ -42,6 +51,17 @@ const state = {
 
   assignments: []
 };
+
+const automationOrder = [
+  "opportunity-scout",
+  "affiliate-intelligence",
+  "product-scout",
+  "viral-content",
+  "job-hunter",
+  "analytics",
+  "guardian",
+  "engineering-guardian"
+];
 
 function addEvent(type, message) {
   const event = {
@@ -123,6 +143,63 @@ function failTask(assignmentId, errorMessage) {
   return assignment;
 }
 
+function nextAutomatedAgent(agentRegistry) {
+  if (!state.automation.enabled) {
+    return null;
+  }
+
+  for (let i = 0; i < automationOrder.length; i++) {
+    const index =
+      (state.automation.cursor + i) % automationOrder.length;
+
+    const agentId = automationOrder[index];
+
+    const found = agentRegistry.find(
+      (agent) => agent.id === agentId
+    );
+
+    if (found) {
+      state.automation.cursor =
+        (index + 1) % automationOrder.length;
+
+      return agentId;
+    }
+  }
+
+  return null;
+}
+
+function recordAutomation(result = {}) {
+  state.automation.lastRunAt = new Date().toISOString();
+  state.automation.lastAgentId = result.agentId || null;
+  state.automation.lastResult = result;
+
+  addEvent(
+    "automation",
+    result.message ||
+      `Automation cycle completed for ${result.agentId || "unknown agent"}.`
+  );
+
+  return state.automation;
+}
+
+function setAutomation(enabled, intervalMinutes = 5) {
+  state.automation.enabled = Boolean(enabled);
+  state.automation.intervalMinutes =
+    Number(intervalMinutes) > 0
+      ? Number(intervalMinutes)
+      : 5;
+
+  addEvent(
+    "automation-control",
+    `Continuous automation ${
+      state.automation.enabled ? "enabled" : "disabled"
+    }.`
+  );
+
+  return state.automation;
+}
+
 function runCycle(agentRegistry) {
   state.cycle += 1;
   state.lastCycleAt = new Date().toISOString();
@@ -166,6 +243,8 @@ function getStatus(agentRegistry) {
     cycle: state.cycle,
     lastCycleAt: state.lastCycleAt,
 
+    automation: state.automation,
+
     agents: agentRegistry,
 
     tasks: state.tasks,
@@ -181,5 +260,8 @@ module.exports = {
   getStatus,
   assignTask,
   completeTask,
-  failTask
+  failTask,
+  nextAutomatedAgent,
+  recordAutomation,
+  setAutomation
 };
