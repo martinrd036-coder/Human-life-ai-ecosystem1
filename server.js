@@ -197,7 +197,65 @@ app.post("/api/command-center/cycle", (req, res) => {
     cycle: commandCenter.runCycle(agentRegistry)
   });
 });
+app.post("/api/agents/heartbeat", async (req, res) => {
+  const { agentId, status, activity } = req.body;
 
+  if (!agentId) {
+    return res.status(400).json({
+      status: "error",
+      message: "agentId is required"
+    });
+  }
+
+  const agent = agentRegistry.find(
+    (item) => item.id === agentId
+  );
+
+  if (!agent) {
+    return res.status(404).json({
+      status: "error",
+      message: "Agent not found"
+    });
+  }
+
+  const heartbeatStatus = status || "online";
+  const heartbeatActivity =
+    activity || "Heartbeat received";
+  const heartbeatTime =
+    new Date().toISOString();
+
+  await pool.query(
+    `
+    INSERT INTO agent_heartbeats (
+      agent_id,
+      status,
+      activity,
+      last_heartbeat
+    )
+    VALUES ($1, $2, $3, $4)
+    ON CONFLICT (agent_id)
+    DO UPDATE SET
+      status = EXCLUDED.status,
+      activity = EXCLUDED.activity,
+      last_heartbeat = EXCLUDED.last_heartbeat
+    `,
+    [
+      agentId,
+      heartbeatStatus,
+      heartbeatActivity,
+      heartbeatTime
+    ]
+  );
+
+  agent.status = heartbeatStatus;
+  agent.lastActivity = heartbeatActivity;
+  agent.lastHeartbeat = heartbeatTime;
+
+  res.json({
+    status: "heartbeat_received",
+    agent
+  });
+});
 app.get("/api/agents/status", (req, res) => {
   res.json({
     status: "online",
