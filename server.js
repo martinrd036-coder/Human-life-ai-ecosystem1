@@ -83,7 +83,12 @@ async function init(){
 
 async function beat(id,status,activity){
  const t=new Date().toISOString();
-
+ await pool.query(`
+  ALTER TABLE opportunities
+  ADD COLUMN IF NOT EXISTS evidence_score INTEGER,
+  ADD COLUMN IF NOT EXISTS testability_score INTEGER,
+  ADD COLUMN IF NOT EXISTS experiment_plan JSONB
+ `);
  await pool.query(
   `INSERT INTO agent_heartbeats(
     agent_id,status,activity,last_heartbeat
