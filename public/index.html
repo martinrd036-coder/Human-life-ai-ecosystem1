@@ -60,19 +60,25 @@ a{
 <h2>Command Center</h2>
 
 <p id="status">🟡 Checking status...</p>
+
+<button onclick="runCycle()">
+Run Command Center
+</button>
+</div>
+
+
 <div class="card">
 <h2>Command Center Activity</h2>
 
 <p id="cc-status">🟡 Checking Command Center...</p>
-<p id="cc-cycle">Cycle: --</p>
-<p id="cc-agents">Agents reporting: --</p>
-<p id="cc-assignments">Active assignments: --</p>
-<p id="cc-events">Recent activity: --</p>
 
-</div>
-<button onclick="runCycle()">
-Run Command Center
-</button>
+<p id="cc-cycle">Cycle: --</p>
+
+<p id="cc-agents">Agents reporting: --</p>
+
+<p id="cc-assignments">Active assignments: --</p>
+
+<p id="cc-events">Recent activity: --</p>
 </div>
 
 
@@ -153,12 +159,12 @@ const d=await r.json();
 
 document.getElementById('status').textContent=
 '🟢 Command Center online — '+
-d.agents.length+
+(d.agents || []).length+
 ' registered agents.';
 
 document.getElementById('cycle').textContent=
 'Last cycle: '+
-(d.cycle||0);
+(d.cycle || 0);
 
 }catch(e){
 
@@ -170,325 +176,67 @@ document.getElementById('status').textContent=
 }
 
 
+async function loadCommandCenterActivity(){
+
+try{
+
+const r=await fetch('/api/command-center/status');
+
+const d=await r.json();
+
+const agents=d.agents || [];
+
+const assignments=d.assignments || [];
+
+const events=d.events || [];
+
+const onlineAgents=agents.filter(
+agent => agent.status === 'online'
+).length;
+
+const activeAssignments=assignments.filter(
+task =>
+task.status === 'assigned' ||
+task.status === 'running'
+).length;
+
+const recentEvent=events.length
+? events[0].message
+: 'No events recorded yet.';
+
+document.getElementById('cc-status').textContent=
+'🟢 Command Center online';
+
+document.getElementById('cc-cycle').textContent=
+'Cycle: '+
+(d.cycle || 0);
+
+document.getElementById('cc-agents').textContent=
+'Agents reporting: '+
+onlineAgents+
+'/'+
+agents.length;
+
+document.getElementById('cc-assignments').textContent=
+'Active assignments: '+
+activeAssignments;
+
+document.getElementById('cc-events').textContent=
+'Recent activity: '+
+recentEvent;
+
+}catch(e){
+
+document.getElementById('cc-status').textContent=
+'🔴 Could not load Command Center activity.';
+
+}
+
+}
+
+
 async function runCycle(){
 
 try{
 
 const r=await fetch(
-'/api/command-center/cycle',
-{
-method:'POST'
-}
-);
-
-const d=await r.json();
-
-const c=d.cycle;
-
-document.getElementById('cycle').textContent=
-'🟢 Cycle #'+
-c.cycle+
-' completed — '+
-c.onlineAgents+
-'/'+
-c.totalAgents+
-' agents reporting.';
-
-alert(
-'Command Center cycle #'+
-c.cycle+
-' completed.'
-);
-
-}catch(e){
-
-alert(
-'Command Center error: '+
-e.message
-);
-
-}
-
-}
-
-async function loadSavedOpportunities(){
-
-const results=
-document.getElementById('scout-results');
-
-try{
-
-const r=await fetch('/api/opportunities');
-
-const d=await r.json();
-
-if(
-!d.opportunities ||
-d.opportunities.length===0
-){
-
-results.innerHTML=
-'<div class="result">'+
-'No saved opportunities yet.'+
-'</div>';
-
-return;
-
-}
-
-results.innerHTML='';
-
-d.opportunities.forEach(item=>{
-
-const div=document.createElement('div');
-
-div.className='result';
-
-div.innerHTML=
-'<strong>'+
-escapeHtml(
-item.title||
-'Untitled opportunity'
-)+
-'</strong><br><small>'+
-escapeHtml(
-item.revenueSource||
-'Research source'
-)+
-'</small><br>'+
-escapeHtml(
-item.description||
-''
-)+
-(
-item.url
-?
-'<br><a href="'+
-escapeHtml(item.url)+
-'" target="_blank" rel="noopener">'+
-'Open source</a>'
-:
-''
-);
-
-results.appendChild(div);
-
-});
-
-}catch(e){
-
-results.innerHTML=
-'<div class="result">'+
-'Could not load saved opportunities.'+
-'</div>';
-
-}
-
-}
-async function runOpportunityScout(){
-
-const button=
-document.getElementById('scout-button');
-
-const status=
-document.getElementById('scout-status');
-
-const results=
-document.getElementById('scout-results');
-
-button.disabled=true;
-
-status.textContent=
-'🔵 Opportunity Scout is researching...';
-
-results.innerHTML='';
-
-
-try{
-
-const r=await fetch(
-'/api/opportunity-scout/run',
-{
-method:'POST',
-headers:{
-'Content-Type':'application/json'
-}
-}
-);
-
-const d=await r.json();
-
-
-if(!r.ok){
-
-status.textContent=
-'🟠 Scout could not run: '+
-(d.message||'Unknown error');
-
-return;
-
-}
-
-
-status.textContent=
-'🟢 Research completed — '+
-d.found+
-' opportunities found.';
-
-
-if(
-!d.opportunities ||
-d.opportunities.length===0
-){
-
-results.innerHTML=
-'<div class="result">'+
-'No opportunities were returned from this scan.'+
-'</div>';
-
-return;
-
-}
-
-
-d.opportunities.forEach(item=>{
-
-const div=document.createElement('div');
-
-div.className='result';
-
-div.innerHTML=
-'<strong>'+
-escapeHtml(
-item.title||
-'Untitled opportunity'
-)+
-'</strong><br><small>'+
-escapeHtml(
-item.revenueSource||
-'Research source'
-)+
-'</small><br>'+
-escapeHtml(
-item.description||
-''
-)+
-(
-item.url
-?
-'<br><a href="'+
-escapeHtml(item.url)+
-'" target="_blank" rel="noopener">'+
-'Open source</a>'
-:
-''
-);
-
-results.appendChild(div);
-
-});
-
-}catch(e){
-
-status.textContent=
-'🔴 Scout error: '+
-e.message;
-
-}finally{
-
-button.disabled=false;
-
-}
-
-}
-
-
-function escapeHtml(value){
-
-return String(value).replace(
-/[&<>"']/g,
-function(char){
-
-return {
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#039;'
-}[char];
-
-}
-);
-
-}
-
-
-window.addEventListener(
-'load',
-checkStatus
-);
-window.addEventListener(
-'load',
-loadSavedOpportunities
-);
-</script>
- window.addEventListener(
-'load',
-loadCommandCenterActivity
-); 
-
-async function loadCommandCenterActivity(){
-
-  try{
-
-    const r = await fetch('/api/command-center/status');
-    const d = await r.json();
-
-    const agents = d.agents || [];
-    const assignments = d.assignments || [];
-    const events = d.events || [];
-
-    const onlineAgents = agents.filter(
-      agent => agent.status === 'online'
-    ).length;
-
-    const activeAssignments = assignments.filter(
-      task =>
-        task.status === 'assigned' ||
-        task.status === 'running'
-    ).length;
-
-    const recentEvent = events.length
-      ? events[0].message
-      : 'No events recorded yet.';
-
-    document.getElementById('cc-status').textContent =
-      '🟢 Command Center online';
-
-    document.getElementById('cc-cycle').textContent =
-      'Cycle: ' + (d.cycle || 0);
-
-    document.getElementById('cc-agents').textContent =
-      'Agents reporting: ' +
-      onlineAgents +
-      '/' +
-      agents.length;
-
-    document.getElementById('cc-assignments').textContent =
-      'Active assignments: ' +
-      activeAssignments;
-
-    document.getElementById('cc-events').textContent =
-      'Recent activity: ' +
-      recentEvent;
-
-  }catch(error){
-
-    document.getElementById('cc-status').textContent =
-      '🔴 Could not load Command Center activity.';
-
-  }
-
-}
-</body>
-</html>
