@@ -294,7 +294,6 @@ app.post("/api/opportunity-scout/run", async (req, res) => {
       message: "Opportunity Scout is already running."
     });
   }
-
   if (
     lastOpportunityScoutRun &&
     Date.now() - new Date(lastOpportunityScoutRun).getTime() <
@@ -312,8 +311,31 @@ app.post("/api/opportunity-scout/run", async (req, res) => {
   );
 
   opportunityScoutRunning = true;
-  scout.status = "running";
-  scout.lastActivity = "Research scan started";
+ scout.status = "running";
+scout.lastActivity = "Research scan started";
+
+await pool.query(
+  `
+  INSERT INTO agent_heartbeats (
+    agent_id,
+    status,
+    activity,
+    last_heartbeat
+  )
+  VALUES ($1, $2, $3, $4)
+  ON CONFLICT (agent_id)
+  DO UPDATE SET
+    status = EXCLUDED.status,
+    activity = EXCLUDED.activity,
+    last_heartbeat = EXCLUDED.last_heartbeat
+  `,
+  [
+    scout.id,
+    "running",
+    "Research scan started",
+    new Date().toISOString()
+  ]
+);
 
   try {
     const research = await researchOpportunities(
