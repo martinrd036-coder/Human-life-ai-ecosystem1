@@ -197,7 +197,38 @@ app.get("/api/agents/status", (req, res) => {
     agents: agentRegistry
   });
 });
+app.post("/api/agents/heartbeat", (req, res) => {
+  const { agentId, status, activity } = req.body;
 
+  if (!agentId) {
+    return res.status(400).json({
+      status: "error",
+      message: "agentId is required"
+    });
+  }
+
+  const agent = agentRegistry.find(
+    (item) => item.id === agentId
+  );
+
+  if (!agent) {
+    return res.status(404).json({
+      status: "error",
+      message: "Agent not found"
+    });
+  }
+
+  agent.status = status || "online";
+  agent.lastActivity =
+    activity || "Heartbeat received";
+  agent.lastHeartbeat =
+    new Date().toISOString();
+
+  res.json({
+    status: "heartbeat_received",
+    agent
+  });
+});
 app.get("/api/agent1/status", (req, res) => {
   const agent = agentRegistry.find((item) => item.id === "agent1");
 
