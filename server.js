@@ -256,12 +256,60 @@ app.post("/api/agents/heartbeat", async (req, res) => {
     agent
   });
 });
-app.get("/api/agents/status", (req, res) => {
-  res.json({
-    status: "online",
-    totalAgents: agentRegistry.length,
-    agents: agentRegistry
-  });
+app.get("/api/agents/status", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        agent_id,
+        status,
+        activity,
+        last_heartbeat AS "lastHeartbeat"
+      FROM agent_heartbeats
+    `);
+
+    const heartbeatMap = {};
+
+    result.rows.forEach((heartbeat) => {
+      heartbeatMap[heartbeat.agent_id] = heartbeat;
+    });
+
+    const agents = agentRegistry.map((agent) => {
+      const heartbeat = heartbeatMap[agent.id];
+
+      if (!heartbeat) {
+        return {
+          ...agent,
+          status: "not_reporting",
+          heartbeat: null
+        };
+      }
+
+      return {
+        ...agent,
+        status: heartbeat.status,
+        lastActivity: heartbeat.activity,
+        lastHeartbeat: heartbeat.lastHeartbeat,
+        heartbeat: "received"
+      };
+    });
+
+    res.json({
+      status: "online",
+      totalAgents: agents.length,
+      reportingAgents: agents.filter(
+        (agent) =>
+          agent.status === "online" ||
+          agent.status === "running"
+      ).length,
+      agents
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
 });
 
 app.get("/api/agent1/status", (req, res) => {
