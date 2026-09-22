@@ -505,7 +505,56 @@ button.disabled=false;
 
 }
 
+async function runAgent(agentId, agentName){
 
+const result=document.getElementById('agent-result');
+const buttons=document.querySelectorAll('#agent-controls button');
+
+buttons.forEach(button=>button.disabled=true);
+
+result.textContent='🔵 '+agentName+' is working...';
+
+try{
+
+const r=await fetch('/api/agents/run',{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+},
+body:JSON.stringify({
+agentId:agentId
+})
+});
+
+const d=await r.json();
+
+if(!r.ok){
+throw new Error(
+d.message ||
+d.error ||
+'Agent request failed.'
+);
+}
+
+result.textContent=
+'🟢 '+agentName+
+' completed successfully.';
+
+await loadCommandCenterActivity();
+
+}catch(e){
+
+result.textContent=
+'🔴 '+agentName+
+' failed: '+e.message;
+
+}finally{
+
+buttons.forEach(button=>button.disabled=false);
+
+}
+
+  }
 function escapeHtml(value){
 
 return String(value).replace(
