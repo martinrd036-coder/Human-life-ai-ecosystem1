@@ -191,11 +191,56 @@ app.get("/api/command-center/status", (req, res) => {
   res.json(commandCenter.getStatus(agentRegistry));
 });
 
-app.post("/api/command-center/cycle", (req, res) => {
-  res.json({
-    status: "success",
-    cycle: commandCenter.runCycle(agentRegistry)
-  });
+app.post("/api/command-center/cycle", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        agent_id,
+        status,
+        activity,
+        last_heartbeat AS "lastHeartbeat"
+      FROM agent_heartbeats
+    `);
+
+    const heartbeatMap = {};
+
+    result.rows.forEach((heartbeat) => {
+      heartbeatMap[heartbeat.agent_id] = heartbeat;
+    });
+
+    const currentAgents = agentRegistry.map((agent) => {
+      const heartbeat = heartbeatMap[agent.id];
+
+      if (!heartbeat) {
+        return {
+          ...agent,
+          status: "not_reporting"
+        };
+      }
+
+      return {
+        ...agent,
+        status: heartbeat.status,
+        lastActivity: heartbeat.activity,
+        lastHeartbeat: heartbeat.lastHeartbeat
+      };
+    });
+
+    const cycle = commandCenter.runCycle(
+      currentAgents
+    );
+
+    res.json({
+      status: "success",
+      cycle
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message
+    });
+  }
 });
 app.post("/api/agents/heartbeat", async (req, res) => {
   const { agentId, status, activity } = req.body;
