@@ -201,6 +201,17 @@ async function scout(topic){
    cost:"Unknown",
    riskNotes:"Verify terms and eligibility before acting.",
    status:"new",
+   evidenceScore:scoreOpportunity(x).evidenceScore,
+testabilityScore:scoreOpportunity(x).testabilityScore,
+experimentPlan:buildExperimentPlan({
+ id:`opp-${Date.now()}-${i}`,
+ title:x.title,
+ revenueSource:x.source||"Research source",
+ url:x.url||null,
+ description:x.description||null,
+ cost:"Unknown",
+ riskNotes:"Verify terms and eligibility before acting."
+}),
    discoveredAt:new Date().toISOString()
   }));
 
