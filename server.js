@@ -193,6 +193,31 @@ app.get("/api/command-center/status", (req, res) => {
 
 app.post("/api/command-center/cycle", async (req, res) => {
   try {
+    const heartbeatTime = new Date().toISOString();
+
+    await pool.query(
+      `
+      INSERT INTO agent_heartbeats (
+        agent_id,
+        status,
+        activity,
+        last_heartbeat
+      )
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (agent_id)
+      DO UPDATE SET
+        status = EXCLUDED.status,
+        activity = EXCLUDED.activity,
+        last_heartbeat = EXCLUDED.last_heartbeat
+      `,
+      [
+        "agent1",
+        "online",
+        "Command Center cycle running",
+        heartbeatTime
+      ]
+    );
+
     const result = await pool.query(`
       SELECT
         agent_id,
