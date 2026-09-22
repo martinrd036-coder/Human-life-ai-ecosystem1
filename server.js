@@ -1,728 +1,287 @@
-const path = require("path");
-const express = require("express");
-const { Pool } = require("pg");
-const commandCenter = require("./command-center");
-const {
-  assignTask,
-  completeTask,
-  failTask
-} = commandCenter;
-const { researchOpportunities } = require("./exa-research");
+const path=require("path");
+const express=require("express");
+const {Pool}=require("pg");
+const commandCenter=require("./command-center");
+const {researchOpportunities}=require("./exa-research");
+const {DEFAULT_RESEARCH_SOURCES,getResearchConfig}=require("./research");
 
-const {
-  DEFAULT_RESEARCH_SOURCES,
-  getResearchConfig
-} = require("./research");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL
-    ? { rejectUnauthorized: false }
-    : false
-});
-
+const app=express(),PORT=process.env.PORT||3000,COOLDOWN=15*60*1000;
+const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.DATABASE_URL?{rejectUnauthorized:false}:false});
 app.use(express.json());
+app.use(express.static(path.join(__dirname,"public")));
 
-async function initializeDatabase() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS opportunities (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      revenue_source TEXT NOT NULL,
-      url TEXT,
-      description TEXT,
-      estimated_potential TEXT,
-      difficulty TEXT,
-      cost TEXT,
-      risk_notes TEXT,
-      status TEXT NOT NULL,
-      discovered_at TIMESTAMPTZ NOT NULL
-    )
-  `);
+const agentRegistry=[
+["agent1","Command Center","Coordinate the ecosystem and direct work"],
+["affiliate-intelligence","Affiliate Intelligence","Find and analyze affiliate opportunities"],
+["viral-content","Viral Content Agent","Discover and develop content opportunities"],
+["job-hunter","Job Hunter Agent","Find legitimate jobs and online income opportunities"],
+["analytics","Analytics Agent","Track activity, opportunities, experiments, and revenue data"],
+["opportunity-scout","Opportunity Scout","Discover and prioritize legitimate revenue opportunities"],
+["product-scout","Product Scout","Find products with affiliate and content potential"],
+["guardian","Guardian","Monitor the ecosystem and protect operations"],
+["engineering-guardian","Engineering Guardian","Monitor, diagnose, test, and verify the system"]
+].map(([id,name,purpose])=>({id,name,purpose,status:"not_reporting",lastActivity:"Waiting for heartbeat"}));
 
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS agent_heartbeats (
-      agent_id TEXT PRIMARY KEY,
-      status TEXT NOT NULL,
-      activity TEXT,
-      last_heartbeat TIMESTAMPTZ NOT NULL
-    )
-  `);
+let lastScoutRun=null,scoutRunning=false;
+const agent=id=>agentRegistry.find(a=>a.id===id);
+
+async function init(){
+ await pool.query(`CREATE TABLE IF NOT EXISTS opportunities(id TEXT PRIMARY KEY,title TEXT NOT NULL,revenue_source TEXT NOT NULL,url TEXT,description TEXT,estimated_potential TEXT,difficulty TEXT,cost TEXT,risk_notes TEXT,status TEXT NOT NULL,discovered_at TIMESTAMPTZ NOT NULL)`);
+ await pool.query(`CREATE TABLE IF NOT EXISTS agent_heartbeats(agent_id TEXT PRIMARY KEY,status TEXT NOT NULL,activity TEXT,last_heartbeat TIMESTAMPTZ NOT NULL)`);
+ await pool.query(`CREATE TABLE IF NOT EXISTS agent_runs(id TEXT PRIMARY KEY,agent_id TEXT NOT NULL,status TEXT NOT NULL,activity TEXT,result JSONB,started_at TIMESTAMPTZ NOT NULL,completed_at TIMESTAMPTZ)`);
 }
-let lastOpportunityScoutRun = null;
-let opportunityScoutRunning = false;
 
-const OPPORTUNITY_SCOUT_COOLDOWN_MS = 15 * 60 * 1000;
-
-const agentRegistry = [
-  {
-    id: "agent1",
-    name: "Command Center",
-    purpose: "Coordinate the AI Agent Ecosystem and direct work between agents",
-    status: "online",
-    lastActivity: "System connected"
-  },
-  {
-    id: "affiliate-intelligence",
-    name: "Affiliate Intelligence",
-    purpose: "Find and analyze affiliate opportunities",
-    status: "not_connected",
-    lastActivity: "Not connected yet"
-  },
-  {
-    id: "viral-content",
-    name: "Viral Content Agent",
-    purpose: "Discover and develop viral content opportunities",
-    status: "not_connected",
-    lastActivity: "Not connected yet"
-  },
-  {
-    id: "job-hunter",
-    name: "Job Hunter Agent",
-    purpose: "Find legitimate online income and job opportunities",
-    status: "not_connected",
-    lastActivity: "Not connected yet"
-  },
-  {
-    id: "analytics",
-    name: "Analytics Agent",
-    purpose: "Track performance, revenue, and experiments",
-    status: "not_connected",
-    lastActivity: "Not connected yet"
-  },
-  {
-    id: "opportunity-scout",
-    name: "Opportunity Scout",
-    purpose: "Discover and prioritize legitimate revenue opportunities",
-    status: "building",
-    lastActivity: "Agent registry created"
-  },
-  {
-    id: "product-scout",
-    name: "Product Scout",
-    purpose: "Find products with affiliate and content potential",
-    status: "building",
-    lastActivity: "Waiting for activation"
-  },
-  {
-    id: "guardian",
-    name: "Guardian",
-    purpose: "Monitor the ecosystem and protect system operations",
-    status: "building",
-    lastActivity: "Waiting for activation"
-  },
-  {
-    id: "engineering-guardian",
-    name: "Engineering Guardian",
-    purpose: "Monitor, diagnose, repair, test, and verify the ecosystem",
-    status: "building",
-    lastActivity: "Engineer specification created"
-  }
-];
-
-app.use(express.static(path.join(__dirname, "public")));
-
-app.get("/health", (req, res) => {
-  res.json({
-    status: "online",
-    service: "Human Life AI Ecosystem"
-  });
-});
-app.post("/api/command-center/assign", (req, res) => {
-  const { agentId, taskName, details } = req.body;
-
-  if (!agentId || !taskName) {
-    return res.status(400).json({
-      error: "agentId and taskName are required"
-    });
-  }
-
-  const assignment = assignTask(agentId, taskName, details || {});
-
-  res.json({
-    status: "assigned",
-    assignment
-  });
-});
-
-app.post("/api/command-center/complete", (req, res) => {
-  const { assignmentId, result } = req.body;
-
-  const assignment = completeTask(
-    assignmentId,
-    result || {}
-  );
-
-  if (!assignment) {
-    return res.status(404).json({
-      error: "Assignment not found"
-    });
-  }
-
-  res.json({
-    status: "completed",
-    assignment
-  });
-});
-
-app.post("/api/command-center/fail", (req, res) => {
-  const { assignmentId, errorMessage } = req.body;
-
-  const assignment = failTask(
-    assignmentId,
-    errorMessage || "Unknown error"
-  );
-
-  if (!assignment) {
-    return res.status(404).json({
-      error: "Assignment not found"
-    });
-  }
-
-  res.json({
-    status: "failed",
-    assignment
-  });
-});
-app.get("/api/command-center/status", (req, res) => {
-  res.json(commandCenter.getStatus(agentRegistry));
-});
-
-app.post("/api/command-center/cycle", async (req, res) => {
-  try {
-    const heartbeatTime = new Date().toISOString();
-
-    await pool.query(
-      `
-      INSERT INTO agent_heartbeats (
-        agent_id,
-        status,
-        activity,
-        last_heartbeat
-      )
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (agent_id)
-      DO UPDATE SET
-        status = EXCLUDED.status,
-        activity = EXCLUDED.activity,
-        last_heartbeat = EXCLUDED.last_heartbeat
-      `,
-      [
-        "agent1",
-        "online",
-        "Command Center cycle running",
-        heartbeatTime
-      ]
-    );
-
-    const result = await pool.query(`
-      SELECT
-        agent_id,
-        status,
-        activity,
-        last_heartbeat AS "lastHeartbeat"
-      FROM agent_heartbeats
-    `);
-
-    const heartbeatMap = {};
-
-    result.rows.forEach((heartbeat) => {
-      heartbeatMap[heartbeat.agent_id] = heartbeat;
-    });
-
-    const currentAgents = agentRegistry.map((agent) => {
-      const heartbeat = heartbeatMap[agent.id];
-
-      if (!heartbeat) {
-        return {
-          ...agent,
-          status: "not_reporting"
-        };
-      }
-
-      return {
-        ...agent,
-        status: heartbeat.status,
-        lastActivity: heartbeat.activity,
-        lastHeartbeat: heartbeat.lastHeartbeat
-      };
-    });
-
-    const cycle = commandCenter.runCycle(
-      currentAgents
-    );
-
-    res.json({
-      status: "success",
-      cycle
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message
-    });
-  }
-});
-app.post("/api/agents/heartbeat", async (req, res) => {
-  const { agentId, status, activity } = req.body;
-
-  if (!agentId) {
-    return res.status(400).json({
-      status: "error",
-      message: "agentId is required"
-    });
-  }
-
-  const agent = agentRegistry.find(
-    (item) => item.id === agentId
-  );
-
-  if (!agent) {
-    return res.status(404).json({
-      status: "error",
-      message: "Agent not found"
-    });
-  }
-
-  const heartbeatStatus = status || "online";
-  const heartbeatActivity =
-    activity || "Heartbeat received";
-  const heartbeatTime =
-    new Date().toISOString();
-
-  await pool.query(
-    `
-    INSERT INTO agent_heartbeats (
-      agent_id,
-      status,
-      activity,
-      last_heartbeat
-    )
-    VALUES ($1, $2, $3, $4)
-    ON CONFLICT (agent_id)
-    DO UPDATE SET
-      status = EXCLUDED.status,
-      activity = EXCLUDED.activity,
-      last_heartbeat = EXCLUDED.last_heartbeat
-    `,
-    [
-      agentId,
-      heartbeatStatus,
-      heartbeatActivity,
-      heartbeatTime
-    ]
-  );
-
-  agent.status = heartbeatStatus;
-  agent.lastActivity = heartbeatActivity;
-  agent.lastHeartbeat = heartbeatTime;
-
-  res.json({
-    status: "heartbeat_received",
-    agent
-  });
-});
-app.get("/api/agents/status", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT
-        agent_id,
-        status,
-        activity,
-        last_heartbeat AS "lastHeartbeat"
-      FROM agent_heartbeats
-    `);
-
-    const heartbeatMap = {};
-
-    result.rows.forEach((heartbeat) => {
-      heartbeatMap[heartbeat.agent_id] = heartbeat;
-    });
-
-    const agents = agentRegistry.map((agent) => {
-      const heartbeat = heartbeatMap[agent.id];
-
-      if (!heartbeat) {
-        return {
-          ...agent,
-          status: "not_reporting",
-          heartbeat: null
-        };
-      }
-
-      return {
-        ...agent,
-        status: heartbeat.status,
-        lastActivity: heartbeat.activity,
-        lastHeartbeat: heartbeat.lastHeartbeat,
-        heartbeat: "received"
-      };
-    });
-
-    res.json({
-      status: "online",
-      totalAgents: agents.length,
-      reportingAgents: agents.filter(
-        (agent) =>
-          agent.status === "online" ||
-          agent.status === "running"
-      ).length,
-      agents
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message
-    });
-  }
-});
-
-app.get("/api/agent1/status", (req, res) => {
-  const agent = agentRegistry.find((item) => item.id === "agent1");
-
-  res.json({
-    status: "online",
-    agent
-  });
-});
-
-app.get("/api/guardian/status", (req, res) => {
-  const guardian = agentRegistry.find((item) => item.id === "guardian");
-
-  const engineeringGuardian = agentRegistry.find(
-    (item) => item.id === "engineering-guardian"
-  );
-
-  res.json({
-    status: "online",
-    guardian,
-    engineeringGuardian
-  });
-});
-
-app.post("/api/opportunity-scout/run", async (req, res) => {
-  if (opportunityScoutRunning) {
-    return res.status(409).json({
-      status: "busy",
-      message: "Opportunity Scout is already running."
-    });
-  }
-  if (
-    lastOpportunityScoutRun &&
-    Date.now() - new Date(lastOpportunityScoutRun).getTime() <
-      OPPORTUNITY_SCOUT_COOLDOWN_MS
-  ) {
-    return res.status(429).json({
-      status: "cooldown",
-      message: "Opportunity Scout recently ran.",
-      lastRunAt: lastOpportunityScoutRun
-    });
-  }
-
-  const scout = agentRegistry.find(
-    (item) => item.id === "opportunity-scout"
-  );
-
-  opportunityScoutRunning = true;
-scout.status = "online";
-scout.lastActivity =
-  `Research scan completed: ${discovered.length} opportunities found and saved`;
-
-await pool.query(
-  `
-  INSERT INTO agent_heartbeats (
-    agent_id,
-    status,
-    activity,
-    last_heartbeat
-  )
-  VALUES ($1, $2, $3, $4)
-  ON CONFLICT (agent_id)
-  DO UPDATE SET
-    status = EXCLUDED.status,
-    activity = EXCLUDED.activity,
-    last_heartbeat = EXCLUDED.last_heartbeat
-  `,
-  [
-    scout.id,
-    "online",
-    scout.lastActivity,
-    new Date().toISOString()
-  ]
-);
-
-  try {
-    const research = await researchOpportunities(
-      req.body?.topic ||
-        "legitimate ways to make money online through AI automation, affiliate programs, creator programs, freelance work, remote jobs, digital products, and reputable opportunities"
-    );
-
-    const discovered = research.results.map((result, index) => ({
-      id: `opp-${Date.now()}-${index}`,
-      title: result.title,
-      revenueSource: result.source || "Research source",
-      url: result.url || null,
-      description: result.description || null,
-      estimatedPotential: "Unknown",
-      difficulty: "Unknown",
-      cost: "Unknown",
-      riskNotes: "None provided",
-      status: "new",
-      discoveredAt: new Date().toISOString()
-    }));
-
-    for (const opportunity of discovered) {
-      await pool.query(
-        `
-        INSERT INTO opportunities (
-          id,
-          title,
-          revenue_source,
-          url,
-          description,
-          estimated_potential,
-          difficulty,
-          cost,
-          risk_notes,
-          status,
-          discovered_at
-        )
-        VALUES (
-          $1,
-          $2,
-          $3,
-          $4,
-          $5,
-          $6,
-          $7,
-          $8,
-          $9,
-          $10,
-          $11
-        )
-        ON CONFLICT (id) DO NOTHING
-        `,
-        [
-          opportunity.id,
-          opportunity.title,
-          opportunity.revenueSource,
-          opportunity.url,
-          opportunity.description,
-          opportunity.estimatedPotential,
-          opportunity.difficulty,
-          opportunity.cost,
-          opportunity.riskNotes,
-          opportunity.status,
-          opportunity.discoveredAt
-        ]
-      );
-    }
-
-    lastOpportunityScoutRun = new Date().toISOString();
-
-    scout.status = "online";
-    scout.lastActivity =
-      `Research scan completed: ${discovered.length} opportunities found and saved`;
-
-    res.json({
-      status: "success",
-      found: discovered.length,
-      saved: discovered.length,
-      opportunities: discovered,
-      searchedAt: research.searchedAt
-    });
-  } catch (error) {
-    scout.status = "error";
-    scout.lastActivity = "Research scan failed";
-
-    res.status(500).json({
-      status: "error",
-      message: error.message
-    });
-  } finally {
-    opportunityScoutRunning = false;
-  }
-});
-
-app.get("/api/opportunities/status", async (req, res) => {
-  const opportunityScout = agentRegistry.find(
-    (item) => item.id === "opportunity-scout"
-  );
-
-  try {
-    const result = await pool.query(`
-      SELECT
-        id,
-        title,
-        revenue_source AS "revenueSource",
-        url,
-        description,
-        estimated_potential AS "estimatedPotential",
-        difficulty,
-        cost,
-        risk_notes AS "riskNotes",
-        status,
-        discovered_at AS "discoveredAt"
-      FROM opportunities
-      ORDER BY discovered_at DESC
-      LIMIT 100
-    `);
-
-    res.json({
-      status: opportunityScout.status,
-      agent: opportunityScout,
-      lastRunAt: lastOpportunityScoutRun,
-      running: opportunityScoutRunning,
-      opportunities: result.rows
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message
-    });
-  }
-});
-
-app.get("/api/research/config", (req, res) => {
-  const config = getResearchConfig();
-
-  res.json({
-    status: "ready",
-    provider: config.provider,
-    apiKeyConfigured: config.apiKeyConfigured,
-    sources: DEFAULT_RESEARCH_SOURCES
-  });
-});
-
-app.get("/api/opportunities", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT
-        id,
-        title,
-        revenue_source AS "revenueSource",
-        url,
-        description,
-        estimated_potential AS "estimatedPotential",
-        difficulty,
-        cost,
-        risk_notes AS "riskNotes",
-        status,
-        discovered_at AS "discoveredAt"
-      FROM opportunities
-      ORDER BY discovered_at DESC
-      LIMIT 100
-    `);
-
-    res.json({
-      status: "ready",
-      agent: "Opportunity Scout",
-      opportunities: result.rows,
-      message: "Opportunity Scout is ready to continue scanning."
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message
-    });
-  }
-});
-
-app.post("/api/opportunities", async (req, res) => {
-  if (!req.body.title || !req.body.revenueSource) {
-    return res.status(400).json({
-      status: "error",
-      message: "An opportunity must have a title and revenue source."
-    });
-  }
-
-  const opportunity = {
-    id: `opp-${Date.now()}`,
-    title: req.body.title,
-    revenueSource: req.body.revenueSource,
-    url: req.body.url || null,
-    description: req.body.description || null,
-    estimatedPotential: req.body.estimatedPotential || "Unknown",
-    difficulty: req.body.difficulty || "Unknown",
-    cost: req.body.cost || "Unknown",
-    riskNotes: req.body.riskNotes || "None provided",
-    status: "new",
-    discoveredAt: new Date().toISOString()
+async function beat(id,status,activity){
+ const t=new Date().toISOString();
+ await pool.query(`INSERT INTO agent_heartbeats(agent_id,status,activity,last_heartbeat) VALUES($1,$2,$3,$4) ON CONFLICT(agent_id) DO UPDATE SET status=EXCLUDED.status,activity=EXCLUDED.activity,last_heartbeat=EXCLUDED.last_heartbeat`,[id,status,activity,t]);
+}
+
+async function agents(){
+ const r=await pool.query(`SELECT agent_id,status,activity,last_heartbeat AS "lastHeartbeat" FROM agent_heartbeats`);
+ const m=Object.fromEntries(r.rows.map(x=>[x.agent_id,x]));
+ return agentRegistry.map(a=>m[a.id]?{...a,status:m[a.id].status,lastActivity:m[a.id].activity,lastHeartbeat:m[a.id].lastHeartbeat,heartbeat:"received"}:{...a,status:"not_reporting",heartbeat:null});
+}
+
+async function runLog(id,status,activity,result,start){
+ await pool.query(`INSERT INTO agent_runs(id,agent_id,status,activity,result,started_at,completed_at) VALUES($1,$2,$3,$4,$5,$6,$7)`,[`run-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,id,status,activity,JSON.stringify(result||{}),start,new Date().toISOString()]);
+}
+
+async function scout(topic){
+ if(scoutRunning)throw Object.assign(new Error("Opportunity Scout is already running."),{code:"busy"});
+ if(lastScoutRun&&Date.now()-new Date(lastScoutRun).getTime()<COOLDOWN)throw Object.assign(new Error("Opportunity Scout recently ran."),{code:"cooldown",lastRunAt:lastScoutRun});
+
+ scoutRunning=true;
+ const start=new Date().toISOString();
+ await beat("opportunity-scout","running","Research scan started");
+
+ try{
+  const r=await researchOpportunities(topic||"legitimate ways to make money online through AI automation, affiliate programs, creator programs, freelance work, remote jobs, digital products, and reputable opportunities");
+
+  const items=r.results.map((x,i)=>({
+   id:`opp-${Date.now()}-${i}`,
+   title:x.title,
+   revenueSource:x.source||"Research source",
+   url:x.url||null,
+   description:x.description||null,
+   estimatedPotential:"Unknown",
+   difficulty:"Unknown",
+   cost:"Unknown",
+   riskNotes:"Verify terms and eligibility before acting.",
+   status:"new",
+   discoveredAt:new Date().toISOString()
+  }));
+
+  for(const x of items)await pool.query(`INSERT INTO opportunities(id,title,revenue_source,url,description,estimated_potential,difficulty,cost,risk_notes,status,discovered_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT(id) DO NOTHING`,[x.id,x.title,x.revenueSource,x.url,x.description,x.estimatedPotential,x.difficulty,x.cost,x.riskNotes,x.status,x.discoveredAt]);
+
+  lastScoutRun=new Date().toISOString();
+  const activity=`Research scan completed: ${items.length} opportunities found and saved`;
+
+  await beat("opportunity-scout","online",activity);
+  await runLog("opportunity-scout","completed",activity,{found:items.length,saved:items.length},start);
+
+  return{found:items.length,saved:items.length,opportunities:items,searchedAt:r.searchedAt};
+ }catch(e){
+  const activity=`Research scan failed: ${e.message}`;
+  await beat("opportunity-scout","error",activity);
+  await runLog("opportunity-scout","failed",activity,{error:e.message},start);
+  throw e;
+ }finally{
+  scoutRunning=false;
+ }
+}
+
+async function work(id,details={}){
+ if(!agent(id))throw Object.assign(new Error("Agent not found"),{code:"not_found"});
+ if(id==="opportunity-scout")return scout(details.topic);
+
+ const start=new Date().toISOString();
+ await beat(id,"running","Work started");
+ let result={};
+
+ try{
+  const queries={
+   "affiliate-intelligence":"official affiliate programs legitimate current requirements commissions",
+   "product-scout":"products with affiliate programs creator content potential official sources",
+   "viral-content":"current content trends video ideas creator opportunities reputable sources",
+   "job-hunter":"legitimate remote jobs hiring official careers no experience opportunities"
   };
 
-  try {
-    await pool.query(
-      `
-      INSERT INTO opportunities (
-        id,
-        title,
-        revenue_source,
-        url,
-        description,
-        estimated_potential,
-        difficulty,
-        cost,
-        risk_notes,
-        status,
-        discovered_at
-      )
-      VALUES (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        $9,
-        $10,
-        $11
-      )
-      `,
-      [
-        opportunity.id,
-        opportunity.title,
-        opportunity.revenueSource,
-        opportunity.url,
-        opportunity.description,
-        opportunity.estimatedPotential,
-        opportunity.difficulty,
-        opportunity.cost,
-        opportunity.riskNotes,
-        opportunity.status,
-        opportunity.discoveredAt
-      ]
-    );
-
-    res.status(201).json({
-      status: "created",
-      opportunity
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: error.message
-    });
+  if(queries[id]){
+   const r=await researchOpportunities(details.topic||queries[id]);
+   result={found:r.results.length,titles:r.results.slice(0,5).map(x=>x.title)};
+  }else if(id==="analytics"){
+   const o=await pool.query("SELECT COUNT(*)::int AS count FROM opportunities");
+   const runs=await pool.query("SELECT COUNT(*)::int AS count FROM agent_runs");
+   result={savedOpportunities:o.rows[0].count,recordedRuns:runs.rows[0].count};
+  }else if(id==="guardian"){
+   await pool.query("SELECT NOW()");
+   const o=await pool.query("SELECT COUNT(*)::int AS count FROM opportunities");
+   result={database:"healthy",opportunities:o.rows[0].count};
+  }else if(id==="engineering-guardian"){
+   await pool.query("SELECT NOW()");
+   result={server:"healthy",database:"reachable",exaConfigured:Boolean(process.env.EXA_API_KEY)};
+  }else{
+   result={message:"Command Center connected."};
   }
+
+  const activity=`Work completed: ${agent(id).name}`;
+  await beat(id,"online",activity);
+  await runLog(id,"completed",activity,result,start);
+  return result;
+ }catch(e){
+  const activity=`Work failed: ${e.message}`;
+  await beat(id,"error",activity);
+  await runLog(id,"failed",activity,{error:e.message},start);
+  throw e;
+ }
+}
+
+app.get("/health",async(req,res)=>{
+ try{
+  await pool.query("SELECT 1");
+  res.json({status:"online",service:"Human Life AI Ecosystem",database:"healthy"});
+ }catch(e){
+  res.status(503).json({status:"error",database:"unavailable",message:e.message});
+ }
 });
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+app.get("/api/command-center/status",async(req,res)=>{
+ try{
+  const a=await agents();
+  res.json({...commandCenter.getStatus(a),agents:a});
+ }catch(e){
+  res.status(500).json({status:"error",message:e.message});
+ }
 });
 
-initializeDatabase()
-  .then(() => {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Human Life AI Ecosystem running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error("Database initialization failed:", error);
-    process.exit(1);
+app.post("/api/command-center/cycle",async(req,res)=>{
+ try{
+  await beat("agent1","online","Command Center cycle running");
+  const a=await agents();
+  res.json({status:"success",cycle:commandCenter.runCycle(a)});
+ }catch(e){
+  res.status(500).json({status:"error",message:e.message});
+ }
+});
+
+app.post("/api/command-center/assign",(req,res)=>{
+ const{agentId,taskName,details}=req.body;
+ if(!agent(agentId)||!taskName)return res.status(400).json({error:"Valid agentId and taskName are required"});
+ res.json({status:"assigned",assignment:commandCenter.assignTask(agentId,taskName,details||{})});
+});
+
+app.post("/api/command-center/complete",(req,res)=>{
+ const a=commandCenter.completeTask(req.body.assignmentId,req.body.result||{});
+ if(!a)return res.status(404).json({error:"Assignment not found"});
+ res.json({status:"completed",assignment:a});
+});
+
+app.post("/api/command-center/fail",(req,res)=>{
+ const a=commandCenter.failTask(req.body.assignmentId,req.body.errorMessage||"Unknown error");
+ if(!a)return res.status(404).json({error:"Assignment not found"});
+ res.json({status:"failed",assignment:a});
+});
+
+app.post("/api/agents/heartbeat",async(req,res)=>{
+ try{
+  if(!agent(req.body.agentId))return res.status(404).json({status:"error",message:"Agent not found"});
+  await beat(req.body.agentId,req.body.status||"online",req.body.activity||"Heartbeat received");
+  res.json({status:"heartbeat_received",agent:agent(req.body.agentId)});
+ }catch(e){
+  res.status(500).json({status:"error",message:e.message});
+ }
+});
+
+app.get("/api/agents/status",async(req,res)=>{
+ try{
+  const a=await agents();
+  const r=await pool.query(`SELECT agent_id AS "agentId",status,activity,started_at AS "startedAt",completed_at AS "completedAt",result FROM agent_runs ORDER BY started_at DESC LIMIT 50`);
+  res.json({
+   status:"online",
+   totalAgents:a.length,
+   reportingAgents:a.filter(x=>x.status==="online"||x.status==="running").length,
+   agents:a,
+   recentRuns:r.rows
   });
+ }catch(e){
+  res.status(500).json({status:"error",message:e.message});
+ }
+});
+
+app.post("/api/agents/run",async(req,res)=>{
+ try{
+  res.json({status:"success",agentId:req.body.agentId,result:await work(req.body.agentId,req.body.details||{})});
+ }catch(e){
+  res.status(e.code==="busy"?409:e.code==="cooldown"?429:e.code==="not_found"?404:500).json({status:"error",message:e.message,lastRunAt:e.lastRunAt||null});
+ }
+});
+
+app.get("/api/agent1/status",(req,res)=>res.json({status:"online",agent:agent("agent1")}));
+
+app.get("/api/guardian/status",(req,res)=>res.json({status:"online",guardian:agent("guardian"),engineeringGuardian:agent("engineering-guardian")}));
+
+app.post("/api/opportunity-scout/run",async(req,res)=>{
+ try{
+  res.json({status:"success",...(await scout(req.body?.topic))});
+ }catch(e){
+  res.status(e.code==="busy"?409:e.code==="cooldown"?429:500).json({status:"error",message:e.message,lastRunAt:e.lastRunAt||lastScoutRun});
+ }
+});
+
+app.get("/api/opportunities",async(req,res)=>{
+ try{
+  const r=await pool.query(`SELECT id,title,revenue_source AS "revenueSource",url,description,estimated_potential AS "estimatedPotential",difficulty,cost,risk_notes AS "riskNotes",status,discovered_at AS "discoveredAt" FROM opportunities ORDER BY discovered_at DESC LIMIT 100`);
+  res.json({status:"ready",agent:"Opportunity Scout",opportunities:r.rows});
+ }catch(e){
+  res.status(500).json({status:"error",message:e.message});
+ }
+});
+
+app.get("/api/opportunities/status",async(req,res)=>{
+ try{
+  const a=(await agents()).find(x=>x.id==="opportunity-scout");
+  const r=await pool.query(`SELECT id,title,revenue_source AS "revenueSource",url,description,estimated_potential AS "estimatedPotential",difficulty,cost,risk_notes AS "riskNotes",status,discovered_at AS "discoveredAt" FROM opportunities ORDER BY discovered_at DESC LIMIT 100`);
+  res.json({status:a.status,agent:a,lastRunAt:lastScoutRun,running:scoutRunning,opportunities:r.rows});
+ }catch(e){
+  res.status(500).json({status:"error",message:e.message});
+ }
+});
+
+app.post("/api/opportunities",async(req,res)=>{
+ if(!req.body.title||!req.body.revenueSource)return res.status(400).json({status:"error",message:"An opportunity must have a title and revenue source."});
+
+ const x={
+  id:`opp-${Date.now()}`,
+  title:req.body.title,
+  revenueSource:req.body.revenueSource,
+  url:req.body.url||null,
+  description:req.body.description||null,
+  estimatedPotential:req.body.estimatedPotential||"Unknown",
+  difficulty:req.body.difficulty||"Unknown",
+  cost:req.body.cost||"Unknown",
+  riskNotes:req.body.riskNotes||"Verify terms and eligibility before acting.",
+  status:"new",
+  discoveredAt:new Date().toISOString()
+ };
+
+ try{
+  await pool.query(`INSERT INTO opportunities(id,title,revenue_source,url,description,estimated_potential,difficulty,cost,risk_notes,status,discovered_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,[x.id,x.title,x.revenueSource,x.url,x.description,x.estimatedPotential,x.difficulty,x.cost,x.riskNotes,x.status,x.discoveredAt]);
+  res.status(201).json({status:"created",opportunity:x});
+ }catch(e){
+  res.status(500).json({status:"error",message:e.message});
+ }
+});
+
+app.get("/api/research/config",(req,res)=>{
+ const c=getResearchConfig();
+ res.json({status:"ready",provider:c.provider,apiKeyConfigured:c.apiKeyConfigured,sources:DEFAULT_RESEARCH_SOURCES});
+});
+
+app.get("/",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+
+init()
+ .then(()=>app.listen(PORT,"0.0.0.0",()=>console.log(`Human Life AI Ecosystem running on port ${PORT}`)))
+ .catch(e=>{
+  console.error("Database initialization failed:",e);
+  process.exit(1);
+ });
