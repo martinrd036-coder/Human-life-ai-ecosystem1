@@ -432,6 +432,58 @@ window.addEventListener(
 loadSavedOpportunities
 );
 </script>
+async function loadCommandCenterActivity(){
 
+  try{
+
+    const r = await fetch('/api/command-center/status');
+    const d = await r.json();
+
+    const agents = d.agents || [];
+    const assignments = d.assignments || [];
+    const events = d.events || [];
+
+    const onlineAgents = agents.filter(
+      agent => agent.status === 'online'
+    ).length;
+
+    const activeAssignments = assignments.filter(
+      task =>
+        task.status === 'assigned' ||
+        task.status === 'running'
+    ).length;
+
+    const recentEvent = events.length
+      ? events[0].message
+      : 'No events recorded yet.';
+
+    document.getElementById('cc-status').textContent =
+      '🟢 Command Center online';
+
+    document.getElementById('cc-cycle').textContent =
+      'Cycle: ' + (d.cycle || 0);
+
+    document.getElementById('cc-agents').textContent =
+      'Agents reporting: ' +
+      onlineAgents +
+      '/' +
+      agents.length;
+
+    document.getElementById('cc-assignments').textContent =
+      'Active assignments: ' +
+      activeAssignments;
+
+    document.getElementById('cc-events').textContent =
+      'Recent activity: ' +
+      recentEvent;
+
+  }catch(error){
+
+    document.getElementById('cc-status').textContent =
+      '🔴 Could not load Command Center activity.';
+
+  }
+
+}
 </body>
 </html>
