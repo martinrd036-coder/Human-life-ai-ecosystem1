@@ -429,8 +429,9 @@ app.post("/api/opportunity-scout/run", async (req, res) => {
   );
 
   opportunityScoutRunning = true;
- scout.status = "running";
-scout.lastActivity = "Research scan started";
+scout.status = "online";
+scout.lastActivity =
+  `Research scan completed: ${discovered.length} opportunities found and saved`;
 
 await pool.query(
   `
@@ -449,8 +450,8 @@ await pool.query(
   `,
   [
     scout.id,
-    "running",
-    "Research scan started",
+    "online",
+    scout.lastActivity,
     new Date().toISOString()
   ]
 );
