@@ -84,6 +84,7 @@ function assignTask(agentId, taskName, details = {}) {
     details,
     status: "assigned",
     assignedAt: new Date().toISOString(),
+    startedAt: null,
     completedAt: null,
     result: null
   };
@@ -94,6 +95,26 @@ function assignTask(agentId, taskName, details = {}) {
   addEvent(
     "task-assigned",
     `Command Center assigned "${taskName}" to ${agentId}.`
+  );
+
+  return assignment;
+}
+
+function startTask(assignmentId) {
+  const assignment = state.assignments.find(
+    (task) => task.id === assignmentId
+  );
+
+  if (!assignment) {
+    return null;
+  }
+
+  assignment.status = "running";
+  assignment.startedAt = new Date().toISOString();
+
+  addEvent(
+    "task-started",
+    `Task "${assignment.taskName}" started by ${assignment.agentId}.`
   );
 
   return assignment;
@@ -259,6 +280,7 @@ module.exports = {
   runCycle,
   getStatus,
   assignTask,
+  startTask,
   completeTask,
   failTask,
   nextAutomatedAgent,
