@@ -239,4 +239,269 @@ async function runCycle(){
 
 try{
 
+const r=await fetch('/api/command-center/cycle',{
+method:'POST'
+});
+
+const d=await r.json();
+
+if(!r.ok){
+throw new Error(
+d.error ||
+d.message ||
+'Command Center request failed.'
+);
+}
+
+const c=d.cycle;
+
+document.getElementById('cycle').textContent=
+'🟢 Cycle #'+
+c.cycle+
+' completed — '+
+c.onlineAgents+
+'/'+
+c.totalAgents+
+' agents reporting.';
+
+await loadCommandCenterActivity();
+
+}catch(e){
+
+document.getElementById('cycle').textContent=
+'🔴 Command Center error: '+
+e.message;
+
+}
+
+}
+
+
+async function loadSavedOpportunities(){
+
+const results=
+document.getElementById('scout-results');
+
+try{
+
+const r=await fetch('/api/opportunities');
+
+const d=await r.json();
+
+if(
+!d.opportunities ||
+d.opportunities.length===0
+){
+
+results.innerHTML=
+'<div class="result">'+
+'No saved opportunities yet.'+
+'</div>';
+
+return;
+
+}
+
+results.innerHTML='';
+
+d.opportunities.forEach(item=>{
+
+const div=document.createElement('div');
+
+div.className='result';
+
+div.innerHTML=
+'<strong>'+
+escapeHtml(
+item.title ||
+'Untitled opportunity'
+)+
+'</strong><br><small>'+
+escapeHtml(
+item.revenueSource ||
+'Research source'
+)+
+'</small><br>'+
+escapeHtml(
+item.description ||
+''
+)+
+(
+item.url
+?
+'<br><a href="'+
+escapeHtml(item.url)+
+'" target="_blank" rel="noopener">'+
+'Open source</a>'
+:
+''
+);
+
+results.appendChild(div);
+
+});
+
+}catch(e){
+
+results.innerHTML=
+'<div class="result">'+
+'Could not load saved opportunities.'+
+'</div>';
+
+}
+
+}
+
+
+async function runOpportunityScout(){
+
+const button=
+document.getElementById('scout-button');
+
+const status=
+document.getElementById('scout-status');
+
+const results=
+document.getElementById('scout-results');
+
+button.disabled=true;
+
+status.textContent=
+'🔵 Opportunity Scout is researching...';
+
+results.innerHTML='';
+
+try{
+
 const r=await fetch(
+'/api/opportunity-scout/run',
+{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+}
+}
+);
+
+const d=await r.json();
+
+if(!r.ok){
+
+status.textContent=
+'🟠 Scout could not run: '+
+(d.message ||
+d.error ||
+'Unknown error');
+
+return;
+
+}
+
+status.textContent=
+'🟢 Research completed — '+
+d.found+
+' opportunities found.';
+
+if(
+!d.opportunities ||
+d.opportunities.length===0
+){
+
+results.innerHTML=
+'<div class="result">'+
+'No opportunities were returned from this scan.'+
+'</div>';
+
+return;
+
+}
+
+d.opportunities.forEach(item=>{
+
+const div=document.createElement('div');
+
+div.className='result';
+
+div.innerHTML=
+'<strong>'+
+escapeHtml(
+item.title ||
+'Untitled opportunity'
+)+
+'</strong><br><small>'+
+escapeHtml(
+item.revenueSource ||
+'Research source'
+)+
+'</small><br>'+
+escapeHtml(
+item.description ||
+''
+)+
+(
+item.url
+?
+'<br><a href="'+
+escapeHtml(item.url)+
+'" target="_blank" rel="noopener">'+
+'Open source</a>'
+:
+''
+);
+
+results.appendChild(div);
+
+});
+
+}catch(e){
+
+status.textContent=
+'🔴 Scout error: '+
+e.message;
+
+}finally{
+
+button.disabled=false;
+
+}
+
+}
+
+
+function escapeHtml(value){
+
+return String(value).replace(
+/[&<>"']/g,
+function(char){
+
+return {
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#039;'
+}[char];
+
+}
+);
+
+}
+
+
+window.addEventListener(
+'load',
+function(){
+
+checkStatus();
+
+loadSavedOpportunities();
+
+loadCommandCenterActivity();
+
+}
+);
+
+</script>
+
+</body>
+</html>
