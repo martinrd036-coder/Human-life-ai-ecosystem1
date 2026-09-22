@@ -42,8 +42,16 @@ async function initializeDatabase() {
       discovered_at TIMESTAMPTZ NOT NULL
     )
   `);
-}
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS agent_heartbeats (
+      agent_id TEXT PRIMARY KEY,
+      status TEXT NOT NULL,
+      activity TEXT,
+      last_heartbeat TIMESTAMPTZ NOT NULL
+    )
+  `);
+}
 let lastOpportunityScoutRun = null;
 let opportunityScoutRunning = false;
 
