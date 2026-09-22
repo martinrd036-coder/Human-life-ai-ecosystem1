@@ -2,6 +2,7 @@ const path=require("path");
 const express=require("express");
 const {Pool}=require("pg");
 const commandCenter=require("./command-center");
+const {scoreOpportunity,buildExperimentPlan}=require("./opportunity-intelligence");
 const {researchOpportunities}=require("./exa-research");
 const {DEFAULT_RESEARCH_SOURCES,getResearchConfig}=require("./research");
 
