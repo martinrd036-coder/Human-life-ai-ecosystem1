@@ -200,30 +200,32 @@ async function scout(topic){
    "legitimate ways to make money online through AI automation, affiliate programs, creator programs, freelance work, remote jobs, digital products, and reputable opportunities"
   );
 
-  const items=r.results.map((x,i)=>({
-   id:`opp-${Date.now()}-${i}`,
-   title:x.title,
-   revenueSource:x.source||"Research source",
-   url:x.url||null,
-   description:x.description||null,
-   estimatedPotential:"Unknown",
-   difficulty:"Unknown",
-   cost:"Unknown",
-   riskNotes:"Verify terms and eligibility before acting.",
-   status:"new",
-   evidenceScore:scoreOpportunity(x).evidenceScore,
-testabilityScore:scoreOpportunity(x).testabilityScore,
-experimentPlan:buildExperimentPlan({
- id:`opp-${Date.now()}-${i}`,
- title:x.title,
- revenueSource:x.source||"Research source",
- url:x.url||null,
- description:x.description||null,
- cost:"Unknown",
- riskNotes:"Verify terms and eligibility before acting."
-}),
-   discoveredAt:new Date().toISOString()
-  }));
+const items=r.results.map((x,i)=>{
+  const id=`opp-${Date.now()}-${i}`;
+
+  const item={
+    id,
+    title:x.title,
+    revenueSource:x.source||"Research source",
+    url:x.url||null,
+    description:x.description||null,
+    estimatedPotential:"Unknown",
+    difficulty:"Unknown",
+    cost:"Unknown",
+    riskNotes:"Verify terms and eligibility before acting.",
+    status:"new",
+    discoveredAt:new Date().toISOString()
+  };
+
+  const intelligence=scoreOpportunity(item);
+
+  return{
+    ...item,
+    evidenceScore:intelligence.evidenceScore,
+    testabilityScore:intelligence.testabilityScore,
+    experimentPlan:buildExperimentPlan(item)
+  };
+});
 
   for(const x of items){
    await pool.query(
