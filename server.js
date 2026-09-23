@@ -1080,7 +1080,7 @@ x.experimentPlan=buildExperimentPlan(x);
  try{
 
   await pool.query(
-  INSERT INTO opportunities(
+  `INSERT INTO opportunities(
   id,
   title,
   revenue_source,
