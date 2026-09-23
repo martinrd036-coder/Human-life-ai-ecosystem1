@@ -1013,7 +1013,10 @@ app.get("/api/opportunities/status",async(req,res)=>{
     cost,
     risk_notes AS "riskNotes",
     status,
-    discovered_at AS "discoveredAt"
+    discovered_at AS "discoveredAt",
+evidence_score AS "evidenceScore",
+testability_score AS "testabilityScore",
+experiment_plan AS "experimentPlan"
    FROM opportunities
    ORDER BY discovered_at DESC
    LIMIT 100
