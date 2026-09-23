@@ -225,17 +225,20 @@ experimentPlan:buildExperimentPlan({
   for(const x of items){
    await pool.query(
     `INSERT INTO opportunities(
-      id,
-      title,
-      revenue_source,
-      url,
-      description,
-      estimated_potential,
-      difficulty,
-      cost,
-      risk_notes,
-      status,
-      discovered_at
+  id,
+  title,
+  revenue_source,
+  url,
+  description,
+  estimated_potential,
+  difficulty,
+  cost,
+  risk_notes,
+  status,
+  discovered_at,
+  evidence_score,
+  testability_score,
+  experiment_plan
      )
      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
      ON CONFLICT(id) DO NOTHING`,
