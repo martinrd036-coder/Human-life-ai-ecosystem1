@@ -348,8 +348,8 @@ async function work(id,details={}){
    "affiliate-intelligence":
     "official affiliate programs legitimate current requirements commissions",
 
-   "product-scout":
-    "products with affiliate programs creator content potential official sources",
+    "product-scout":
+    "Amazon products with strong creator content potential, official Amazon sources, current product information, legitimate affiliate eligibility, and clear customer use cases",
 
    "viral-content":
     "current content trends video ideas creator opportunities reputable sources",
