@@ -1081,24 +1081,26 @@ x.experimentPlan=buildExperimentPlan(x);
 
   await pool.query(
   `INSERT INTO opportunities(
-  id,
-  title,
-  revenue_source,
-  url,
-  description,
-  estimated_potential,
-  difficulty,
-  cost,
-  risk_notes,
-  status,
-  discovered_at,
-  evidence_score,
-  testability_score,
-  experiment_plan
-)
-    )
-    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
-   [
+    id,
+    title,
+    revenue_source,
+    url,
+    description,
+    estimated_potential,
+    difficulty,
+    cost,
+    risk_notes,
+    status,
+    discovered_at,
+    evidence_score,
+    testability_score,
+    experiment_plan
+  )
+  VALUES(
+    $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14
+  )
+  ON CONFLICT(id) DO NOTHING`,
+  [
     x.id,
     x.title,
     x.revenueSource,
@@ -1109,9 +1111,12 @@ x.experimentPlan=buildExperimentPlan(x);
     x.cost,
     x.riskNotes,
     x.status,
-    x.discoveredAt
-   ]
-  );
+    x.discoveredAt,
+    x.evidenceScore,
+    x.testabilityScore,
+    x.experimentPlan
+  ]
+);
 
   res.status(201).json({
    status:"created",
