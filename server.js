@@ -1057,7 +1057,7 @@ app.post("/api/opportunities",async(req,res)=>{
     "An opportunity must have a title and revenue source."
   });
  }
-
+try{
 const x={
   id:`opp-${Date.now()}`,
   title:req.body.title,
