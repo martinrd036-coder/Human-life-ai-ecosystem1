@@ -29,13 +29,28 @@ function normalizeExaResults(data) {
   const results = Array.isArray(data.results) ? data.results : [];
 
   return results.map(result => ({
-    title: result.title || "Untitled",
-    url: result.url || "",
-    publishedDate: result.publishedDate || "",
-    author: result.author || "",
-    source: result.url ? new URL(result.url).hostname : "Unknown",
-    description: result.text || ""
-  }));
+  title: result.title || "Untitled",
+  url: result.url || "",
+  publishedDate: result.publishedDate || "",
+  author: result.author || "",
+  source: result.url ? new URL(result.url).hostname : "Unknown",
+
+  description:
+    result.text ||
+    result.description ||
+    result.highlights?.join(" ") ||
+    "",
+
+  highlights:
+    Array.isArray(result.highlights)
+      ? result.highlights
+      : [],
+
+  score:
+    typeof result.score === "number"
+      ? result.score
+      : null
+}));
 }
 
 async function researchOpportunities(topic) {
