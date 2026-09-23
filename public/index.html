@@ -511,7 +511,55 @@ button.disabled=false;
 }
 
 }
+async function loadProductScoutResults(){
 
+  const box=document.getElementById("product-scout-results");
+
+  if(!box)return;
+
+  box.innerHTML="Loading Product Scout research...";
+
+  try{
+
+    const response=await fetch("/api/product-scout/results");
+    const data=await response.json();
+
+    if(!response.ok){
+      throw new Error(data.message||"Unable to load Product Scout results.");
+    }
+
+    if(!data.results||data.results.length===0){
+
+      box.innerHTML=
+        "<strong>No Product Scout research results yet.</strong>";
+
+      return;
+    }
+
+    box.innerHTML=`
+      <strong>Found ${data.found||data.results.length} research results</strong>
+      <p><strong>Search:</strong> ${data.query||"Unknown"}</p>
+      ${data.results.map(item=>`
+        <div style="margin:12px 0;padding:10px;border:1px solid #ccc;border-radius:8px;">
+          <strong>${item.title||"Untitled"}</strong>
+          <p>${item.description||"No description provided."}</p>
+          ${
+            item.url
+              ? `<a href="${item.url}" target="_blank" rel="noopener">Open source</a>`
+              : ""
+          }
+        </div>
+      `).join("")}
+    `;
+
+  }catch(e){
+
+    box.innerHTML=
+      "⚠️ Unable to load Product Scout results: "+
+      (e.message||"Unknown error.");
+
+  }
+}
 async function runAgent(agentId, agentName){
 
 const result=document.getElementById('agent-result');
