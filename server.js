@@ -43,12 +43,7 @@ const FIRST_AUTOMATION_DELAY=30*1000;
 const agent=id=>agentRegistry.find(a=>a.id===id);
 
 async function init(){
-   await pool.query(`
-    ALTER TABLE opportunities
-    ADD COLUMN IF NOT EXISTS evidence_score INTEGER,
-    ADD COLUMN IF NOT EXISTS testability_score INTEGER,
-    ADD COLUMN IF NOT EXISTS experiment_plan JSONB
-  `);
+ 
  await pool.query(`
   CREATE TABLE IF NOT EXISTS opportunities(
    id TEXT PRIMARY KEY,
