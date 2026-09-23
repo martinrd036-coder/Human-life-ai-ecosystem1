@@ -1076,13 +1076,20 @@ const x={
   discoveredAt:new Date().toISOString()
 };
 
-const intelligence=scoreOpportunity(x);
+const intelligence=scoreOpportunity(item);
 
-x.evidenceScore=intelligence.evidenceScore;
-x.testabilityScore=intelligence.testabilityScore;
-x.experimentPlan=buildExperimentPlan(x);
-
- try{
+return{
+  ...item,
+  evidenceScore:intelligence.evidenceScore,
+  testabilityScore:intelligence.testabilityScore,
+  confidenceBand:intelligence.confidenceBand,
+  qualityGate:intelligence.qualityGate,
+  sourceQuality:intelligence.sourceQuality,
+  evidence:intelligence.evidence,
+  verificationChecks:intelligence.verificationChecks,
+  experimentPlan:buildExperimentPlan(item)
+ 
+};
 
   await pool.query(
   `INSERT INTO opportunities(
