@@ -1,47 +1,107 @@
-function scoreOpportunity(item = {}) {
-  let score = 0;
-  const evidence = [];
-
-  if (item.url) {
-    score += 20;
-    evidence.push("source_url");
+function getSourceQuality(url = "") {
+  if (!url) {
+    return {
+      score: 0,
+      level: "missing",
+      reason: "No source URL was provided."
+    };
   }
 
-  if (item.description && item.description.length >= 80) {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+
+    const officialDomains = [
+      ".gov",
+      "amazon.com",
+      "youtube.com",
+      "tiktok.com",
+      "walmart.com",
+      "etsy.com",
+      "ebay.com",
+      "shopify.com",
+      "upwork.com",
+      "fiverr.com",
+      "linkedin.com"
+    ];
+
+    const isOfficial = officialDomains.some(domain =>
+      host === domain ||
+      host.endsWith(domain)
+    );
+
+    if (isOfficial) {
+      return {
+        score: 30,
+        level: "authoritative",
+        reason: "Recognized official or authoritative domain."
+      };
+    }
+
+    return {
+      score: 5,
+      level: "third_party",
+      reason: "Third-party source requires verification."
+    };
+
+  } catch (e) {
+    return {
+      score: 0,
+      level: "invalid",
+      reason: "Source URL could not be verified."
+    };
+  }
+}
+
+
+function scoreOpportunity(item = {}) {
+
+  let score = 0;
+  const evidence = [];
+  const verificationChecks = [];
+
+  const source = getSourceQuality(item.url);
+
+  score += source.score;
+
+  if (source.level === "authoritative") {
+    evidence.push("authoritative_source");
+  } else {
+    verificationChecks.push("Verify source authority.");
+  }
+
+  if (item.url) {
     score += 15;
-    evidence.push("useful_description");
+    evidence.push("source_url");
+  } else {
+    verificationChecks.push("Find an authoritative source.");
+  }
+
+  if (
+    item.description &&
+    item.description.length >= 120
+  ) {
+    score += 15;
+    evidence.push("detailed_description");
+  } else {
+    verificationChecks.push("Confirm the opportunity details.");
   }
 
   if (
     item.revenueSource &&
     item.revenueSource !== "Research source"
   ) {
-    score += 15;
-    evidence.push("identified_source");
-  }
-
-  if (item.title && item.title.length >= 12) {
     score += 10;
-    evidence.push("clear_title");
+    evidence.push("identified_source");
+  } else {
+    verificationChecks.push("Identify the actual revenue source.");
   }
 
-  if (item.url) {
-    try {
-      const host = new URL(item.url).hostname.toLowerCase();
-
-      if (
-        host.endsWith(".gov") ||
-        host.includes("amazon.") ||
-        host.includes("youtube.") ||
-        host.includes("tiktok.") ||
-        host.includes("walmart.") ||
-        host.includes("etsy.") ||
-        host.includes("ebay.")
-      ) {
-        score += 20;
-        evidence.push("recognized_platform");
-      }
-    } catch (e) {}
+  if (
+    item.title &&
+    item.title.length >= 12
+  ) {
+    score += 5;
+    evidence.push("clear_title");
   }
 
   if (
@@ -51,46 +111,92 @@ function scoreOpportunity(item = {}) {
   ) {
     score += 5;
     evidence.push("cost_identified");
+  } else {
+    verificationChecks.push("Verify costs or fees.");
   }
 
-  if (item.riskNotes && item.riskNotes.length > 20) {
+  if (
+    item.riskNotes &&
+    item.riskNotes.length > 20
+  ) {
     score += 5;
     evidence.push("risk_note");
   }
 
-  const testability = Math.min(
-    100,
-    Math.max(0, score + (item.url ? 10 : 0))
-  );
+  const evidenceScore =
+    Math.min(100, score);
+
+  const testabilityScore =
+    Math.min(
+      100,
+      evidenceScore +
+      (item.url ? 10 : 0)
+    );
+
+  let confidenceBand;
+
+  if (
+    source.level === "authoritative" &&
+    evidenceScore >= 65
+  ) {
+    confidenceBand = "strong_evidence";
+  } else if (evidenceScore >= 40) {
+    confidenceBand = "moderate_evidence";
+  } else {
+    confidenceBand = "needs_verification";
+  }
+
+  let qualityGate;
+
+  if (
+    confidenceBand === "strong_evidence" &&
+    testabilityScore >= 70
+  ) {
+    qualityGate = "ready_for_verification";
+  } else if (
+    confidenceBand === "moderate_evidence"
+  ) {
+    qualityGate = "verify_before_testing";
+  } else {
+    qualityGate = "low_confidence";
+  }
 
   return {
-    evidenceScore: Math.min(100, score),
-    testabilityScore: testability,
-    confidenceBand:
-      score >= 70
-        ? "strong_evidence"
-        : score >= 45
-        ? "moderate_evidence"
-        : "needs_verification",
-    evidence
+    evidenceScore,
+    testabilityScore,
+    confidenceBand,
+    qualityGate,
+    sourceQuality: source.level,
+    evidence,
+    verificationChecks
   };
 }
 
+
 function buildExperimentPlan(item = {}) {
-  const score = scoreOpportunity(item);
+
+  const intelligence =
+    scoreOpportunity(item);
 
   return {
-    opportunityId: item.id || null,
+
+    opportunityId:
+      item.id || null,
 
     objective:
-      "Run a small, measurable test before investing significant time or money.",
+      "Verify the opportunity first, then run the smallest measurable test before investing significant time or money.",
 
-    firstAction: item.url
-      ? "Open the source, verify eligibility and monetization terms, then create the smallest possible test."
-      : "Find and verify an authoritative source before testing.",
+    firstAction:
+      item.url
+        ? "Open the source, verify eligibility, monetization terms, costs, and requirements."
+        : "Find and verify an authoritative source before testing.",
+
+    verificationChecks:
+      intelligence.verificationChecks,
 
     successMetrics: [
       "verified source",
+      "eligibility confirmed",
       "test completed",
       "measurable response",
       "cost recorded",
@@ -100,14 +206,27 @@ function buildExperimentPlan(item = {}) {
     stopRules: [
       "Stop if eligibility is not confirmed.",
       "Stop if required cost exceeds the approved test budget.",
-      "Stop if the source or terms cannot be verified."
+      "Stop if the source or terms cannot be verified.",
+      "Stop if the opportunity depends on unsupported income claims."
     ],
 
-    evidenceScore: score.evidenceScore,
-    testabilityScore: score.testabilityScore,
-    confidenceBand: score.confidenceBand
+    evidenceScore:
+      intelligence.evidenceScore,
+
+    testabilityScore:
+      intelligence.testabilityScore,
+
+    confidenceBand:
+      intelligence.confidenceBand,
+
+    qualityGate:
+      intelligence.qualityGate,
+
+    sourceQuality:
+      intelligence.sourceQuality
   };
 }
+
 
 module.exports = {
   scoreOpportunity,
