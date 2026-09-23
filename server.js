@@ -240,7 +240,7 @@ experimentPlan:buildExperimentPlan({
   testability_score,
   experiment_plan
      )
-     VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14))
+     VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
      ON CONFLICT(id) DO NOTHING`,
     [
      x.id,
@@ -253,7 +253,10 @@ experimentPlan:buildExperimentPlan({
      x.cost,
      x.riskNotes,
      x.status,
-     x.discoveredAt
+     x.discoveredAt,
+     x.evidenceScore,
+     x.testabilityScore,
+     x.experimentPlan
     ]
    );
   }
