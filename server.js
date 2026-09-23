@@ -150,7 +150,7 @@ async function runLog(id,status,activity,result,start){
     started_at,
     completed_at
    )
-   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+   VALUES($1,$2,$3,$4,$5,$6,$7)`,
   [
    `run-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
    id,
