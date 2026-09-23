@@ -1053,23 +1053,29 @@ app.post("/api/opportunities",async(req,res)=>{
   });
  }
 
- const x={
+const x={
   id:`opp-${Date.now()}`,
   title:req.body.title,
   revenueSource:req.body.revenueSource,
   url:req.body.url||null,
   description:req.body.description||null,
   estimatedPotential:
-   req.body.estimatedPotential||"Unknown",
+    req.body.estimatedPotential||"Unknown",
   difficulty:
-   req.body.difficulty||"Unknown",
+    req.body.difficulty||"Unknown",
   cost:req.body.cost||"Unknown",
   riskNotes:
-   req.body.riskNotes||
-   "Verify terms and eligibility before acting.",
+    req.body.riskNotes||
+    "Verify terms and eligibility before acting.",
   status:"new",
   discoveredAt:new Date().toISOString()
- };
+};
+
+const intelligence=scoreOpportunity(x);
+
+x.evidenceScore=intelligence.evidenceScore;
+x.testabilityScore=intelligence.testabilityScore;
+x.experimentPlan=buildExperimentPlan(x);
 
  try{
 
