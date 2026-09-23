@@ -363,12 +363,14 @@ async function work(id,details={}){
    const r=await researchOpportunities(
     details.topic||queries[id]
    );
-
-   result={
+result={
     found:r.results.length,
     titles:r.results
      .slice(0,5)
-     .map(x=>x.title)
+     .map(x=>x.title),
+    results:r.results,
+    searchedAt:r.searchedAt,
+    query:r.query
    };
 
   }else if(id==="analytics"){
