@@ -541,7 +541,7 @@ async function runAutomationCycle(){
      automatic:true
     }
    );
-
+commandCenter.startTask(assignment.id);
   console.log(
    `Automation: starting ${target.name}`
   );
