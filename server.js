@@ -44,13 +44,6 @@ const agent=id=>agentRegistry.find(a=>a.id===id);
 
 async function init(){
   await pool.query(`
-  ALTER TABLE opportunities
-  ADD COLUMN IF NOT EXISTS evidence_score INTEGER,
-  ADD COLUMN IF NOT EXISTS testability_score INTEGER,
-  ADD COLUMN IF NOT EXISTS experiment_plan JSONB
- `);
- 
- await pool.query(`
   CREATE TABLE IF NOT EXISTS opportunities(
    id TEXT PRIMARY KEY,
    title TEXT NOT NULL,
@@ -62,8 +55,18 @@ async function init(){
    cost TEXT,
    risk_notes TEXT,
    status TEXT NOT NULL,
-   discovered_at TIMESTAMPTZ NOT NULL
+   discovered_at TIMESTAMPTZ NOT NULL,
+   evidence_score INTEGER,
+   testability_score INTEGER,
+   experiment_plan JSONB
   )
+ `);
+
+ await pool.query(`
+  ALTER TABLE opportunities
+  ADD COLUMN IF NOT EXISTS evidence_score INTEGER,
+  ADD COLUMN IF NOT EXISTS testability_score INTEGER,
+  ADD COLUMN IF NOT EXISTS experiment_plan JSONB
  `);
 
  await pool.query(`
