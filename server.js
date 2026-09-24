@@ -365,14 +365,17 @@ async function work(id,details={}){
     details.topic||queries[id]
    );
 result={
-    found:r.results.length,
-    titles:r.results
-     .slice(0,5)
-     .map(x=>x.title),
-    results:r.results,
-    searchedAt:r.searchedAt,
-    query:r.query
-   };
+     found:r.results.length,
+     titles:r.results
+      .slice(0,5)
+      .map(x=>x.title),
+     results:r.results.map(x=>({
+      ...x,
+      productIntelligence:analyzeProduct(x)
+     })),
+     searchedAt:r.searchedAt,
+     query:r.query
+    };
 
   }else if(id==="analytics"){
 
