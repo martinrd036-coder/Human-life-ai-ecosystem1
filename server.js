@@ -4,6 +4,7 @@ const {Pool}=require("pg");
 const commandCenter=require("./command-center");
 const {scoreOpportunity,buildExperimentPlan}=require("./opportunity-intelligence");
 const {researchOpportunities}=require("./exa-research");
+const {analyzeProduct}=require("./product-intelligence");
 const {DEFAULT_RESEARCH_SOURCES,getResearchConfig}=require("./research");
 
 const app=express(),PORT=process.env.PORT||3000,COOLDOWN=15*60*1000;
