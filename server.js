@@ -573,6 +573,27 @@ async function runAutomationCycle(){
      automatic:true
     }
    );
+    await pool.query(
+   `INSERT INTO command_assignments(
+    id,
+    agent_id,
+    task_name,
+    details,
+    status,
+    assigned_at,
+    started_at
+   )
+   VALUES($1,$2,$3,$4,$5,$6,$7)`,
+   [
+    assignment.id,
+    assignment.agentId,
+    assignment.taskName,
+    assignment.details,
+    "assigned",
+    assignment.assignedAt,
+    null
+   ]
+  );
 commandCenter.startTask(assignment.id);
   console.log(
    `Automation: starting ${target.name}`
