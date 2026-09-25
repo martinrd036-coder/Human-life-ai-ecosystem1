@@ -57,7 +57,7 @@ const automationOrder = [
   "affiliate-intelligence",
   "product-scout",
   "viral-content",
-  "job-hunter",
+  "revenue-intelligence",
   "analytics",
   "guardian",
   "engineering-guardian"
