@@ -366,8 +366,8 @@ async function work(id,details={}){
    
    "viral-content":
  "current content trends video ideas creator opportunities reputable sources",
-   "job-hunter":
-    "legitimate remote jobs hiring official careers no experience opportunities"
+   "revenue-intelligence":
+    "legitimate AI-powered online revenue opportunities, automation businesses, affiliate models, digital products, creator monetization, freelance services, lead generation, and emerging platforms. Return evidence-backed opportunities with business model, target customer, startup cost, difficulty, monetization path, verification sources, first test, success metrics, and stop rules."
   };
 
   if(queries[id]){
