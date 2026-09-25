@@ -977,52 +977,7 @@ app.get("/api/agent1/status",(req,res)=>
   agent:agent("agent1")
  })
 );
-app.get("/api/product-scout/results",async(req,res)=>{
- try{
 
-  const r=await pool.query(`
-   SELECT
-    started_at AS "startedAt",
-    result
-   FROM agent_runs
-   WHERE agent_id='product-scout'
-     AND status='completed'
-   ORDER BY started_at DESC
-   LIMIT 1
-  `);
-
-  if(r.rows.length===0){
-   return res.json({
-    status:"ready",
-    agent:"Product Scout",
-    found:0,
-    results:[],
-    message:"No completed Product Scout research run has been recorded yet."
-   });
-  }
-
-  const run=r.rows[0];
-
-  res.json({
-   status:"ready",
-   agent:"Product Scout",
-   startedAt:run.startedAt,
-   found:run.result?.found||0,
-   query:run.result?.query||"",
-   searchedAt:run.result?.searchedAt||null,
-   results:Array.isArray(run.result?.results)
-    ?run.result.results
-    :[]
-  });
-
- }catch(e){
-
-  res.status(500).json({
-   status:"error",
-   message:e.message
-  });
- }
-});
 app.get("/api/guardian/status",(req,res)=>
  res.json({
   status:"online",
