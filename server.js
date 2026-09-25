@@ -38,7 +38,6 @@ let lastScoutRun=null;
 let scoutRunning=false;
 let automationRunning=false;
 
-const AUTOMATION_INTERVAL=5*60*1000;
 const FIRST_AUTOMATION_DELAY=30*1000;
 
 const agent=id=>agentRegistry.find(a=>a.id===id);
