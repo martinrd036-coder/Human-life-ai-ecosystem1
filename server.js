@@ -615,9 +615,23 @@ async function runAutomationCycle(){
    const result=
     await work(agentId,{});
 
-   commandCenter.completeTask(
+    commandCenter.completeTask(
     assignment.id,
     result
+   );
+
+   await pool.query(
+    `UPDATE command_assignments
+     SET status=$1,
+         completed_at=$2,
+         result=$3
+     WHERE id=$4`,
+    [
+     "completed",
+     new Date().toISOString(),
+     result,
+     assignment.id
+    ]
    );
 
    commandCenter.recordAutomation({
