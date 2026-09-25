@@ -20,7 +20,7 @@ const agentRegistry=[
  ["agent1","Command Center","Central coordinator that assigns work, routes results, and maintains ecosystem state"],
  ["affiliate-intelligence","Affiliate Research","Research affiliate programs and provide verified program information to the appropriate specialist"],
  ["viral-content","Content Intelligence","Research trends, formats, audiences, hooks, and content opportunities"],
- ["revenue-intelligence","Revenue Intelligence","Research, validate, compare, and prioritize legitimate AI-powered revenue opportunities across the ecosystem"],,
+ ["revenue-intelligence","Revenue Intelligence","Research, validate, compare, and prioritize legitimate AI-powered revenue opportunities across the ecosystem"],
  ["analytics","Analytics & Evaluation","Measure agent activity, research quality, experiments, failures, and improvement signals"],
  ["opportunity-scout","Opportunity Scout","Discover legitimate evidence-backed revenue opportunities"],
  ["product-scout","Product Scout","Find real products, product sources, affiliate eligibility, and content potential"],
