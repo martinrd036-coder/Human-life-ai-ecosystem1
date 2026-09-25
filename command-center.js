@@ -287,5 +287,6 @@ module.exports = {
   failTask,
   nextAutomatedAgent,
   recordAutomation,
-  setAutomation
+  setAutomation,
+  getAutomationIntervalMinutes
 };
