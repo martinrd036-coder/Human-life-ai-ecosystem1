@@ -224,8 +224,6 @@ function setAutomation(enabled, intervalMinutes = 5) {
 function runCycle(agentRegistry) {
   state.cycle += 1;
 
-  const activeAgent = nextAutomatedAgent(agentRegistry);
-  
   state.lastCycleAt = new Date().toISOString();
 
   const online = agentRegistry.filter(
