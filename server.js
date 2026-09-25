@@ -595,6 +595,17 @@ async function runAutomationCycle(){
    ]
   );
 commandCenter.startTask(assignment.id);
+    await pool.query(
+   `UPDATE command_assignments
+    SET status=$1,
+        started_at=$2
+    WHERE id=$3`,
+   [
+    "running",
+    new Date().toISOString(),
+    assignment.id
+   ]
+  );
   console.log(
    `Automation: starting ${target.name}`
   );
