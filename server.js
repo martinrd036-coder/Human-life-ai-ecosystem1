@@ -554,7 +554,7 @@ async function runAutomationCycle(){
   const assignment=
    commandCenter.assignTask(
     agentId,
-    `Automated ${target.name} work`,
+    `Research ${target.name} opportunities`,
     {
      source:"continuous-command-center",
      automatic:true
