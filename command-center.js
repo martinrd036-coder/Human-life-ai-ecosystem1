@@ -225,19 +225,6 @@ function runCycle(agentRegistry) {
   state.cycle += 1;
 
   const activeAgent = nextAutomatedAgent(agentRegistry);
-
-  if (activeAgent) {
-  const assignment = assignTask(
-    activeAgent.id,
-    activeAgent.name,
-    {
-      source: "command-center-cycle",
-      cycle: state.cycle
-    }
-  );
-
-  startTask(assignment.id);
-  }
   
   state.lastCycleAt = new Date().toISOString();
 
