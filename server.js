@@ -1129,6 +1129,11 @@ const x={
   discoveredAt:new Date().toISOString()
 };
 
+ const intelligence=scoreOpportunity(x);
+
+x.evidenceScore=intelligence.evidenceScore;
+x.testabilityScore=intelligence.testabilityScore;
+x.experimentPlan=buildExperimentPlan(x);
 
   await pool.query(
   `INSERT INTO opportunities(
