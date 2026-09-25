@@ -227,14 +227,17 @@ function runCycle(agentRegistry) {
   const activeAgent = nextAutomatedAgent(agentRegistry);
 
   if (activeAgent) {
-    assignTask(
-      activeAgent.id,
-      activeAgent.name,
-      {
-        source: "command-center-cycle",
-        cycle: state.cycle
-      }
-    );
+  const assignment = assignTask(
+    activeAgent.id,
+    activeAgent.name,
+    {
+      source: "command-center-cycle",
+      cycle: state.cycle
+    }
+  );
+
+  startTask(assignment.id);
+  }
   }
   state.lastCycleAt = new Date().toISOString();
 
