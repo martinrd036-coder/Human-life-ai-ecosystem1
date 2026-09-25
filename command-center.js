@@ -275,7 +275,9 @@ function getStatus(agentRegistry) {
     events: state.events
   };
 }
-
+function getAutomationIntervalMinutes(){
+  return state.automation.intervalMinutes;
+}
 module.exports = {
   runCycle,
   getStatus,
