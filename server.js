@@ -15,7 +15,30 @@ const pool=new Pool({
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname,"public")));
-
+function buildRevenueIntelligence(results){
+ return results.map(x=>({
+  opportunity:x.title,
+  source:x.url,
+  evidence:x.description||null,
+  businessModel:"Needs verification",
+  targetCustomer:"Needs verification",
+  startupCost:"Needs verification",
+  difficulty:"Needs verification",
+  monetizationPath:"Needs verification",
+  firstTest:"Create a small reversible test before spending money.",
+  successMetrics:[
+   "Verified traffic or engagement",
+   "Verified conversion",
+   "Verified revenue"
+  ],
+  stopRules:[
+   "Stop if the opportunity cannot be independently verified.",
+   "Stop if platform or affiliate rules prohibit the approach.",
+   "Stop if testing produces no measurable signal."
+  ],
+  revenueStatus:"No revenue claimed."
+ }));
+}
 const agentRegistry=[
  ["agent1","Command Center","Central coordinator that assigns work, routes results, and maintains ecosystem state"],
  ["affiliate-intelligence","Affiliate Research","Research affiliate programs and provide verified program information to the appropriate specialist"],
