@@ -238,7 +238,7 @@ function runCycle(agentRegistry) {
 
   startTask(assignment.id);
   }
-  }
+  
   state.lastCycleAt = new Date().toISOString();
 
   const online = agentRegistry.filter(
