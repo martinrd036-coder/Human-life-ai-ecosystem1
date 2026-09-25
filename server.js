@@ -89,6 +89,19 @@ async function init(){
    completed_at TIMESTAMPTZ
   )
  `);
+  await pool.query(`
+  CREATE TABLE IF NOT EXISTS command_assignments(
+   id TEXT PRIMARY KEY,
+   agent_id TEXT NOT NULL,
+   task_name TEXT NOT NULL,
+   details JSONB,
+   status TEXT NOT NULL,
+   assigned_at TIMESTAMPTZ NOT NULL,
+   started_at TIMESTAMPTZ,
+   completed_at TIMESTAMPTZ,
+   result JSONB
+  )
+ `);
 }
 
 async function beat(id,status,activity){
