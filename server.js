@@ -573,7 +573,8 @@ async function runAutomationCycle(){
      automatic:true
     }
    );
-    await pool.query(
+
+  await pool.query(
    `INSERT INTO command_assignments(
     id,
     agent_id,
@@ -594,8 +595,10 @@ async function runAutomationCycle(){
     null
    ]
   );
-commandCenter.startTask(assignment.id);
-    await pool.query(
+
+  commandCenter.startTask(assignment.id);
+
+  await pool.query(
    `UPDATE command_assignments
     SET status=$1,
         started_at=$2
@@ -605,9 +608,6 @@ commandCenter.startTask(assignment.id);
     new Date().toISOString(),
     assignment.id
    ]
-  );
-  console.log(
-   `Automation: starting ${target.name}`
   );
 
   try{
