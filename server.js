@@ -352,8 +352,7 @@ async function work(id,details={}){
     "Find actual Amazon product candidates with specific product names, product pages, current product information, customer use cases, creator content potential, and legitimate affiliate eligibility. Return actual products, not general Amazon affiliate information pages",
    
    "viral-content":
-    "current content trends video ideas creator opportunities reputable sources",
-
+ "current content trends video ideas creator opportunities reputable sources",
    "job-hunter":
     "legitimate remote jobs hiring official careers no experience opportunities"
   };
