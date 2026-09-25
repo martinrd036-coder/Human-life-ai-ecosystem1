@@ -409,6 +409,8 @@ result={
       ...x,
       productIntelligence:analyzeProduct(x)
      }))
+   :id==="revenue-intelligence"
+   ?buildRevenueIntelligence(r.results)
    :r.results,
   searchedAt:r.searchedAt,
   query:r.query
