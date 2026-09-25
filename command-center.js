@@ -223,6 +223,19 @@ function setAutomation(enabled, intervalMinutes = 5) {
 
 function runCycle(agentRegistry) {
   state.cycle += 1;
+
+  const activeAgent = nextAutomatedAgent(agentRegistry);
+
+  if (activeAgent) {
+    assignTask(
+      activeAgent.id,
+      activeAgent.name,
+      {
+        source: "command-center-cycle",
+        cycle: state.cycle
+      }
+    );
+  }
   state.lastCycleAt = new Date().toISOString();
 
   const online = agentRegistry.filter(
