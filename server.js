@@ -834,7 +834,19 @@ app.post("/api/command-center/complete",(req,res)=>{
    req.body.assignmentId,
    req.body.result||{}
   );
-
+  await pool.query(
+   `UPDATE command_assignments
+    SET status=$1,
+        completed_at=$2,
+        result=$3
+    WHERE id=$4`,
+   [
+    "completed",
+    new Date().toISOString(),
+    result,
+    assignment.id
+   ]
+  );
  if(!a){
 
   return res.status(404).json({
