@@ -365,17 +365,19 @@ async function work(id,details={}){
     details.topic||queries[id]
    );
 result={
-     found:r.results.length,
-     titles:r.results
-      .slice(0,5)
-      .map(x=>x.title),
-     results:r.results.map(x=>({
+  found:r.results.length,
+  titles:r.results
+   .slice(0,5)
+   .map(x=>x.title),
+  results:id==="product-scout"
+   ?r.results.map(x=>({
       ...x,
       productIntelligence:analyzeProduct(x)
-     })),
-     searchedAt:r.searchedAt,
-     query:r.query
-    };
+     }))
+   :r.results,
+  searchedAt:r.searchedAt,
+  query:r.query
+};
 
   }else if(id==="analytics"){
 
