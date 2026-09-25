@@ -17,15 +17,15 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname,"public")));
 
 const agentRegistry=[
- ["agent1","Command Center","Coordinate the ecosystem and direct work"],
- ["affiliate-intelligence","Affiliate Intelligence","Find and analyze affiliate opportunities"],
- ["viral-content","Viral Content Agent","Discover and develop content opportunities"],
- ["job-hunter","Job Hunter Agent","Find legitimate jobs and online income opportunities"],
- ["analytics","Analytics Agent","Track activity, opportunities, experiments, and revenue data"],
- ["opportunity-scout","Opportunity Scout","Discover and prioritize legitimate revenue opportunities"],
- ["product-scout","Product Scout","Find products with affiliate and content potential"],
- ["guardian","Guardian","Monitor the ecosystem and protect operations"],
- ["engineering-guardian","Engineering Guardian","Monitor, diagnose, test, and verify the system"]
+ ["agent1","Command Center","Central coordinator that assigns work, routes results, and maintains ecosystem state"],
+ ["affiliate-intelligence","Affiliate Research","Research affiliate programs and provide verified program information to the appropriate specialist"],
+ ["viral-content","Content Intelligence","Research trends, formats, audiences, hooks, and content opportunities"],
+ ["job-hunter","Job Hunter","Find legitimate remote jobs, freelance work, and contract opportunities"],
+ ["analytics","Analytics & Evaluation","Measure agent activity, research quality, experiments, failures, and improvement signals"],
+ ["opportunity-scout","Opportunity Scout","Discover legitimate evidence-backed revenue opportunities"],
+ ["product-scout","Product Scout","Find real products, product sources, affiliate eligibility, and content potential"],
+ ["guardian","Guardian","Monitor ecosystem health, safety, failures, stale work, and protected operations"],
+ ["engineering-guardian","Engineering Guardian","Monitor, diagnose, test, verify, and safely repair technical systems"]
 ].map(([id,name,purpose])=>({
  id,
  name,
