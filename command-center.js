@@ -23,31 +23,31 @@ const state = {
   ],
 
   tasks: [
-    {
-      id: "opportunity-scout",
-      name: "Opportunity Scout",
-      status: "building",
-      next: "Receive research assignments from Command Center"
-    },
-    {
-      id: "product-scout",
-      name: "Product Scout",
-      status: "building",
-      next: "Connect product discovery"
-    },
-    {
-      id: "guardian",
-      name: "Guardian",
-      status: "building",
-      next: "Connect ecosystem monitoring"
-    },
-    {
-      id: "engineering-guardian",
-      name: "Engineering Guardian",
-      status: "building",
-      next: "Connect deployment diagnostics"
-    }
-  ],
+  {
+    id: "opportunity-scout",
+    name: "Opportunity Scout",
+    status: "active",
+    next: "Discover and evaluate legitimate revenue opportunities"
+  },
+  {
+    id: "product-scout",
+    name: "Product Scout",
+    status: "active",
+    next: "Research real products, affiliate eligibility, and content potential"
+  },
+  {
+    id: "guardian",
+    name: "Guardian",
+    status: "active",
+    next: "Monitor ecosystem health, safety, failures, and protected operations"
+  },
+  {
+    id: "engineering-guardian",
+    name: "Engineering Guardian",
+    status: "active",
+    next: "Monitor, diagnose, verify, and safely repair technical systems"
+  }
+],
 
   assignments: []
 };
