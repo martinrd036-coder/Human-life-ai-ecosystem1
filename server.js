@@ -682,7 +682,7 @@ function startAutomation(){
 
   setTimeout(
    automationLoop,
-   AUTOMATION_INTERVAL
+   commandCenter.getAutomationIntervalMinutes()*60*1000
   );
 
  },FIRST_AUTOMATION_DELAY);
