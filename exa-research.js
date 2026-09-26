@@ -20,7 +20,9 @@ async function exaSearch(query, numResults = 10) {
           maxCharacters: 2000
         }
       }
-    }),
+    
+    })
+  });
 
   if (!response.ok) {
     throw new Error("Exa API returned " + response.status);
