@@ -10,7 +10,7 @@ function getSourceQuality(url = "") {
   try {
     const host = new URL(url).hostname.toLowerCase();
 
-    const officialDomains = [
+    const authoritativeDomains = [
       ".gov",
       "amazon.com",
       "youtube.com",
@@ -24,16 +24,40 @@ function getSourceQuality(url = "") {
       "linkedin.com"
     ];
 
-    const isOfficial = officialDomains.some(domain =>
+    const recognizedResearchDomains = [
+      "openai.com",
+      "anthropic.com",
+      "google.com",
+      "microsoft.com",
+      "meta.com",
+      "stripe.com",
+      "hubspot.com",
+      "semrush.com"
+    ];
+
+    const isAuthoritative = authoritativeDomains.some(domain =>
       host === domain ||
       host.endsWith(domain)
     );
 
-    if (isOfficial) {
+    if (isAuthoritative) {
       return {
         score: 30,
         level: "authoritative",
         reason: "Recognized official or authoritative domain."
+      };
+    }
+
+    const isRecognizedResearch = recognizedResearchDomains.some(domain =>
+      host === domain ||
+      host.endsWith(domain)
+    );
+
+    if (isRecognizedResearch) {
+      return {
+        score: 20,
+        level: "recognized_secondary",
+        reason: "Recognized technology or research source; independent verification still required."
       };
     }
 
