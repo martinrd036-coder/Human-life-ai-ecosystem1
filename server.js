@@ -128,7 +128,20 @@ async function init(){
    last_heartbeat TIMESTAMPTZ NOT NULL
   )
  `);
-
+ await pool.query(`
+  CREATE TABLE IF NOT EXISTS product_candidates(
+   id TEXT PRIMARY KEY,
+   product_name TEXT NOT NULL,
+   product_url TEXT UNIQUE NOT NULL,
+   source TEXT,
+   description TEXT,
+   verification_status TEXT,
+   affiliate_status TEXT,
+   content_angles JSONB,
+   revenue_status TEXT NOT NULL,
+   discovered_at TIMESTAMPTZ NOT NULL
+  )
+ `);
  await pool.query(`
   CREATE TABLE IF NOT EXISTS agent_runs(
    id TEXT PRIMARY KEY,
