@@ -57,14 +57,84 @@ async function researchOpportunities(topic) {
   const query = topic ||
     "legitimate ways to make money online official affiliate creator freelance remote work opportunities";
 
-  const data = await exaSearch(query, 10);
+  const officialQuery =
+    query +
+    " official program official company official terms requirements eligibility fees";
+
+  const officialData = await exaSearch(
+    officialQuery,
+    10
+  );
+
+  const generalData = await exaSearch(
+    query,
+    10
+  );
+
+  const officialResults = normalizeExaResults(
+    officialData
+  );
+
+  const generalResults = normalizeExaResults(
+    generalData
+  );
+
+  const seen = new Set();
+
+  const combinedResults = [
+    ...officialResults,
+    ...generalResults
+  ].filter(result => {
+    const key = result.url || result.title;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  }).slice(0, 10);
 
   return {
     query,
-    results: normalizeExaResults(data),
+    results: combinedResults,
     searchedAt: new Date().toISOString()
   };
-}
+
+  const generalData = await exaSearch(
+    query,
+    10
+  );
+
+  const officialResults = normalizeExaResults(
+    officialData
+  );
+
+  const generalResults = normalizeExaResults(
+    generalData
+  );
+
+  const seen = new Set();
+
+  const combinedResults = [
+    ...officialResults,
+    ...generalResults
+  ].filter(result => {
+    const key = result.url || result.title;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  }).slice(0, 10);
+
+  return {
+    query,
+    results: combinedResults,
+    searchedAt: new Date().toISOString()
+  };
 
 module.exports = {
   exaSearch,
