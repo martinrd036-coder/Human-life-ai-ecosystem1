@@ -15,7 +15,7 @@ const pool=new Pool({
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname,"public")));
-function buildRevenueIntelligence(results){
+
 function buildRevenueIntelligence(results){
  return results.map(x=>{
 
