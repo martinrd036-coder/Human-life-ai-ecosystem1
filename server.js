@@ -428,12 +428,27 @@ async function work(id,details={}){
     details.topic||queries[id]
    );
 result={
-  found:r.results.length,
-  titles:r.results
+const productResults=id==="product-scout"
+  ?r.results.filter(x=>{
+     const url=(x.url||"").toLowerCase();
+     const title=(x.title||"").toLowerCase();
+     const directProduct=
+      /amazon\.com\/dp\/[a-z0-9]{10}/i.test(url)||
+      /amazon\.com\/gp\/product\/[a-z0-9]{10}/i.test(url);
+     const blocked=
+      /\/(help|stores|gp\/browse|s|hz)\//i.test(url)||
+      /associates|affiliate-program|application review|affiliate information/i.test(title+" "+url);
+     return directProduct&&!blocked;
+    })
+  :r.results;
+
+result={
+  found:productResults.length,
+  titles:productResults
    .slice(0,5)
    .map(x=>x.title),
   results:id==="product-scout"
-   ?r.results.map(x=>({
+   ?productResults.map(x=>({
       ...x,
       productIntelligence:analyzeProduct(x)
      }))
