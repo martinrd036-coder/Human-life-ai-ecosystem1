@@ -116,13 +116,28 @@ async function researchOpportunities(topic) {
     "legitimate ways to make money online through AI automation, affiliate programs, creator programs, freelance work, remote jobs, digital products, and reputable opportunities";
 
   const officialQuery =
-    query +
-    " official program official company official terms requirements eligibility fees";
+  query +
+  " official program official company official terms requirements eligibility fees";
 
-  const officialData = await exaSearch(
-    officialQuery,
-    10
-  );
+const officialDomains = [
+  "amazon.com",
+  "youtube.com",
+  "tiktok.com",
+  "walmart.com",
+  "etsy.com",
+  "ebay.com",
+  "shopify.com",
+  "upwork.com",
+  "fiverr.com",
+  "linkedin.com",
+  "gov"
+];
+
+const officialData = await exaSearch(
+  officialQuery +
+  " site:amazon.com OR site:youtube.com OR site:tiktok.com OR site:walmart.com OR site:etsy.com OR site:ebay.com OR site:shopify.com OR site:upwork.com OR site:fiverr.com OR site:linkedin.com OR site:gov",
+  10
+);
 
   const generalData = await exaSearch(
     query,
