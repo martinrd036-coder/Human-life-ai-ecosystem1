@@ -11,12 +11,16 @@ async function exaSearch(query, numResults = 10) {
       "Content-Type": "application/json",
       "x-api-key": apiKey
     },
-    body: JSON.stringify({
+        body: JSON.stringify({
       query,
       numResults,
-      type: "auto"
+      type: "auto",
+      contents: {
+        text: {
+          maxCharacters: 2000
+        }
+      }
     })
-  });
 
   if (!response.ok) {
     throw new Error("Exa API returned " + response.status);
