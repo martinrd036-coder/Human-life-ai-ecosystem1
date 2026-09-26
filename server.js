@@ -427,7 +427,7 @@ async function work(id,details={}){
    const r=await researchOpportunities(
     details.topic||queries[id]
    );
-result={
+
 const productResults=id==="product-scout"
   ?r.results.filter(x=>{
      const url=(x.url||"").toLowerCase();
