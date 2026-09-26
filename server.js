@@ -1085,6 +1085,41 @@ app.get("/api/product-scout/results",async(req,res)=>{
   });
  }
 });
+app.get("/api/product-scout/products",async(req,res)=>{
+ try{
+
+  const r=await pool.query(`
+   SELECT
+    id,
+    product_name AS "productName",
+    product_url AS "productUrl",
+    source,
+    description,
+    verification_status AS "verificationStatus",
+    affiliate_status AS "affiliateStatus",
+    content_angles AS "contentAngles",
+    revenue_status AS "revenueStatus",
+    discovered_at AS "discoveredAt"
+   FROM product_candidates
+   ORDER BY discovered_at DESC
+   LIMIT 100
+  `);
+
+  res.json({
+   status:"ready",
+   agent:"Product Scout",
+   savedCount:r.rows.length,
+   products:r.rows
+  });
+
+ }catch(e){
+
+  res.status(500).json({
+   status:"error",
+   message:e.message
+  });
+ }
+});
 app.get("/api/agents/status",async(req,res)=>{
  try{
 
