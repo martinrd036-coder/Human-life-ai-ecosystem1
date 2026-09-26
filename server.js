@@ -17,47 +17,55 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname,"public")));
 
 function buildRevenueIntelligence(results){
- return results.map(x=>{
+ return results
+  .map(x=>{
 
-  const item={
-   id:x.url||x.title,
-   title:x.title,
-   url:x.url,
-   description:x.description||"",
-   revenueSource:"Research source",
-   cost:"Not yet verified",
-   riskNotes:"Requires independent verification before testing."
-  };
+   const item={
+    id:x.url||x.title,
+    title:x.title,
+    url:x.url,
+    description:x.description||"",
+    revenueSource:"Research source",
+    cost:"Not yet verified",
+    riskNotes:"Requires independent verification before testing."
+   };
 
-  const intelligence=scoreOpportunity(item);
-  const experiment=buildExperimentPlan(item);
+   const intelligence=scoreOpportunity(item);
+   const experiment=buildExperimentPlan(item);
 
-  return{
-   opportunity:x.title,
-   source:x.url,
-   evidence:x.description||null,
+   const priorityScore=Math.round(
+    (intelligence.evidenceScore*0.6)+
+    (intelligence.testabilityScore*0.4)
+   );
 
-   evidenceScore:intelligence.evidenceScore,
-   testabilityScore:intelligence.testabilityScore,
-   confidenceBand:intelligence.confidenceBand,
-   qualityGate:intelligence.qualityGate,
-   sourceQuality:intelligence.sourceQuality,
+   return{
+    opportunity:x.title,
+    source:x.url,
+    evidence:x.description||null,
 
-   verificationChecks:intelligence.verificationChecks,
+    priorityScore,
+    evidenceScore:intelligence.evidenceScore,
+    testabilityScore:intelligence.testabilityScore,
+    confidenceBand:intelligence.confidenceBand,
+    qualityGate:intelligence.qualityGate,
+    sourceQuality:intelligence.sourceQuality,
 
-   businessModel:"Needs verification",
-   targetCustomer:"Needs verification",
-   startupCost:"Needs verification",
-   difficulty:"Needs verification",
-   monetizationPath:"Needs verification",
+    verificationChecks:intelligence.verificationChecks,
 
-   firstTest:experiment.firstAction,
-   successMetrics:experiment.successMetrics,
-   stopRules:experiment.stopRules,
+    businessModel:"Needs verification",
+    targetCustomer:"Needs verification",
+    startupCost:"Needs verification",
+    difficulty:"Needs verification",
+    monetizationPath:"Needs verification",
 
-   revenueStatus:"No revenue claimed."
-  };
- });
+    firstTest:experiment.firstAction,
+    successMetrics:experiment.successMetrics,
+    stopRules:experiment.stopRules,
+
+    revenueStatus:"No revenue claimed."
+   };
+  })
+  .sort((a,b)=>b.priorityScore-a.priorityScore);
 }
 const agentRegistry=[
  ["agent1","Command Center","Central coordinator that assigns work, routes results, and maintains ecosystem state"],
