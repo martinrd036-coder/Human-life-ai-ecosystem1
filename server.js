@@ -74,8 +74,7 @@ const agentRegistry=[
  ["revenue-intelligence","Revenue Intelligence","Research, validate, compare, and prioritize legitimate AI-powered revenue opportunities across the ecosystem"],
  ["analytics","Analytics & Evaluation","Measure agent activity, research quality, experiments, failures, and improvement signals"],
  ["opportunity-scout","Opportunity Scout","Discover legitimate evidence-backed revenue opportunities"],
- ["product-scout":
-    "Find real Amazon products that can be promoted with an Amazon Associates product link. Search for specific physical products and direct Amazon product pages, including product name, Amazon URL, current product information, customer use cases, content potential, and relevant product details. Exclude Amazon Associates program pages, help pages, storefront pages, category pages, search-result pages, and general affiliate information. Return actual individual products only."],
+ ["product-scout","Product Scout","Find real Amazon products that can be promoted with an Amazon Associates product link. Search for specific physical products and direct Amazon product pages, including product name, Amazon URL, current product information, customer use cases, content potential, and relevant product details. Exclude Amazon Associates program pages, help pages, storefront pages, category pages, search-result pages, and general affiliate information. Return actual individual products only."],,
  ["guardian","Guardian","Monitor ecosystem health, safety, failures, stale work, and protected operations"],
  ["engineering-guardian","Engineering Guardian","Monitor, diagnose, test, verify, and safely repair technical systems"]
 ].map(([id,name,purpose])=>({
