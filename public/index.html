@@ -350,8 +350,14 @@ return;
 
 results.innerHTML='';
 
-d.opportunities.forEach(item=>{
-
+d.opportunities
+ .slice()
+ .sort((a,b)=>
+  ((b.evidenceScore||0)*0.6+(b.testabilityScore||0)*0.4)-
+  ((a.evidenceScore||0)*0.6+(a.testabilityScore||0)*0.4)
+ )
+ .slice(0,10)
+ .forEach(item=>{
 const div=document.createElement('div');
 
 div.className='result';
@@ -461,7 +467,14 @@ return;
 
 }
 
-d.opportunities.forEach(item=>{
+d.opportunities
+ .slice()
+ .sort((a,b)=>
+  ((b.evidenceScore||0)*0.6+(b.testabilityScore||0)*0.4)-
+  ((a.evidenceScore||0)*0.6+(a.testabilityScore||0)*0.4)
+ )
+ .slice(0,10)
+ .forEach(item=>{
 
 const div=document.createElement('div');
 
