@@ -105,8 +105,7 @@ if (
 
     testPlan: {
       objective:
-        "Verify the product and affiliate eligibility before creating promotional content.",
-
+  "Identify promising Amazon products, create content tests, drive traffic through the affiliate link, and measure views, clicks, qualifying purchases, and verified commissions.",
       firstAction:
         "Verify the product page, current availability, affiliate eligibility, and applicable program rules.",
 
