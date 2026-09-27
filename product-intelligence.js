@@ -107,8 +107,7 @@ if (
       objective:
   "Identify promising Amazon products, create content tests, drive traffic through the affiliate link, and measure views, clicks, qualifying purchases, and verified commissions.",
       firstAction:
-        "Verify the product page, current availability, affiliate eligibility, and applicable program rules.",
-
+  "Confirm the product page and current product information, then prepare a content test using the user's Amazon affiliate link and track views, clicks, qualifying purchases, and verified commissions.",
       successMetrics: [
         "product verified",
         "affiliate eligibility verified",
