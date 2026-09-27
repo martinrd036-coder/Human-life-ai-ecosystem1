@@ -25,6 +25,10 @@ function buildRevenueIntelligence(results){
     title:x.title,
     url:x.url,
     description:x.description||"",
+    revenueSource:"Research source",
+    cost:"Not yet verified",
+    riskNotes:"Requires independent verification before testing."
+   };
 
    const intelligence=scoreOpportunity(item);
    const experiment=buildExperimentPlan(item);
