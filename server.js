@@ -450,17 +450,52 @@ const productResults=id==="product-scout"
      return directProduct&&!blocked;
     })
   :r.results;
+function cleanProductDescription(value=""){
+ let text=String(value||"");
 
+ text=text
+  .replace(/\r\n|\n|\r|\t/g," ")
+  .replace(/<script[\s\S]*?<\/script>/gi," ")
+  .replace(/<style[\s\S]*?<\/style>/gi," ");
+
+ const boilerplateMarkers=[
+  "Click the button below to continue shopping",
+  "Conditions of Use",
+  "Privacy Notice",
+  "Your California Privacy Rights",
+  "© 1996-2025, Amazon.com, Inc.",
+  "© 1996-2026, Amazon.com, Inc."
+ ];
+
+ for(const marker of boilerplateMarkers){
+  const index=text.indexOf(marker);
+  if(index>40){
+   text=text.slice(0,index);
+  }
+ }
+
+ return text
+  .replace(/\s+/g," ")
+  .trim()
+  .slice(0,5000);
+                    }
 result={
   found:productResults.length,
   titles:productResults
    .slice(0,5)
    .map(x=>x.title),
   results:id==="product-scout"
-   ?productResults.map(x=>({
-      ...x,
-      productIntelligence:analyzeProduct(x)
-     }))
+   ?productResults.map(x=>{
+      const cleaned={
+       ...x,
+       description:cleanProductDescription(x.description)
+      };
+
+      return{
+       ...cleaned,
+       productIntelligence:analyzeProduct(cleaned)
+      };
+     })
    :id==="revenue-intelligence"
    ?buildRevenueIntelligence(r.results)
    :r.results,
