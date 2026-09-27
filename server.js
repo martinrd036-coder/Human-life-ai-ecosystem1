@@ -427,8 +427,8 @@ async function work(id,details={}){
 
     "product-scout":
     "Find actual Amazon product candidates with specific product names, product pages, current product information, customer use cases, creator content potential, and legitimate affiliate eligibility. Return actual products, not general Amazon affiliate information pages",
-   
-   "Find current legitimate content and traffic opportunities for promoting products with affiliate links. Research TikTok, YouTube Shorts, Pinterest, search-driven content, product demonstrations, comparisons, problem-solution videos, seasonal demand, trending topics, strong hooks, and strategies that can work for creators with small or new audiences. Return evidence-backed opportunities with source, content angle, target audience, platform, hook idea, traffic strategy, and measurable success metrics. Do not assume the creator already has a large audience.",
+   "viral-content":
+    "Find current legitimate content and traffic opportunities for promoting products with affiliate links. Research TikTok, YouTube Shorts, Pinterest, search-driven content, product demonstrations, comparisons, problem-solution videos, seasonal demand, trending topics, strong hooks, and strategies that can work for creators with small or new audiences. Return evidence-backed opportunities with source, content angle, target audience, platform, hook idea, traffic strategy, and measurable success metrics. Do not assume the creator already has a large audience.",
    "revenue-intelligence":
     "legitimate AI-powered online revenue opportunities, automation businesses, affiliate models, digital products, creator monetization, freelance services, lead generation, and emerging platforms. Return evidence-backed opportunities with business model, target customer, startup cost, difficulty, monetization path, verification sources, first test, success metrics, and stop rules"
     };
