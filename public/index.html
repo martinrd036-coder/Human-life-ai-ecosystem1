@@ -368,20 +368,21 @@ escapeHtml(
 item.title ||
 'Untitled opportunity'
 )+
-'</strong><br><small>'+
-escapeHtml(
-item.revenueSource ||
-'Research source'
+'</strong><br>'+
+'<small>Priority Score: '+
+Math.round(
+((item.evidenceScore||0)*0.6)+
+((item.testabilityScore||0)*0.4)
 )+
+' | Evidence: '+
+(item.evidenceScore||0)+
+' | Testability: '+
+(item.testabilityScore||0)+
 '</small><br>'+
-escapeHtml(
-item.description ||
-''
-)+
 (
 item.url
 ?
-'<br><a href="'+
+'<a href="'+
 escapeHtml(item.url)+
 '" target="_blank" rel="noopener">'+
 'Open source</a>'
