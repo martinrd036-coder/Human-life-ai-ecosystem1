@@ -99,8 +99,7 @@ if (
     contentAngles,
 
     affiliateStatus:
-      "Not verified — human verification required.",
-
+  "Promotion allowed — Amazon qualifying period active.",
     revenueStatus:
       "No revenue claimed.",
 
