@@ -24,18 +24,7 @@ function buildRevenueIntelligence(results){
     id:x.url||x.title,
     title:x.title,
     url:x.url,
-    description:String(item.description||"")
- .replace(/\r\n|\n|\r|\t/g," ")
- .replace(/<script[\s\S]*?<\/script>/gi," ")
- .replace(/<style[\s\S]*?<\/style>/gi," ")
- .replace(/(?:^|\s)(?:var|let|const)\s+(?:ue_|ue[A-Za-z0-9_]*|window|document)\b[\s\S]*$/i," ")
- .replace(/\s+/g," ")
- .trim()
- .slice(0,5000),
-    revenueSource:"Research source",
-    cost:"Not yet verified",
-    riskNotes:"Requires independent verification before testing."
-   };
+    description:x.description||"",
 
    const intelligence=scoreOpportunity(item);
    const experiment=buildExperimentPlan(item);
