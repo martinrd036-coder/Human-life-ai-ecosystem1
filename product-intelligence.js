@@ -51,16 +51,21 @@ function analyzeProduct(item = {}) {
 
   let verificationStatus;
 
-  if (
-    title &&
-    url &&
-    description &&
-    recognizedSource
-  ) {
-    verificationStatus = "needs_affiliate_verification";
-  } else {
-    verificationStatus = "needs_product_verification";
-  }
+if (
+  title &&
+  url &&
+  description &&
+  recognizedSource
+) {
+  verificationStatus = "product_verified";
+} else if (
+  title &&
+  url
+) {
+  verificationStatus = "product_details_need_verification";
+} else {
+  verificationStatus = "product_not_verified";
+}
 
   const contentAngles = [];
 
