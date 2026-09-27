@@ -462,6 +462,38 @@ function cleanProductDescription(value=""){
   .replace(/<script[\s\S]*?<\/script>/gi," ")
   .replace(/<style[\s\S]*?<\/style>/gi," ");
 
+ const garbageMarkers=[
+  "var ue_",
+  "window.",
+  "document.",
+  "function(",
+  "function (",
+  "setInterval(",
+  "setTimeout(",
+  "Amazon.com, Inc.",
+  "DOWNGRADED",
+  "FATAL",
+  "ERROR",
+  "WARN",
+  "logLevel",
+  "ue_err",
+  "ue_sid",
+  "ue_mid",
+  "ue_furl",
+  "ue_url"
+ ];
+
+ let cutIndex=text.length;
+
+ for(const marker of garbageMarkers){
+  const index=text.indexOf(marker);
+  if(index>80 && index<cutIndex){
+   cutIndex=index;
+  }
+ }
+
+ text=text.slice(0,cutIndex);
+
  const boilerplateMarkers=[
   "Click the button below to continue shopping",
   "Conditions of Use",
@@ -482,7 +514,7 @@ function cleanProductDescription(value=""){
   .replace(/\s+/g," ")
   .trim()
   .slice(0,5000);
-                    }
+  }
 result={
   found:productResults.length,
   titles:productResults
