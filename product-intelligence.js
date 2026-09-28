@@ -52,8 +52,8 @@ function analyzeProduct(item = {}) {
     /amazon\.com\/dp\/[a-z0-9]{10}/i.test(url) ||
     /amazon\.com\/gp\/product\/[a-z0-9]{10}/i.test(url);
 
-    const hasUseCase =
-    /\b(ideal for|designed for|helps you|helps users|used to|use it to|built for|made for|solves|solution for|organize your|protect your|clean your|carry your|store your|improve your)\b/i.test(
+      const hasUseCase =
+    /\b(ideal for|designed for|helps you|helps users|used to|use it to|built for|made for|solves|solution for|organize your|protect your|clean your|carry your|store your|improve your|watch|stream|streaming|play games|listen to|read|write|charge|charging|control|connect|connected|browse|search|work|learn|cook|travel|record|display|view|track|monitor|communicate|call|video call|take photos|photography)\b/i.test(
       description
     );
 
