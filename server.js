@@ -553,43 +553,61 @@ result={
 
      await pool.query(
       `INSERT INTO product_candidates(
-       id,
-       product_name,
-       product_url,
-       source,
-       description,
-       verification_status,
-       affiliate_status,
-       content_angles,
-       revenue_status,
-       discovered_at
-      )
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-      ON CONFLICT(product_url)
-      DO UPDATE SET
-       product_name=EXCLUDED.product_name,
-       source=EXCLUDED.source,
-       description=EXCLUDED.description,
-       verification_status=EXCLUDED.verification_status,
-       affiliate_status=EXCLUDED.affiliate_status,
-       content_angles=EXCLUDED.content_angles,
-       revenue_status=EXCLUDED.revenue_status
-      `,
-      [
-       `product-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
-       pi.productName||item.title||"Unknown product",
-       pi.sourceUrl,
-       pi.source||item.source||"Amazon",
-       item.description||"",
-       pi.verificationStatus||"needs_product_verification",
-       pi.affiliateStatus||"Not verified — human verification required.",
-       JSON.stringify(pi.contentAngles||[]),
-       pi.revenueStatus||"No revenue claimed.",
-       new Date().toISOString()
-      ]
-     );
-    }
-      }
+ id,
+ product_name,
+ product_url,
+ source,
+ description,
+ verification_status,
+ affiliate_status,
+ content_angles,
+ revenue_status,
+ discovered_at,
+ qualification,
+ qualification_score,
+ qualification_checks,
+ evidence,
+ recommended_action,
+ verification_checks,
+ test_plan
+)
+VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+ON CONFLICT(product_url)
+DO UPDATE SET
+ product_name=EXCLUDED.product_name,
+ source=EXCLUDED.source,
+ description=EXCLUDED.description,
+ verification_status=EXCLUDED.verification_status,
+ affiliate_status=EXCLUDED.affiliate_status,
+ content_angles=EXCLUDED.content_angles,
+ revenue_status=EXCLUDED.revenue_status,
+ qualification=EXCLUDED.qualification,
+ qualification_score=EXCLUDED.qualification_score,
+ qualification_checks=EXCLUDED.qualification_checks,
+ evidence=EXCLUDED.evidence,
+ recommended_action=EXCLUDED.recommended_action,
+ verification_checks=EXCLUDED.verification_checks,
+ test_plan=EXCLUDED.test_plan
+`,
+[
+ `product-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+ pi.productName||item.title||"Unknown product",
+ pi.sourceUrl,
+ pi.source||item.source||"Amazon",
+ item.description||"",
+ pi.verificationStatus||"needs_product_verification",
+ pi.affiliateStatus||"Not verified — human verification required.",
+ JSON.stringify(pi.contentAngles||[]),
+ pi.revenueStatus||"No revenue claimed.",
+ new Date().toISOString(),
+ pi.qualification||"NEEDS_VERIFICATION",
+ Number.isFinite(pi.qualificationScore)?pi.qualificationScore:0,
+ JSON.stringify(pi.qualificationChecks||[]),
+ JSON.stringify(pi.evidence||[]),
+ pi.recommendedAction||"Verify product evidence before promotion testing.",
+ JSON.stringify(pi.verificationChecks||[]),
+ JSON.stringify(pi.testPlan||{})
+]
 
   }else if(id==="analytics"){
 
