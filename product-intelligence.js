@@ -96,14 +96,13 @@ function analyzeProduct(item = {}) {
     );
   }
 
-  if (description.length >= 80) {
+    if (description.length >= 120 && !hasGarbage) {
     qualificationScore += 15;
   } else {
     qualificationChecks.push(
-      "More product details are needed."
+      "Clean, detailed product evidence is needed."
     );
-  }
-
+    }
   if (recognizedSource) {
     qualificationScore += 10;
   } else {
