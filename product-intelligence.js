@@ -52,16 +52,27 @@ function analyzeProduct(item = {}) {
     /amazon\.com\/dp\/[a-z0-9]{10}/i.test(url) ||
     /amazon\.com\/gp\/product\/[a-z0-9]{10}/i.test(url);
 
-  const hasUseCase =
-    /\b(use|uses|ideal|designed|helps|for|solution|solve|organize|protect|clean|carry|store|improve)\b/i.test(
+    const hasUseCase =
+    /\b(ideal for|designed for|helps you|helps users|used to|use it to|built for|made for|solves|solution for|organize your|protect your|clean your|carry your|store your|improve your)\b/i.test(
+      description
+    );
+
+  const hasUsefulDetails =
+    /\b(price|reviews?|rated|features?|dimensions?|size|color|battery|wireless|bluetooth|wifi|storage|display|resolution|material|includes?|compatible|works with|seller|in stock)\b/i.test(
+      description
+    );
+
+  const hasGarbage =
+    /\b(var\s+\w+\s*=|window\.|document\.|function\s*\(|setInterval\s*\(|setTimeout\s*\(|ue_[a-z_]+)\b/i.test(
       description
     );
 
   const hasContentPotential = Boolean(
     title &&
-    (description.length >= 80 || hasUseCase)
+    hasUseCase &&
+    hasUsefulDetails &&
+    !hasGarbage
   );
-
   const qualificationChecks = [];
   let qualificationScore = 0;
 
