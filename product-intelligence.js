@@ -1,5 +1,4 @@
 function analyzeProduct(item = {}) {
-
   const title = item.title || "";
   const url = item.url || "";
   const description = item.description || "";
@@ -49,23 +48,95 @@ function analyzeProduct(item = {}) {
     checks.push("Verify the commerce source.");
   }
 
-  let verificationStatus;
+  const directAmazonProduct =
+    /amazon\.com\/dp\/[a-z0-9]{10}/i.test(url) ||
+    /amazon\.com\/gp\/product\/[a-z0-9]{10}/i.test(url);
 
-if (
-  title &&
-  url &&
-  description &&
-  recognizedSource
-) {
-  verificationStatus = "product_verified";
-} else if (
-  title &&
-  url
-) {
-  verificationStatus = "product_details_need_verification";
-} else {
-  verificationStatus = "product_not_verified";
-}
+  const hasUseCase =
+    /\b(use|uses|ideal|designed|helps|for|solution|solve|organize|protect|clean|carry|store|improve)\b/i.test(
+      description
+    );
+
+  const hasContentPotential = Boolean(
+    title &&
+    (description.length >= 80 || hasUseCase)
+  );
+
+  const qualificationChecks = [];
+  let qualificationScore = 0;
+
+  if (title) {
+    qualificationScore += 15;
+  } else {
+    qualificationChecks.push("Product name is missing.");
+  }
+
+  if (url) {
+    qualificationScore += 15;
+  } else {
+    qualificationChecks.push("Direct product URL is missing.");
+  }
+
+  if (directAmazonProduct) {
+    qualificationScore += 20;
+  } else {
+    qualificationChecks.push(
+      "Confirm this is a direct Amazon product page."
+    );
+  }
+
+  if (description.length >= 80) {
+    qualificationScore += 15;
+  } else {
+    qualificationChecks.push(
+      "More product details are needed."
+    );
+  }
+
+  if (recognizedSource) {
+    qualificationScore += 10;
+  } else {
+    qualificationChecks.push(
+      "Commerce source needs verification."
+    );
+  }
+
+  if (hasUseCase) {
+    qualificationScore += 10;
+  } else {
+    qualificationChecks.push(
+      "Clear customer use case needs verification."
+    );
+  }
+
+  if (hasContentPotential) {
+    qualificationScore += 15;
+  } else {
+    qualificationChecks.push(
+      "Content potential needs verification."
+    );
+  }
+
+  let qualification;
+
+  if (
+    directAmazonProduct &&
+    title &&
+    url &&
+    description.length >= 80 &&
+    recognizedSource &&
+    qualificationScore >= 80
+  ) {
+    qualification = "QUALIFIED";
+  } else if (
+    title &&
+    url &&
+    qualificationScore >= 45
+  ) {
+    qualification = "NEEDS_VERIFICATION";
+  } else {
+    qualification = "REJECTED";
+  }
 
   const contentAngles = [];
 
@@ -83,6 +154,13 @@ if (
     );
   }
 
+  const recommendedAction =
+    qualification === "QUALIFIED"
+      ? "Prepare a content test and verify affiliate eligibility before publishing."
+      : qualification === "NEEDS_VERIFICATION"
+        ? "Verify the missing product evidence before creating a promotion test."
+        : "Do not promote yet; find a stronger or better-supported product candidate.";
+
   return {
     productName: title || "Unknown product",
 
@@ -90,7 +168,18 @@ if (
 
     source: source || "Unknown source",
 
-    verificationStatus,
+    verificationStatus:
+      title && url && description && recognizedSource
+        ? "product_verified"
+        : title && url
+          ? "product_details_need_verification"
+          : "product_not_verified",
+
+    qualification,
+
+    qualificationScore,
+
+    qualificationChecks,
 
     evidence,
 
@@ -98,16 +187,21 @@ if (
 
     contentAngles,
 
+    recommendedAction,
+
     affiliateStatus:
-  "Promotion allowed — Amazon qualifying period active.",
+      "Promotion allowed — Amazon qualifying period active.",
+
     revenueStatus:
       "No revenue claimed.",
 
     testPlan: {
       objective:
-  "Identify promising Amazon products, create content tests, drive traffic through the affiliate link, and measure views, clicks, qualifying purchases, and verified commissions.",
+        "Identify promising Amazon products, create content tests, drive traffic through the affiliate link, and measure views, clicks, qualifying purchases, and verified commissions.",
+
       firstAction:
-  "Confirm the product page and current product information, then prepare a content test using the user's Amazon affiliate link and track views, clicks, qualifying purchases, and verified commissions.",
+        "Confirm the product page and current product information, then prepare a content test using the user's Amazon affiliate link and track views, clicks, qualifying purchases, and verified commissions.",
+
       successMetrics: [
         "product verified",
         "affiliate eligibility verified",
@@ -127,7 +221,6 @@ if (
     }
   };
 }
-
 
 module.exports = {
   analyzeProduct
