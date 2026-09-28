@@ -143,6 +143,16 @@ async function init(){
   )
  `);
  await pool.query(`
+  ALTER TABLE product_candidates
+  ADD COLUMN IF NOT EXISTS qualification TEXT,
+  ADD COLUMN IF NOT EXISTS qualification_score INTEGER,
+  ADD COLUMN IF NOT EXISTS qualification_checks JSONB,
+  ADD COLUMN IF NOT EXISTS evidence JSONB,
+  ADD COLUMN IF NOT EXISTS recommended_action TEXT,
+  ADD COLUMN IF NOT EXISTS verification_checks JSONB,
+  ADD COLUMN IF NOT EXISTS test_plan JSONB
+`);
+ await pool.query(`
   CREATE TABLE IF NOT EXISTS agent_runs(
    id TEXT PRIMARY KEY,
    agent_id TEXT NOT NULL,
