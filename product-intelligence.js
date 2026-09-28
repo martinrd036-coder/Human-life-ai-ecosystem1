@@ -200,8 +200,7 @@ function analyzeProduct(item = {}) {
     recommendedAction,
 
     affiliateStatus:
-      "Promotion allowed — Amazon qualifying period active.",
-
+  "Affiliate eligibility not independently verified.",
     revenueStatus:
       "No revenue claimed.",
 
