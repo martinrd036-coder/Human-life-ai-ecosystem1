@@ -653,7 +653,8 @@ DO UPDATE SET
 
    result={
     message:"Command Center connected."
-   };
+       };
+     }
   }
 
   const activity=
