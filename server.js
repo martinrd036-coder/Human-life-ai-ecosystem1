@@ -609,6 +609,8 @@ DO UPDATE SET
  JSON.stringify(pi.testPlan||{})
 ]
 
+);
+
   }else if(id==="analytics"){
 
    const o=await pool.query(
