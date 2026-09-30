@@ -73,61 +73,78 @@ function analyzeProduct(item = {}) {
     hasUsefulDetails &&
     !hasGarbage
   );
-  const qualificationChecks = [];
+    const qualificationChecks = [];
   let qualificationScore = 0;
 
-  if (title) {
-    qualificationScore += 15;
+  const scoreChecks = {
+    productName: Boolean(title),
+    directUrl: Boolean(url),
+    directAmazonProduct,
+    cleanDetails:
+      description.length >= 120 && !hasGarbage,
+    recognizedSource,
+    customerUseCase: hasUseCase,
+    contentPotential: hasContentPotential
+  };
+
+  if (scoreChecks.productName) {
+    qualificationScore += 10;
+    evidence.push("product_identity_confirmed");
   } else {
-    qualificationChecks.push("Product name is missing.");
+    qualificationChecks.push("Product identity needs verification.");
   }
 
-  if (url) {
-    qualificationScore += 15;
+  if (scoreChecks.directUrl) {
+    qualificationScore += 10;
+    evidence.push("direct_product_url");
   } else {
     qualificationChecks.push("Direct product URL is missing.");
   }
 
-  if (directAmazonProduct) {
+  if (scoreChecks.directAmazonProduct) {
     qualificationScore += 20;
+    evidence.push("direct_amazon_product_page");
   } else {
     qualificationChecks.push(
       "Confirm this is a direct Amazon product page."
     );
   }
 
-    if (description.length >= 120 && !hasGarbage) {
+  if (scoreChecks.cleanDetails) {
     qualificationScore += 15;
+    evidence.push("clean_product_details");
   } else {
     qualificationChecks.push(
       "Clean, detailed product evidence is needed."
     );
-    }
-  if (recognizedSource) {
+  }
+
+  if (scoreChecks.recognizedSource) {
     qualificationScore += 10;
+    evidence.push("recognized_commerce_source");
   } else {
     qualificationChecks.push(
       "Commerce source needs verification."
     );
   }
 
-  if (hasUseCase) {
-    qualificationScore += 10;
+  if (scoreChecks.customerUseCase) {
+    qualificationScore += 15;
+    evidence.push("customer_use_case");
   } else {
     qualificationChecks.push(
       "Clear customer use case needs verification."
     );
   }
 
-  if (hasContentPotential) {
-    qualificationScore += 15;
+  if (scoreChecks.contentPotential) {
+    qualificationScore += 20;
+    evidence.push("content_potential");
   } else {
     qualificationChecks.push(
       "Content potential needs verification."
     );
-  }
-
-  let qualification;
+      }
 
   if (
     directAmazonProduct &&
