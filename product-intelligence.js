@@ -145,7 +145,7 @@ function analyzeProduct(item = {}) {
       "Content potential needs verification."
     );
       }
-
+  let qualification;
   if (
     directAmazonProduct &&
     title &&
