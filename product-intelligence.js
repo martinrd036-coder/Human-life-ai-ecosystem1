@@ -146,24 +146,24 @@ function analyzeProduct(item = {}) {
     );
       }
   let qualification;
-  if (
+    if (
     directAmazonProduct &&
     title &&
     url &&
-    description.length >= 80 &&
+    scoreChecks.cleanDetails &&
     recognizedSource &&
-    qualificationScore >= 80
+    qualificationScore >= 85
   ) {
     qualification = "QUALIFIED";
   } else if (
     title &&
     url &&
-    qualificationScore >= 45
+    qualificationScore >= 50
   ) {
     qualification = "NEEDS_VERIFICATION";
   } else {
     qualification = "REJECTED";
-  }
+    }
 
   const contentAngles = [];
 
