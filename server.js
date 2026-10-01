@@ -1611,7 +1611,6 @@ app.post(
    });
 
   }catch(e){
-  }catch(e){
 
    res.status(400).json({
     success:false,
