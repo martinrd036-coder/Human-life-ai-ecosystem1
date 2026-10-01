@@ -204,10 +204,11 @@ async function completeTask(assignmentId, result = {}) {
   );
 
   return assignment;
-}
+  }
 
-function failTask(assignmentId, errorMessage) {
-async function failTask(assignmentId, errorMessage) {
+  function failTask(assignmentId, errorMessage) {
+  async function 
+  failTask(assignmentId, errorMessage) {
   if (!db) {
     throw new Error("Command Center database is not initialized.");
   }
