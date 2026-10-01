@@ -565,9 +565,9 @@ async function loadProductScoutResults(){
         <div class="result">
           <small>Product research available</small>
           ${
-            item.url
-              ? '<br><a href="'+
-                escapeHtml(item.url)+
+            item.product_url
+  ? '<br><a href="'+
+    escapeHtml(item.product_url)+
                 '" target="_blank" rel="noopener">'+
                 'Open source</a>'
               : ''
