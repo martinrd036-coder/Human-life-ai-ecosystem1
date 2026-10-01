@@ -1331,20 +1331,6 @@ async function runAutomation(){
  }
 }
 
- }catch(e){
-
-  await beat(
-   "agent1",
-   "error",
-   `Automation cycle failed: ${e.message}`
-  );
-
- }finally{
-
-  automationRunning=false;
- }
-}
-
 function startAutomation(){
 
  setTimeout(
