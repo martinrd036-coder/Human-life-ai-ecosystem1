@@ -207,6 +207,11 @@ async function completeTask(assignmentId, result = {}) {
 }
 
 function failTask(assignmentId, errorMessage) {
+async function failTask(assignmentId, errorMessage) {
+  if (!db) {
+    throw new Error("Command Center database is not initialized.");
+  }
+
   const assignment = state.assignments.find(
     (task) => task.id === assignmentId
   );
@@ -215,17 +220,35 @@ function failTask(assignmentId, errorMessage) {
     return null;
   }
 
-  assignment.status = "failed";
-  assignment.completedAt = new Date().toISOString();
-  assignment.result = {
+  const completedAt = new Date().toISOString();
+
+  const result = {
     error: errorMessage
   };
+
+  await db.query(
+    `UPDATE command_assignments
+     SET status = $1,
+         completed_at = $2,
+         result = $3
+     WHERE id = $4`,
+    [
+      "failed",
+      completedAt,
+      JSON.stringify(result),
+      assignmentId
+    ]
+  );
+
+  assignment.status = "failed";
+  assignment.completedAt = completedAt;
+  assignment.result = result;
 
   addEvent(
     "task-failed",
     `Task "${assignment.taskName}" failed for ${assignment.agentId}.`
   );
-
+  
   return assignment;
 }
 
