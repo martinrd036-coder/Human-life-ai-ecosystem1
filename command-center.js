@@ -206,7 +206,6 @@ async function completeTask(assignmentId, result = {}) {
   return assignment;
   }
 
-  function failTask(assignmentId, errorMessage) {
   async function 
   failTask(assignmentId, errorMessage) {
   if (!db) {
