@@ -1665,12 +1665,16 @@ app.post(
    await runAutomation();
 
    res.json({
-    success:true,
-    message:
-     "Command Center cycle completed.",
-    revenueStatus:
-     "No revenue claimed."
-   });
+ success:true,
+ cycle:cycle.cycle,
+ onlineAgents:cycle.onlineAgents,
+ totalAgents:cycle.totalAgents,
+ activeAssignments:cycle.activeAssignments,
+ message:
+  "Command Center cycle completed.",
+ revenueStatus:
+  "No revenue claimed."
+});
 
   }catch(e){
 
