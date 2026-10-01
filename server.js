@@ -1356,9 +1356,9 @@ app.get(
    res.status(500).json({
     error:e.message
    });
-  }
+    }
+ }
 );
-
 app.get(
  "/api/product-scout/results",
  async(req,res)=>{
