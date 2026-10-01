@@ -1616,9 +1616,54 @@ app.post(
     success:false,
     error:e.message
    });
+   app.get(
+ "/api/amazon/go",
+ async(req,res)=>{
+  try{
+
+   const productUrl=
+    req.query?.productUrl;
+
+   const contentId=
+    req.query?.contentId||null;
+
+   const source=
+    req.query?.source||
+    "amazon-redirect";
+
+   const affiliateLink=
+    buildAmazonSpecialLink(
+     productUrl,
+     process.env.AMAZON_ASSOCIATE_TAG
+    );
+
+   await recordAmazonClick(
+    pool,
+    {
+     productUrl,
+     contentId,
+     source
     }
+   );
+
+   res.redirect(
+    302,
+    affiliateLink
+   );
+
+  }catch(e){
+
+   res.status(400).json({
+    success:false,
+    error:e.message,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }
  }
 );
+
 
 app.get(
  "/api/research/config",
