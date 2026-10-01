@@ -6,7 +6,12 @@ const {scoreOpportunity,buildExperimentPlan}=require("./opportunity-intelligence
 const {researchOpportunities}=require("./exa-research");
 const {analyzeProduct}=require("./product-intelligence");
 const {DEFAULT_RESEARCH_SOURCES,getResearchConfig}=require("./research");
-
+const {
+ buildAmazonSpecialLink,
+ initAmazonAffiliate,
+ recordAmazonClick,
+ getAmazonClickStats
+}=require("./amazon-affiliate");
 const app=express(),PORT=process.env.PORT||3000,COOLDOWN=15*60*1000;
 const pool=new Pool({
  connectionString:process.env.DATABASE_URL,
