@@ -28,7 +28,7 @@ async function initCommandCenter(pool) {
   `);
 
   if (savedState.rows.length) {
-  
+  } 
 const startedAt = new Date().toISOString();
 
 const state = {
