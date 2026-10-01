@@ -1591,7 +1591,7 @@ app.use(
 );
 
 app.get(
- "*",
+ "{*splat}",
  (req,res)=>{
   res.sendFile(
    path.join(
