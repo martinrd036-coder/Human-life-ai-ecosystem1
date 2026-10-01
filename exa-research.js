@@ -1,4 +1,43 @@
-async function exaSearch(query, numResults = 10) {
+async function exaSearch(query, numResults = 10, includeDomains = []) {
+  const apiKey = process.env.EXA_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("EXA_API_KEY is not configured.");
+  }
+
+  const body = {
+    query,
+    numResults,
+    type: "auto",
+    contents: {
+      text: {
+        maxCharacters: 2000
+      }
+    }
+  };
+
+  if (
+    Array.isArray(includeDomains) &&
+    includeDomains.length > 0
+  ) {
+    body.includeDomains = includeDomains;
+  }
+
+  const response = await fetch("https://api.exa.ai/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    throw new Error("Exa API returned " + response.status);
+  }
+
+  return response.json();
+}
   const apiKey = process.env.EXA_API_KEY;
 
   if (!apiKey) {
