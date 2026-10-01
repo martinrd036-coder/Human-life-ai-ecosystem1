@@ -142,7 +142,8 @@ async function init(){
    result JSONB
   )
  `);
-   commandCenter.initCommandCenter(pool);
+ await
+  commandCenter.initCommandCenter(pool);
 
  await initAmazonAffiliate(pool);
 }
