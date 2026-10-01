@@ -264,14 +264,15 @@ async function researchOpportunities(topic) {
 
   try {
     officialData = await exaSearch(
-      officialSearchQuery,
-      10
-    );
+       officialSearchQuery,
+       10,
+      officialDomains
+     );
 
-    generalData = await exaSearch(
-      query,
-      10
-    );
+     generalData = await exaSearch(
+       query,
+       10
+  );
 
     const officialQuality =
       hasUsefulResults(officialData);
