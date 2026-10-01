@@ -1189,7 +1189,85 @@ app.get("/api/product-scout/results",async(req,res)=>{
 });
 app.get("/api/product-scout/products",async(req,res)=>{
  try{
+app.post("/api/amazon/link",async(req,res)=>{
+ try{
 
+  const productUrl=req.body?.productUrl;
+  const associateTag=
+   process.env.AMAZON_ASSOCIATE_TAG;
+
+  const affiliateUrl=
+   buildAmazonSpecialLink(
+    productUrl,
+    associateTag
+   );
+
+  res.json({
+   status:"ready",
+   productUrl,
+   affiliateUrl,
+   revenueStatus:"No revenue claimed."
+  });
+
+ }catch(e){
+
+  res.status(400).json({
+   status:"error",
+   message:e.message
+  });
+ }
+});
+
+
+app.post("/api/amazon/click",async(req,res)=>{
+ try{
+
+  const result=
+   await recordAmazonClick(
+    pool,
+    {
+     productUrl:req.body?.productUrl,
+     contentId:req.body?.contentId||null,
+     source:req.body?.source||"unknown"
+    }
+   );
+
+  res.status(201).json({
+   status:"recorded",
+   click:result,
+   revenueStatus:"No revenue claimed."
+  });
+
+ }catch(e){
+
+  res.status(400).json({
+   status:"error",
+   message:e.message
+  });
+ }
+});
+
+
+app.get("/api/amazon/clicks",async(req,res)=>{
+ try{
+
+  const stats=
+   await getAmazonClickStats(pool);
+
+  res.json({
+   status:"ready",
+   ...stats,
+   revenueStatus:"No revenue claimed."
+  });
+
+ }catch(e){
+
+  res.status(500).json({
+   status:"error",
+   message:e.message
+  });
+ }
+});
   const r=await pool.query(`
    SELECT
     id,
