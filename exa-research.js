@@ -191,11 +191,37 @@ async function researchOpportunities(topic) {
     "linkedin.com"
   ];
 
-  let officialData;
+    let officialData;
   let generalData;
 
   let researchProvider = "exa";
   let fallbackReason = "";
+
+  const hasUsefulResults = data => {
+    const results = Array.isArray(data?.results)
+      ? data.results
+      : [];
+
+    const usable = results.filter(result =>
+      result &&
+      typeof result.url === "string" &&
+      result.url &&
+      typeof result.title === "string" &&
+      result.title
+    );
+
+    const authoritative = usable.filter(result =>
+      sourcePriority(result.url) >= 2
+    );
+
+    return {
+      total: usable.length,
+      authoritative: authoritative.length,
+      strong:
+        usable.length >= 5 &&
+        authoritative.length >= 1
+    };
+  };
 
   try {
     officialData = await exaSearch(
@@ -207,6 +233,78 @@ async function researchOpportunities(topic) {
       query,
       10
     );
+
+    const officialQuality =
+      hasUsefulResults(officialData);
+
+    const generalQuality =
+      hasUsefulResults(generalData);
+
+    if (
+      !officialQuality.strong ||
+      !generalQuality.strong
+    ) {
+      const reasons = [];
+
+      if (!officialQuality.strong) {
+        reasons.push(
+          "Exa official-source results were insufficient."
+        );
+      }
+
+      if (!generalQuality.strong) {
+        reasons.push(
+          "Exa general research results were insufficient."
+        );
+      }
+
+      fallbackReason = reasons.join(" ");
+
+      const tavilyOfficialData =
+        await tavilySearch(
+          officialQuery,
+          10,
+          officialDomains
+        );
+
+      const tavilyGeneralData =
+        await tavilySearch(
+          query,
+          10
+        );
+
+      const exaOfficialResults =
+        normalizeExaResults(officialData);
+
+      const exaGeneralResults =
+        normalizeExaResults(generalData);
+
+      const tavilyOfficialResults =
+        normalizeTavilyResults(
+          tavilyOfficialData
+        );
+
+      const tavilyGeneralResults =
+        normalizeTavilyResults(
+          tavilyGeneralData
+        );
+
+      officialData = {
+        results: [
+          ...exaOfficialResults,
+          ...tavilyOfficialResults
+        ]
+      };
+
+      generalData = {
+        results: [
+          ...exaGeneralResults,
+          ...tavilyGeneralResults
+        ]
+      };
+
+      researchProvider = "exa+tavily_quality_fallback";
+    }
   } catch (exaError) {
     fallbackReason =
       exaError?.message ||
@@ -224,7 +322,7 @@ async function researchOpportunities(topic) {
     );
 
     researchProvider = "tavily_fallback";
-  }
+      }
 
   const officialResults =
     researchProvider === "tavily_fallback"
