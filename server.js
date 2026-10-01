@@ -1199,6 +1199,47 @@ async function runAutomation(){
 
  automationRunning=true;
 
+ async function executeCommandTask(
+  agentId,
+  taskName,
+  details={},
+  runner
+ ){
+
+  const assignment=
+   commandCenter.assignTask(
+    agentId,
+    taskName,
+    details
+   );
+
+  commandCenter.startTask(
+   assignment.id
+  );
+
+  try{
+
+   const result=
+    await runner();
+
+   commandCenter.completeTask(
+    assignment.id,
+    result
+   );
+
+   return result;
+
+  }catch(e){
+
+   commandCenter.failTask(
+    assignment.id,
+    e.message
+   );
+
+   throw e;
+  }
+ }
+
  try{
 
   await beat(
@@ -1207,37 +1248,86 @@ async function runAutomation(){
    "Command Center coordinating ecosystem work"
   );
 
-  await work(
-   "revenue-intelligence"
+  await executeCommandTask(
+   "revenue-intelligence",
+   "Research and evaluate revenue opportunities",
+   {},
+   ()=>work(
+    "revenue-intelligence"
+   )
   );
 
-  await runProductScout();
-
-  await work(
-   "affiliate-intelligence"
+  await executeCommandTask(
+   "product-scout",
+   "Research and qualify Amazon products",
+   {},
+   ()=>runProductScout()
   );
 
-  await work(
-   "viral-content"
+  await executeCommandTask(
+   "affiliate-intelligence",
+   "Research legitimate affiliate programs",
+   {},
+   ()=>work(
+    "affiliate-intelligence"
+   )
   );
 
-  await work(
-   "analytics"
+  await executeCommandTask(
+   "viral-content",
+   "Research content and traffic opportunities",
+   {},
+   ()=>work(
+    "viral-content"
+   )
   );
 
-  await work(
-   "guardian"
+  await executeCommandTask(
+   "analytics",
+   "Measure ecosystem activity and results",
+   {},
+   ()=>work(
+    "analytics"
+   )
   );
 
-  await work(
-   "engineering-guardian"
+  await executeCommandTask(
+   "guardian",
+   "Check ecosystem health and safety",
+   {},
+   ()=>work(
+    "guardian"
+   )
+  );
+
+  await executeCommandTask(
+   "engineering-guardian",
+   "Check technical health and reliability",
+   {},
+   ()=>work(
+    "engineering-guardian"
+   )
   );
 
   await beat(
    "agent1",
    "online",
-   "Command Center completed automation cycle"
+   "Command Center completed assigned ecosystem tasks"
   );
+
+ }catch(e){
+
+  await beat(
+   "agent1",
+   "error",
+   `Command Center task cycle failed: ${e.message}`
+  );
+
+ }finally{
+
+  automationRunning=false;
+ }
+}
 
  }catch(e){
 
