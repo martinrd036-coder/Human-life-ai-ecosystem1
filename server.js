@@ -181,6 +181,7 @@ async function init(){
    result JSONB
   )
  `);
+ await initAmazonAffiliate(pool);
 }
 
 async function beat(id,status,activity){
