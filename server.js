@@ -1611,12 +1611,18 @@ app.post(
    });
 
   }catch(e){
+  }catch(e){
 
    res.status(400).json({
     success:false,
     error:e.message
    });
-   app.get(
+
+  }
+ }
+);
+
+app.get(
  "/api/amazon/go",
  async(req,res)=>{
   try{
