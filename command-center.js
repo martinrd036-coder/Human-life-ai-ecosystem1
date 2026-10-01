@@ -4,10 +4,6 @@ async function initCommandCenter(pool) {
   db = pool;
 
   const result = await db.query(`
-  async function initCommandCenter(pool) {
-  db = pool;
-
-  const result = await db.query(`
     SELECT
       id,
       agent_id AS "agentId",
@@ -38,7 +34,6 @@ async function initCommandCenter(pool) {
       : null;
   }
 }
-
     const savedState = await db.query(`
     SELECT cycle, last_cycle_at
     FROM command_center_state
