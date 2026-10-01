@@ -1,7 +1,25 @@
 let db = null;
 
-function initCommandCenter(pool) {
+async function initCommandCenter(pool) {
   db = pool;
+
+  const result = await db.query(`
+    SELECT
+      id,
+      agent_id AS "agentId",
+      task_name AS "taskName",
+      details,
+      status,
+      assigned_at AS "assignedAt",
+      started_at AS "startedAt",
+      completed_at AS "completedAt",
+      result
+    FROM command_assignments
+    ORDER BY assigned_at DESC
+    LIMIT 50
+  `);
+
+  state.assignments = result.rows;
 }
 
 const startedAt = new Date().toISOString();
