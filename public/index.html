@@ -588,6 +588,52 @@ async function loadProductScoutResults(){
       '</small>';
   }
 }
+  async function createAmazonLink(productUrl){
+
+  try{
+
+    const r=await fetch('/api/amazon/link',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        productUrl:productUrl
+      })
+    });
+
+    const data=await r.json();
+
+    if(!r.ok){
+      throw new Error(
+        data.error ||
+        data.message ||
+        'Amazon link generation failed.'
+      );
+    }
+
+    const link=data.affiliateLink;
+
+    if(!link){
+      throw new Error(
+        'Amazon affiliate link was not returned.'
+      );
+    }
+
+    window.prompt(
+      'Your Amazon affiliate link:',
+      link
+    );
+
+  }catch(e){
+
+    window.alert(
+      'Amazon link generation failed: '+
+      e.message
+    );
+
+  }
+  }
 async function runAgent(agentId, agentName){
 
 const result=document.getElementById('agent-result');
