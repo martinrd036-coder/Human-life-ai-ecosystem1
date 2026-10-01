@@ -82,9 +82,13 @@ function addEvent(type, message) {
   return event;
 }
 
-function assignTask(agentId, taskName, details = {}) {
+async function assignTask(agentId, taskName, details = {}) {
+  if (!db) {
+    throw new Error("Command Center database is not initialized.");
+  }
+
   const assignment = {
-    id: `task-${Date.now()}`,
+    id: `task-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     agentId,
     taskName,
     details,
@@ -94,6 +98,23 @@ function assignTask(agentId, taskName, details = {}) {
     completedAt: null,
     result: null
   };
+
+  await db.query(
+    `INSERT INTO command_assignments
+      (id, agent_id, task_name, details, status, assigned_at, started_at, completed_at, result)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [
+      assignment.id,
+      assignment.agentId,
+      assignment.taskName,
+      JSON.stringify(assignment.details),
+      assignment.status,
+      assignment.assignedAt,
+      null,
+      null,
+      null
+    ]
+  );
 
   state.assignments.unshift(assignment);
   state.assignments = state.assignments.slice(0, 50);
