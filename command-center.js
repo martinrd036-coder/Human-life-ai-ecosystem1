@@ -368,6 +368,7 @@ function getAutomationIntervalMinutes(){
   return state.automation.intervalMinutes;
 }
 module.exports = {
+  initCommandCenter,
   runCycle,
   getStatus,
   assignTask,
