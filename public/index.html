@@ -559,7 +559,7 @@ async function loadProductScoutResults(){
 
     box.innerHTML=
       '<strong>Found '+
-      (data.count||results.length)
+      (data.count||results.length)+
       ' research results</strong>'+
       results.slice(0,10).map(item=>`
         <div class="result">
