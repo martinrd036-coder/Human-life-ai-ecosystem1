@@ -27,10 +27,15 @@ async function initCommandCenter(pool) {
     WHERE id = 1
   `);
 
-  if (savedState.rows.length) {
-  } 
-const startedAt = new Date().toISOString();
+    if (savedState.rows.length) {
+    state.cycle = savedState.rows[0].cycle || 0;
+    state.lastCycleAt = savedState.rows[0].last_cycle_at
+      ? new Date(savedState.rows[0].last_cycle_at).toISOString()
+      : null;
+  }
+}
 
+const startedAt = new Date().toISOString();
 const state = {
   startedAt,
   cycle: 0,
