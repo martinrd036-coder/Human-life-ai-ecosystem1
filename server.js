@@ -1402,7 +1402,8 @@ app.get(
    res.status(500).json({
     error:e.message
    });
-  }
+    }
+ }
 );
 app.post(
  "/api/agents/run",
