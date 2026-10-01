@@ -165,7 +165,11 @@ async function startTask(assignmentId) {
   return assignment;
 }
 
-function completeTask(assignmentId, result = {}) {
+async function completeTask(assignmentId, result = {}) {
+  if (!db) {
+    throw new Error("Command Center database is not initialized.");
+  }
+
   const assignment = state.assignments.find(
     (task) => task.id === assignmentId
   );
@@ -174,8 +178,24 @@ function completeTask(assignmentId, result = {}) {
     return null;
   }
 
+  const completedAt = new Date().toISOString();
+
+  await db.query(
+    `UPDATE command_assignments
+     SET status = $1,
+         completed_at = $2,
+         result = $3
+     WHERE id = $4`,
+    [
+      "completed",
+      completedAt,
+      JSON.stringify(result),
+      assignmentId
+    ]
+  );
+
   assignment.status = "completed";
-  assignment.completedAt = new Date().toISOString();
+  assignment.completedAt = completedAt;
   assignment.result = result;
 
   addEvent(
