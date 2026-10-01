@@ -4,6 +4,10 @@ async function initCommandCenter(pool) {
   db = pool;
 
   const result = await db.query(`
+  async function initCommandCenter(pool) {
+  db = pool;
+
+  const result = await db.query(`
     SELECT
       id,
       agent_id AS "agentId",
@@ -18,6 +22,22 @@ async function initCommandCenter(pool) {
     ORDER BY assigned_at DESC
     LIMIT 50
   `);
+
+  state.assignments = result.rows;
+
+  const savedState = await db.query(`
+    SELECT cycle, last_cycle_at
+    FROM command_center_state
+    WHERE id = 1
+  `);
+
+  if (savedState.rows.length) {
+    state.cycle = savedState.rows[0].cycle || 0;
+    state.lastCycleAt = savedState.rows[0].last_cycle_at
+      ? new Date(savedState.rows[0].last_cycle_at).toISOString()
+      : null;
+  }
+}
 
     const savedState = await db.query(`
     SELECT cycle, last_cycle_at
