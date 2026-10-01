@@ -1634,15 +1634,18 @@ app.get(
  async(req,res)=>{
   try{
 
-   res.json({
-    automationRunning,
-    cooldownMinutes:
-     COOLDOWN/60000,
-    lastScoutRun,
-    agents:
-     await agents()
-   });
+   const status =
+  commandCenter.getStatus(
+    await agents()
+  );
 
+res.json({
+  ...status,
+  automationRunning,
+  cooldownMinutes:
+    COOLDOWN / 60000,
+  lastScoutRun
+});
   }catch(e){
 
    res.status(500).json({
