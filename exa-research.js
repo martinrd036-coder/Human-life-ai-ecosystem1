@@ -324,15 +324,19 @@ async function researchOpportunities(topic) {
     researchProvider = "tavily_fallback";
       }
 
-  const officialResults =
+    const officialResults =
     researchProvider === "tavily_fallback"
       ? normalizeTavilyResults(officialData)
-      : normalizeExaResults(officialData);
+      : researchProvider === "exa+tavily_quality_fallback"
+        ? officialData.results || []
+        : normalizeExaResults(officialData);
 
   const generalResults =
     researchProvider === "tavily_fallback"
       ? normalizeTavilyResults(generalData)
-      : normalizeExaResults(generalData);
+      : researchProvider === "exa+tavily_quality_fallback"
+        ? generalData.results || []
+        : normalizeExaResults(generalData);
 
   const seen = new Set();
 
