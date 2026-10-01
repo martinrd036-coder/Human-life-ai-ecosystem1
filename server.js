@@ -142,6 +142,19 @@ async function init(){
    result JSONB
   )
  `);
+  await pool.query(`
+  CREATE TABLE IF NOT EXISTS command_center_state(
+   id INTEGER PRIMARY KEY,
+   cycle INTEGER NOT NULL DEFAULT 0,
+   last_cycle_at TIMESTAMPTZ
+  )
+ `);
+
+ await pool.query(`
+  INSERT INTO command_center_state(id, cycle, last_cycle_at)
+  VALUES (1, 0, NULL)
+  ON CONFLICT(id) DO NOTHING
+ `);
  await
   commandCenter.initCommandCenter(pool);
 
