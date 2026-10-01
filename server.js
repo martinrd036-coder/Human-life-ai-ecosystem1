@@ -1565,6 +1565,11 @@ app.post(
  async(req,res)=>{
   try{
 
+      const cycle=
+    commandCenter.runCycle(
+     await agents()
+    );
+
    await runAutomation();
 
    res.json({
