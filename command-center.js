@@ -340,6 +340,17 @@ function runCycle(agentRegistry) {
   state.cycle += 1;
 
   state.lastCycleAt = new Date().toISOString();
+    if (db) {
+    db.query(
+      `UPDATE command_center_state
+       SET cycle = $1,
+           last_cycle_at = $2
+       WHERE id = 1`,
+      [state.cycle, state.lastCycleAt]
+    ).catch((error) => {
+      console.error("Command Center state persistence failed:", error.message);
+    });
+    }
 
   const online = agentRegistry.filter(
     (agent) => agent.status === "online"
