@@ -1207,14 +1207,15 @@ async function runAutomation(){
   runner
  ){
 
-  const assignment=
+  const assignment=r.
+   await
    commandCenter.assignTask(
     agentId,
     taskName,
     details
    );
-
-  commandCenter.startTask(
+   
+ await commandCenter.startTask(
    assignment.id
   );
 
@@ -1223,7 +1224,7 @@ async function runAutomation(){
    const result=
     await runner();
 
-   commandCenter.completeTask(
+   await commandCenter.completeTask(
     assignment.id,
     result
    );
@@ -1231,7 +1232,8 @@ async function runAutomation(){
    return result;
 
   }catch(e){
-
+   
+   await
    commandCenter.failTask(
     assignment.id,
     e.message
