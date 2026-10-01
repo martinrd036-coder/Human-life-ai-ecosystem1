@@ -11,7 +11,7 @@ async function exaSearch(query, numResults = 10) {
       "Content-Type": "application/json",
       "x-api-key": apiKey
     },
-        body: JSON.stringify({
+    body: JSON.stringify({
       query,
       numResults,
       type: "auto",
@@ -20,7 +20,6 @@ async function exaSearch(query, numResults = 10) {
           maxCharacters: 2000
         }
       }
-    
     })
   });
 
@@ -31,13 +30,53 @@ async function exaSearch(query, numResults = 10) {
   return response.json();
 }
 
-function normalizeExaResults(data) {
-  const results = Array.isArray(data.results) ? data.results : [];
+async function tavilySearch(query, numResults = 10, includeDomains = []) {
+  const apiKey = process.env.TAVILY_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("TAVILY_API_KEY is not configured.");
+  }
+
+  const body = {
+    api_key: apiKey,
+    query,
+    search_depth: "basic",
+    max_results: numResults,
+    include_answer: false,
+    include_raw_content: false
+  };
+
+  if (Array.isArray(includeDomains) && includeDomains.length > 0) {
+    body.include_domains = includeDomains;
+  }
+
+  const response = await fetch("https://api.tavily.com/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    throw new Error("Tavily API returned " + response.status);
+  }
+
+  return response.json();
+}
+
+function normalizeSearchResults(data, provider = "unknown") {
+  const results = Array.isArray(data?.results)
+    ? data.results
+    : [];
 
   return results.map(result => ({
     title: result.title || "Untitled",
     url: result.url || "",
-    publishedDate: result.publishedDate || "",
+    publishedDate:
+      result.publishedDate ||
+      result.published_date ||
+      "",
     author: result.author || "",
     source: result.url
       ? new URL(result.url).hostname
@@ -45,6 +84,7 @@ function normalizeExaResults(data) {
 
     description:
       result.text ||
+      result.content ||
       result.description ||
       result.highlights?.join(" ") ||
       "",
@@ -57,8 +97,18 @@ function normalizeExaResults(data) {
     score:
       typeof result.score === "number"
         ? result.score
-        : null
+        : null,
+
+    provider
   }));
+}
+
+function normalizeExaResults(data) {
+  return normalizeSearchResults(data, "exa");
+}
+
+function normalizeTavilyResults(data) {
+  return normalizeSearchResults(data, "tavily");
 }
 
 function sourcePriority(url = "") {
@@ -111,7 +161,6 @@ function sourcePriority(url = "") {
     }
 
     return 1;
-
   } catch (e) {
     return 0;
   }
@@ -122,41 +171,70 @@ async function researchOpportunities(topic) {
     "legitimate ways to make money online through AI automation, affiliate programs, creator programs, freelance work, remote jobs, digital products, and reputable opportunities";
 
   const officialQuery =
-  query +
-  " official program official company official terms requirements eligibility fees";
+    query +
+    " official program official company official terms requirements eligibility fees";
 
-const officialDomains = [
-  "amazon.com",
-  "youtube.com",
-  "tiktok.com",
-  "walmart.com",
-  "etsy.com",
-  "ebay.com",
-  "shopify.com",
-  "upwork.com",
-  "fiverr.com",
-  "linkedin.com",
-  "gov"
-];
+  const officialSearchQuery =
+    officialQuery +
+    " site:amazon.com OR site:youtube.com OR site:tiktok.com OR site:walmart.com OR site:etsy.com OR site:ebay.com OR site:shopify.com OR site:upwork.com OR site:fiverr.com OR site:linkedin.com OR site:gov";
 
-const officialData = await exaSearch(
-  officialQuery +
-  " site:amazon.com OR site:youtube.com OR site:tiktok.com OR site:walmart.com OR site:etsy.com OR site:ebay.com OR site:shopify.com OR site:upwork.com OR site:fiverr.com OR site:linkedin.com OR site:gov",
-  10
-);
+  const officialDomains = [
+    "amazon.com",
+    "youtube.com",
+    "tiktok.com",
+    "walmart.com",
+    "etsy.com",
+    "ebay.com",
+    "shopify.com",
+    "upwork.com",
+    "fiverr.com",
+    "linkedin.com"
+  ];
 
-  const generalData = await exaSearch(
-    query,
-    10
-  );
+  let officialData;
+  let generalData;
 
-  const officialResults = normalizeExaResults(
-    officialData
-  );
+  let researchProvider = "exa";
+  let fallbackReason = "";
 
-  const generalResults = normalizeExaResults(
-    generalData
-  );
+  try {
+    officialData = await exaSearch(
+      officialSearchQuery,
+      10
+    );
+
+    generalData = await exaSearch(
+      query,
+      10
+    );
+  } catch (exaError) {
+    fallbackReason =
+      exaError?.message ||
+      "Exa request failed.";
+
+    officialData = await tavilySearch(
+      officialQuery,
+      10,
+      officialDomains
+    );
+
+    generalData = await tavilySearch(
+      query,
+      10
+    );
+
+    researchProvider = "tavily_fallback";
+  }
+
+  const officialResults =
+    researchProvider === "tavily_fallback"
+      ? normalizeTavilyResults(officialData)
+      : normalizeExaResults(officialData);
+
+  const generalResults =
+    researchProvider === "tavily_fallback"
+      ? normalizeTavilyResults(generalData)
+      : normalizeExaResults(generalData);
 
   const seen = new Set();
 
@@ -165,7 +243,9 @@ const officialData = await exaSearch(
     ...generalResults
   ]
     .filter(result => {
-      const key = result.url || result.title;
+      const key =
+        result.url ||
+        result.title;
 
       if (seen.has(key)) {
         return false;
@@ -183,13 +263,17 @@ const officialData = await exaSearch(
   return {
     query,
     results: combinedResults,
+    researchProvider,
+    fallbackReason,
     searchedAt: new Date().toISOString()
   };
 }
 
 module.exports = {
   exaSearch,
+  tavilySearch,
   normalizeExaResults,
+  normalizeTavilyResults,
   sourcePriority,
   researchOpportunities
 };
