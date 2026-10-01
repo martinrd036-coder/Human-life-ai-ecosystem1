@@ -1,3 +1,9 @@
+let db = null;
+
+function initCommandCenter(pool) {
+  db = pool;
+}
+
 const startedAt = new Date().toISOString();
 
 const state = {
