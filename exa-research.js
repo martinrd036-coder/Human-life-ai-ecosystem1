@@ -36,13 +36,7 @@ async function exaSearch(query, numResults = 10, includeDomains = []) {
     throw new Error("Exa API returned " + response.status);
   }
 
-  return response.json();
-}
-  const apiKey = process.env.EXA_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("EXA_API_KEY is not configured.");
-  }
+  
 
   const response = await fetch("https://api.exa.ai/search", {
     method: "POST",
