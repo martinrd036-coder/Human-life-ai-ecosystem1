@@ -547,9 +547,9 @@ async function loadProductScoutResults(){
       );
     }
 
-    const results=Array.isArray(data.results)
-      ? data.results
-      : [];
+    const results=Array.isArray(data.products)
+  ? data.products
+  : [];
 
     if(results.length===0){
       box.innerHTML=
