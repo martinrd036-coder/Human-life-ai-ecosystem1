@@ -28,24 +28,7 @@ async function initCommandCenter(pool) {
   `);
 
   if (savedState.rows.length) {
-    state.cycle = savedState.rows[0].cycle || 0;
-    state.lastCycleAt = savedState.rows[0].last_cycle_at
-      ? new Date(savedState.rows[0].last_cycle_at).toISOString()
-      : null;
-  }
-}
-    const savedState = await db.query(`
-    SELECT cycle, last_cycle_at
-    FROM command_center_state
-    WHERE id = 1
-  `);
-
-  if (savedState.rows.length) {
-    state.cycle = savedState.rows[0].cycle || 0;
-    state.lastCycleAt = savedState.rows[0].last_cycle_at
-      ? new Date(savedState.rows[0].last_cycle_at).toISOString()
-      : null;
-  }
+  
 const startedAt = new Date().toISOString();
 
 const state = {
