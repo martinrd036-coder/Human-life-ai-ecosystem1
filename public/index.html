@@ -438,8 +438,7 @@ status.textContent=
 
 try{
 
-const r=await fetch(
-'/api/opportunity-scout/run',
+const r=await fetch(API_BASE+'/api/opportunity-scout/run',{
 {
 method:'POST',
 headers:{
