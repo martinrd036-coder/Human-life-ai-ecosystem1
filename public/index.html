@@ -547,7 +547,7 @@ async function loadProductScoutResults(){
   box.innerHTML='Loading Product Scout research...';
 
   try{
-    const r=await fetch('/api/product-scout/results');
+    const r=await fetch(API_BASE+'/api/product-scout/results')
     const data=await r.json();
 
     if(!r.ok){
