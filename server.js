@@ -159,7 +159,7 @@ async function init(){
   commandCenter.initCommandCenter(pool);
 
  await initAmazonAffiliate(pool);
-}
+
 await pool.query(`
  CREATE TABLE IF NOT EXISTS amazon_promotions(
   id TEXT PRIMARY KEY,
