@@ -662,10 +662,9 @@ async function loadProductScoutResults(){
 
           ${
             item.product_url
-              ? '<br><button onclick="createAmazonLink(\''+
-                escapeHtml(item.product_url)+
-                '\')">Generate my Amazon link</button>'
-              : ''
+              ? '<br><button onclick="createAmazonPromotionLink(\''+
+  escapeHtml(item.product_url)+
+  '\')">Create trackable promotion link</button>'
           }
         </div>
       `).join('');
