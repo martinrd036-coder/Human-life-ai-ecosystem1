@@ -1152,32 +1152,48 @@ async function runProductScout(
     "Find actual Amazon products with direct Amazon product pages, useful customer problems, clear use cases, content potential, and evidence that can support legitimate product research. Return specific products, not affiliate-program information."
    );
 
-  const productResults=
-   r.results.filter(x=>{
+  const productResults=[];
 
-    const url=
-     (x.url||"").toLowerCase();
+  for(
+   const x of r.results
+  ){
 
-    const title=
-     (x.title||"").toLowerCase();
+   const url=
+    (x.url||"").toLowerCase();
 
-    const directProduct=
-     /amazon\.com\/dp\/[a-z0-9]{10}/i
-      .test(url)||
-     /amazon\.com\/gp\/product\/[a-z0-9]{10}/i
-      .test(url);
+   const title=
+    (x.title||"").toLowerCase();
 
-    const blocked=
-     /\/(help|stores|gp\/browse|s|hz)\//i
-      .test(url)||
-     /associates|affiliate-program|application review|affiliate information/i
-      .test(title+" "+url);
+   const directProduct=
+    /amazon\.com\/dp\/[a-z0-9]{10}/i
+     .test(url)||
+    /amazon\.com\/gp\/product\/[a-z0-9]{10}/i
+     .test(url);
 
-    return(
-     directProduct&&
-     !blocked
+   const blocked=
+    /\/(help|stores|gp\/browse|s|hz)\//i
+     .test(url)||
+    /associates|affiliate-program|application review|affiliate information/i
+     .test(title+" "+url);
+
+   if(
+    !directProduct||
+    blocked
+   ){
+    continue;
+   }
+
+   const live=
+    await verifyAmazonProductPage(
+     x.url
     );
-   });
+
+   if(!live){
+    continue;
+   }
+
+   productResults.push(x);
+  }
 
   const results=
    productResults.map(x=>{
