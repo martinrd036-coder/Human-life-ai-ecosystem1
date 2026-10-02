@@ -1407,14 +1407,27 @@ async function runAutomation(){
 
     }
 
-  await executeCommandTask(
-   "affiliate-intelligence",
-   "Research legitimate affiliate programs",
-   {},
-   ()=>work(
-    "affiliate-intelligence"
+    if(
+   shouldRunScheduledAgent(
+    "affiliate-intelligence",
+    AFFILIATE_INTELLIGENCE_INTERVAL
    )
-  );
+  ){
+
+   markScheduledAgentRun(
+    "affiliate-intelligence"
+   );
+
+   await executeCommandTask(
+    "affiliate-intelligence",
+    "Research legitimate affiliate programs",
+    {},
+    ()=>work(
+     "affiliate-intelligence"
+    )
+   );
+
+    }
 
   await executeCommandTask(
    "viral-content",
