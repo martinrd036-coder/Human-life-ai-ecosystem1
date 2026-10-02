@@ -160,6 +160,15 @@ async function init(){
 
  await initAmazonAffiliate(pool);
 }
+await pool.query(`
+ CREATE TABLE IF NOT EXISTS amazon_promotions(
+  id TEXT PRIMARY KEY,
+  product_url TEXT NOT NULL,
+  source TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  revenue_status TEXT NOT NULL
+ )
+`);
 const agentRegistry=[
  {
   id:"agent1",
