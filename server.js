@@ -205,6 +205,21 @@ await pool.query(`
   revenue_status TEXT NOT NULL
  )
 `);
+ await pool.query(`
+ CREATE TABLE IF NOT EXISTS revenue_pipeline(
+  id TEXT PRIMARY KEY,
+  opportunity_id TEXT,
+  product_id TEXT,
+  promotion_id TEXT,
+  status TEXT NOT NULL,
+  clicks INTEGER NOT NULL DEFAULT 0,
+  conversions INTEGER NOT NULL DEFAULT 0,
+  verified_revenue NUMERIC(12,2) NOT NULL DEFAULT 0,
+  evidence JSONB,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+ )
+`);
 }
 const agentRegistry=[
  {
