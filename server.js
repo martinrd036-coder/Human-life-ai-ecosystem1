@@ -1477,7 +1477,54 @@ app.get(
     }
  }
 );
+app.get(
+ "/api/product-scout/promotion-queue",
+ async(req,res)=>{
+  try{
 
+   const r=
+    await pool.query(`
+     SELECT
+      id,
+      product_name,
+      product_url,
+      qualification,
+      qualification_score,
+      recommended_action,
+      content_angles,
+      evidence,
+      verification_checks,
+      test_plan,
+      revenue_status,
+      discovered_at
+     FROM product_candidates
+     WHERE qualification_score >= 85
+       AND qualification = 'QUALIFIED'
+       AND revenue_status =
+        'No revenue claimed.'
+     ORDER BY
+      qualification_score DESC,
+      discovered_at DESC
+     LIMIT 20
+    `);
+
+   res.json({
+    count:r.rows.length,
+    products:r.rows,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }catch(e){
+
+   res.status(500).json({
+    success:false,
+    error:e.message
+   });
+
+  }
+ }
+);
 app.get(
  "/api/amazon/clicks",
  async(req,res)=>{
