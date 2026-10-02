@@ -36,6 +36,42 @@ const PORT=
 
 const COOLDOWN=
  15*60*1000;
+const PRODUCT_SCOUT_INTERVAL=
+ 30*60*1000;
+
+const REVENUE_INTELLIGENCE_INTERVAL=
+ 6*60*60*1000;
+
+const AFFILIATE_INTELLIGENCE_INTERVAL=
+ 12*60*60*1000;
+
+const VIRAL_CONTENT_INTERVAL=
+ 6*60*60*1000;
+
+const lastScheduledAgentRuns={};
+
+function shouldRunScheduledAgent(
+ id,
+ interval
+){
+ const last=
+  lastScheduledAgentRuns[id];
+
+ if(!last){
+  return true;
+ }
+
+ return(
+  Date.now()-last>=interval
+ );
+}
+
+function markScheduledAgentRun(
+ id
+){
+ lastScheduledAgentRuns[id]=
+  Date.now();
+}
 
 const pool=new Pool({
  connectionString:
