@@ -717,7 +717,46 @@ function cleanProductDescription(
   .trim()
   .slice(0,5000);
 }
+async function verifyAmazonProductPage(url){
 
+ try{
+
+  const response=
+   await fetch(
+    url,
+    {
+     method:"GET",
+     headers:{
+      "User-Agent":
+       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36"
+     },
+     redirect:"follow"
+    }
+   );
+
+  if(!response.ok){
+   return false;
+  }
+
+  const html=
+   await response.text();
+
+  const notFound=
+   /Page Not Found|Sorry! We couldn't find that page|Looking for something\?/i
+    .test(html);
+
+  if(notFound){
+   return false;
+  }
+
+  return true;
+
+ }catch(e){
+
+  return false;
+
+ }
+}
 async function work(
  id,
  details={}
