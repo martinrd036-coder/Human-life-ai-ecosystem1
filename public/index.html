@@ -793,129 +793,119 @@ window.prompt(
       'Amazon link generation failed: '+
       e.message
     );
+   }
 
-  }<section style="margin-top:20px;padding:16px;border:1px solid #ccc;border-radius:10px;">
-  <h3>Revenue Pipeline</h3>
+  async function loadRevenuePipeline(){
 
-  <button onclick="loadRevenuePipeline()">
-    Refresh Revenue Pipeline
-  </button>
-
-  <div id="revenue-pipeline-result" style="margin-top:12px;">
-    Revenue pipeline not loaded yet.
-  </div>
-</section>
-
-<script>
-async function loadRevenuePipeline(){
-
-  const box=
-    document.getElementById(
-      'revenue-pipeline-result'
-    );
-
-  box.innerHTML=
-    'Loading Revenue Pipeline...';
-
-  try{
-
-    const r=
-      await fetch(
-        '/api/amazon/revenue-pipeline'
+    const box=
+      document.getElementById(
+        'revenue-pipeline-result'
       );
 
-    const data=
-      await r.json();
-
-    if(!r.ok || !data.success){
-      throw new Error(
-        data.error||
-        'Revenue Pipeline request failed.'
-      );
+    if(!box){
+      return;
     }
-
-    const totals=
-      data.totals||{};
-
-    let html=
-      '<strong>Pipeline Totals</strong><br><br>'+
-      'Promotions: '+
-      (totals.promotions||0)+
-      '<br>'+
-      'Clicks: '+
-      (totals.clicks||0)+
-      '<br>'+
-      'Conversions: '+
-      (totals.conversions||0)+
-      '<br>'+
-      'Verified Revenue: $'+
-      Number(
-        totals.verified_revenue||0
-      ).toFixed(2)+
-      '<br><br>';
-
-    html+=
-      '<strong>Revenue Status:</strong> '+
-      (
-        data.revenueStatus||
-        'No revenue claimed.'
-      )+
-      '<br><br>';
-
-    if(!data.pipeline?.length){
-
-      html+=
-        '<strong>No revenue pipeline records yet.</strong>';
-
-    }else{
-
-      html+=
-        '<strong>Recent Pipeline Activity</strong><br><br>';
-
-      data.pipeline.forEach(item=>{
-
-        html+=
-          '<div style="margin-bottom:12px;padding:10px;border:1px solid #ddd;border-radius:8px;">'+
-          '<strong>Promotion:</strong> '+
-          escapeHtml(
-            item.promotion_id||
-            'Unknown'
-          )+
-          '<br>'+
-          '<strong>Status:</strong> '+
-          escapeHtml(
-            item.status||
-            'UNKNOWN'
-          )+
-          '<br>'+
-          '<strong>Clicks:</strong> '+
-          (item.clicks||0)+
-          '<br>'+
-          '<strong>Conversions:</strong> '+
-          (item.conversions||0)+
-          '<br>'+
-          '<strong>Verified Revenue:</strong> $'+
-          Number(
-            item.verified_revenue||0
-          ).toFixed(2)+
-          '</div>';
-
-      });
-
-    }
-
-    box.innerHTML=html;
-
-  }catch(e){
 
     box.innerHTML=
-      '<strong>Revenue Pipeline unavailable.</strong><br>'+
-      escapeHtml(e.message);
+      'Loading Revenue Pipeline...';
 
-  }
-}
-</script>
-  }
+    try{
+
+      const r=
+        await fetch(
+          '/api/amazon/revenue-pipeline'
+        );
+
+      const data=
+        await r.json();
+
+      if(!r.ok || !data.success){
+        throw new Error(
+          data.error||
+          'Revenue Pipeline request failed.'
+        );
+      }
+
+      const totals=
+        data.totals||{};
+
+      let html=
+        '<strong>Pipeline Totals</strong><br><br>'+
+        'Promotions: '+
+        (totals.promotions||0)+
+        '<br>'+
+        'Clicks: '+
+        (totals.clicks||0)+
+        '<br>'+
+        'Conversions: '+
+        (totals.conversions||0)+
+        '<br>'+
+        'Verified Revenue: $'+
+        Number(
+          totals.verified_revenue||0
+        ).toFixed(2)+
+        '<br><br>'+
+        '<strong>Revenue Status:</strong> '+
+        (
+          data.revenueStatus||
+          'No revenue claimed.'
+        );
+
+      if(!data.pipeline?.length){
+
+        html+=
+          '<br><br>'+
+          '<strong>No revenue pipeline records yet.</strong>';
+
+      }else{
+
+        html+=
+          '<br><br>'+
+          '<strong>Recent Pipeline Activity</strong><br><br>';
+
+        data.pipeline.forEach(item=>{
+
+          html+=
+            '<div style="margin-bottom:12px;padding:10px;border:1px solid #ddd;border-radius:8px;">'+
+            '<strong>Promotion:</strong> '+
+            escapeHtml(
+              item.promotion_id||
+              'Unknown'
+            )+
+            '<br>'+
+            '<strong>Status:</strong> '+
+            escapeHtml(
+              item.status||
+              'UNKNOWN'
+            )+
+            '<br>'+
+            '<strong>Clicks:</strong> '+
+            (item.clicks||0)+
+            '<br>'+
+            '<strong>Conversions:</strong> '+
+            (item.conversions||0)+
+            '<br>'+
+            '<strong>Verified Revenue:</strong> $'+
+            Number(
+              item.verified_revenue||0
+            ).toFixed(2)+
+            '</div>';
+
+        });
+
+      }
+
+      box.innerHTML=html;
+
+    }catch(e){
+
+      box.innerHTML=
+        '<strong>Revenue Pipeline unavailable.</strong><br>'+
+        escapeHtml(e.message);
+
+    }
+
+  } 
   
 async function runAgent(agentId, agentName){
 
