@@ -169,6 +169,7 @@ await pool.query(`
   revenue_status TEXT NOT NULL
  )
 `);
+}
 const agentRegistry=[
  {
   id:"agent1",
