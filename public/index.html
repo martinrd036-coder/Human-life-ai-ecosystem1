@@ -763,7 +763,8 @@ window.prompt(
 
     const r=await fetch(
   API_BASE+'/api/amazon/link',
-      method:'POST',
+      {
+        method:'POST',
       headers:{
         'Content-Type':'application/json'
       },
