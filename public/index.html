@@ -718,10 +718,20 @@ async function createAmazonPromotionLink(productUrl){
       );
     }
 
-    window.prompt(
-      'Your trackable Amazon promotion link:',
-      data.promotion.affiliateLink
-    );
+    const trackableLink=
+  window.location.origin+
+  '/api/amazon/go?productUrl='+
+  encodeURIComponent(productUrl)+
+  '&contentId='+
+  encodeURIComponent(
+    data.promotion.id
+  )+
+  '&source=promotion-queue';
+
+window.prompt(
+  'Your trackable Amazon promotion link:',
+  trackableLink
+);
 
     window.alert(
       'Promotion created successfully.\\n\\n'+
