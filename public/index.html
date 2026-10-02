@@ -679,6 +679,36 @@ async function loadProductScoutResults(){
 
   }
   }
+  function createAmazonPromotionLink(productUrl){
+
+  try{
+
+    if(!productUrl){
+      throw new Error(
+        'Amazon product URL is required.'
+      );
+    }
+
+    const promotionLink=
+      window.location.origin+
+      '/api/amazon/go?productUrl='+
+      encodeURIComponent(productUrl)+
+      '&source=promotion-queue';
+
+    window.prompt(
+      'Your trackable Amazon promotion link:',
+      promotionLink
+    );
+
+  }catch(e){
+
+    window.alert(
+      'Promotion link creation failed: '+
+      e.message
+    );
+
+  }
+  }
   async function createAmazonLink(productUrl){
 
   try{
