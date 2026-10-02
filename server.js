@@ -1938,6 +1938,99 @@ app.post(
   }
  }
 );
+app.post(
+ "/api/amazon/revenue-evidence",
+ async(req,res)=>{
+  try{
+
+   const promotionId=
+    req.body?.promotionId;
+
+   const evidence=
+    req.body?.evidence;
+
+   const verifiedRevenue=
+    Number(
+     req.body?.verifiedRevenue||0
+    );
+
+   if(!promotionId){
+    throw new Error(
+     "Promotion ID is required."
+    );
+   }
+
+   if(!evidence){
+    throw new Error(
+     "Revenue evidence is required."
+    );
+   }
+
+   if(
+    !Number.isFinite(
+     verifiedRevenue
+    )||
+    verifiedRevenue<0
+   ){
+    throw new Error(
+     "Verified revenue must be a valid non-negative number."
+    );
+   }
+
+   const verifiedAt=
+    new Date().toISOString();
+
+   const result=
+    await pool.query(
+     `
+      UPDATE revenue_pipeline
+      SET
+       conversions=conversions+1,
+       verified_revenue=$2,
+       status='CONVERSION_VERIFIED',
+       evidence=$3,
+       updated_at=$4
+      WHERE promotion_id=$1
+      RETURNING *
+     `,
+     [
+      promotionId,
+      verifiedRevenue,
+      JSON.stringify({
+       revenueStatus:
+        "Verified revenue recorded from supplied evidence.",
+       evidence:evidence,
+       verifiedAt:verifiedAt
+      }),
+      verifiedAt
+     ]
+    );
+
+   if(!result.rows.length){
+    throw new Error(
+     "Promotion was not found in the revenue pipeline."
+    );
+   }
+
+   res.json({
+    success:true,
+    pipeline:result.rows[0],
+    revenueStatus:
+     "Verified revenue recorded from supplied evidence."
+   });
+
+  }catch(e){
+
+   res.status(400).json({
+    success:false,
+    error:e.message,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }
+ }
+);
 
 app.get(
  "/api/amazon/go",
