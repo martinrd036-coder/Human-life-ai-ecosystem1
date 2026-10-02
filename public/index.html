@@ -591,6 +591,95 @@ async function loadProductScoutResults(){
       '</small>';
   }
 }
+  async function loadPromotionQueue(){
+
+  const box=
+    document.getElementById(
+      'product-scout-results'
+    );
+
+  if(!box){
+    return;
+  }
+
+  box.innerHTML=
+    'Loading Amazon Promotion Queue...';
+
+  try{
+
+    const r=
+      await fetch(
+        '/api/product-scout/promotion-queue'
+      );
+
+    const data=
+      await r.json();
+
+    if(!r.ok){
+      throw new Error(
+        data.error ||
+        data.message ||
+        'Promotion Queue request failed.'
+      );
+    }
+
+    const products=
+      Array.isArray(data.products)
+        ? data.products
+        : [];
+
+    if(products.length===0){
+
+      box.innerHTML=
+        '<strong>No qualified Amazon products in the promotion queue yet.</strong>';
+
+      return;
+    }
+
+    box.innerHTML=
+      '<strong>Amazon Promotion Queue: '+
+      (data.count||products.length)+
+      ' qualified products</strong>'+
+      products.map(item=>`
+        <div class="result">
+          <strong>${escapeHtml(
+            item.product_name ||
+            'Amazon product'
+          )}</strong><br>
+
+          <small>
+            Qualification score:
+            ${item.qualification_score ?? 0}
+          </small><br>
+
+          <small>
+            Status:
+            ${escapeHtml(
+              item.qualification ||
+              'QUALIFIED'
+            )}
+          </small><br>
+
+          ${
+            item.product_url
+              ? '<br><button onclick="createAmazonLink(\''+
+                escapeHtml(item.product_url)+
+                '\')">Generate my Amazon link</button>'
+              : ''
+          }
+        </div>
+      `).join('');
+
+  }catch(e){
+
+    box.innerHTML=
+      '<strong>Promotion Queue unavailable.</strong><br>'+
+      '<small>'+
+      escapeHtml(e.message)+
+      '</small>';
+
+  }
+  }
   async function createAmazonLink(productUrl){
 
   try{
