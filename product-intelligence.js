@@ -280,7 +280,9 @@ if (title) {
 
     verificationChecks: checks,
 
-    contentAngles,
+        contentAngles,
+
+    videoConcepts,
 
     recommendedAction,
 
