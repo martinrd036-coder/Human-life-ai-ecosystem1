@@ -188,6 +188,66 @@ if (title) {
     "Quick comparison: explain the practical reason someone might consider this product."
   );
 }
+    const videoConcepts = [];
+
+  if (title) {
+    videoConcepts.push({
+      format:
+        "Problem-to-solution short",
+      durationSeconds:
+        20,
+      hook:
+        "You might not realize this product can solve this everyday problem.",
+      script:
+        "Show the problem first. Introduce " +
+        title +
+        ". Demonstrate the relevant use case quickly. End by showing the practical result.",
+      onScreenText:
+        "Problem → Product → Result",
+      callToAction:
+        "See the product details through the link.",
+      disclosure:
+        "#ad #CommissionsEarned"
+    });
+
+    videoConcepts.push({
+      format:
+        "3-second curiosity short",
+      durationSeconds:
+        15,
+      hook:
+        "Wait until you see what this product is designed to do.",
+      script:
+        "Open with the most visually interesting use case. Show " +
+        title +
+        " in action. Explain one useful benefit supported by the product evidence.",
+      onScreenText:
+        "What does this actually do?",
+      callToAction:
+        "Check out the product through the link.",
+      disclosure:
+        "#ad #CommissionsEarned"
+    });
+
+    videoConcepts.push({
+      format:
+        "Who is this for?",
+      durationSeconds:
+        20,
+      hook:
+        "This could be useful if you deal with this every day.",
+      script:
+        "Identify the customer problem. Show " +
+        title +
+        " solving that problem. Explain who the product may be useful for using only verified product information.",
+      onScreenText:
+        "Who is this for?",
+      callToAction:
+        "See the product details through the link.",
+      disclosure:
+        "#ad #CommissionsEarned"
+    });
+  }
 
   const recommendedAction =
     qualification === "QUALIFIED"
