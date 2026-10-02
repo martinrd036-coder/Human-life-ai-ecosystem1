@@ -923,7 +923,7 @@ result.textContent='🔵 '+agentName+' is working...';
 
 try{
 
-const r=await fetch('/api/agents/run',{
+const r=await fetch(API_BASE+'/api/agents/run',{
 method:'POST',
 headers:{
 'Content-Type':'application/json'
