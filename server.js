@@ -1429,14 +1429,27 @@ async function runAutomation(){
 
     }
 
-  await executeCommandTask(
-   "viral-content",
-   "Research content and traffic opportunities",
-   {},
-   ()=>work(
-    "viral-content"
+    if(
+   shouldRunScheduledAgent(
+    "viral-content",
+    VIRAL_CONTENT_INTERVAL
    )
-  );
+  ){
+
+   markScheduledAgentRun(
+    "viral-content"
+   );
+
+   await executeCommandTask(
+    "viral-content",
+    "Research content and traffic opportunities",
+    {},
+    ()=>work(
+     "viral-content"
+    )
+   );
+
+    }
 
   await executeCommandTask(
    "analytics",
