@@ -1640,7 +1640,81 @@ app.post(
     }
  }
 );
+app.post(
+ "/api/amazon/promotion",
+ async(req,res)=>{
+  try{
 
+   const productUrl=
+    req.body?.productUrl;
+
+   const source=
+    req.body?.source||
+    "promotion-queue";
+
+   buildAmazonSpecialLink(
+    productUrl,
+    process.env.AMAZON_ASSOCIATE_TAG
+   );
+
+   const id=
+    `amazon-promotion-${Date.now()}-`+
+    crypto.randomBytes(4).toString("hex");
+
+   const createdAt=
+    new Date().toISOString();
+
+   await pool.query(
+    `
+     INSERT INTO amazon_promotions(
+      id,
+      product_url,
+      source,
+      created_at,
+      revenue_status
+     )
+     VALUES($1,$2,$3,$4,$5)
+    `,
+    [
+     id,
+     productUrl,
+     source,
+     createdAt,
+     "No revenue claimed."
+    ]
+   );
+
+   const affiliateLink=
+    buildAmazonSpecialLink(
+     productUrl,
+     process.env.AMAZON_ASSOCIATE_TAG
+    );
+
+   res.json({
+    success:true,
+    promotion:{
+     id,
+     productUrl,
+     source,
+     createdAt,
+     affiliateLink,
+     revenueStatus:
+      "No revenue claimed."
+    }
+   });
+
+  }catch(e){
+
+   res.status(400).json({
+    success:false,
+    error:e.message,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }
+ }
+);
 app.post(
  "/api/amazon/click",
  async(req,res)=>{
