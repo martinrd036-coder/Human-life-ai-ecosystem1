@@ -241,8 +241,7 @@ async function loadCommandCenterActivity(){
 
 try{
 
-const r=await fetch('/api/command-center/status');
-
+const r=await fetch(API_BASE+'/api/command-center/status');
 const d=await r.json();
 
 const agents=d.agents || [];
