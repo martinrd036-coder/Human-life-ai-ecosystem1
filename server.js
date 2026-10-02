@@ -1387,12 +1387,25 @@ async function runAutomation(){
 
     }
 
-  await executeCommandTask(
-   "product-scout",
-   "Research and qualify Amazon products",
-   {},
-   ()=>runProductScout()
-  );
+    if(
+   shouldRunScheduledAgent(
+    "product-scout",
+    PRODUCT_SCOUT_INTERVAL
+   )
+  ){
+
+   markScheduledAgentRun(
+    "product-scout"
+   );
+
+   await executeCommandTask(
+    "product-scout",
+    "Research and qualify Amazon products",
+    {},
+    ()=>runProductScout()
+   );
+
+    }
 
   await executeCommandTask(
    "affiliate-intelligence",
