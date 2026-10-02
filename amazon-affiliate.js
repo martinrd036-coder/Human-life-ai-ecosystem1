@@ -95,7 +95,24 @@ async function recordAmazonClick(
       clickedAt
     ]
   );
+     if(contentId){
 
+    await pool.query(
+      `
+       UPDATE revenue_pipeline
+       SET
+        clicks=clicks+1,
+        status='CLICKED',
+        updated_at=$2
+       WHERE promotion_id=$1
+      `,
+      [
+       contentId,
+       clickedAt
+      ]
+    );
+
+     }
   return {
     id,
     productUrl,
