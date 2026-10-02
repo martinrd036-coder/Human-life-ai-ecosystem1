@@ -206,11 +206,12 @@ No command cycle has run yet.
 
 </div>
 
-
 <script>
 
-async function checkStatus(){
+const API_BASE=
+ 'https://ecosystem-api-v2-production.up.railway.app';
 
+async function checkStatus(){
 try{
 
 const r=await fetch('/api/command-center/status');
