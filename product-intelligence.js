@@ -167,19 +167,27 @@ function analyzeProduct(item = {}) {
 
   const contentAngles = [];
 
-  if (title) {
-    contentAngles.push(
-      "Demonstration or real-world use case"
-    );
+if (title) {
+  contentAngles.push(
+    "Problem hook: show the everyday problem this product solves in the first 2 seconds."
+  );
 
-    contentAngles.push(
-      "Problem-and-solution style video"
-    );
+  contentAngles.push(
+    "Demonstration: show the product solving a real-world use case with a fast visual payoff."
+  );
 
-    contentAngles.push(
-      "Short product review or comparison"
-    );
-  }
+  contentAngles.push(
+    "Curiosity hook: show the product first, then reveal why someone would actually want it."
+  );
+
+  contentAngles.push(
+    "Who is this for?: demonstrate the specific type of customer who could benefit from the product."
+  );
+
+  contentAngles.push(
+    "Quick comparison: explain the practical reason someone might consider this product."
+  );
+}
 
   const recommendedAction =
     qualification === "QUALIFIED"
