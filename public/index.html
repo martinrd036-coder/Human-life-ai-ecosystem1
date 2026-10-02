@@ -680,7 +680,7 @@ async function loadProductScoutResults(){
 
   }
   }
-  function createAmazonPromotionLink(productUrl){
+async function createAmazonPromotionLink(productUrl){
 
   try{
 
@@ -690,26 +690,56 @@ async function loadProductScoutResults(){
       );
     }
 
-    const promotionLink=
-      window.location.origin+
-      '/api/amazon/go?productUrl='+
-      encodeURIComponent(productUrl)+
-      '&source=promotion-queue';
+    const r=
+      await fetch(
+        '/api/amazon/promotion',
+        {
+          method:'POST',
+          headers:{
+            'Content-Type':
+              'application/json'
+          },
+          body:JSON.stringify({
+            productUrl:
+              productUrl,
+            source:
+              'promotion-queue'
+          })
+        }
+      );
+
+    const data=
+      await r.json();
+
+    if(!r.ok || !data.success){
+      throw new Error(
+        data.error||
+        'Promotion creation failed.'
+      );
+    }
 
     window.prompt(
       'Your trackable Amazon promotion link:',
-      promotionLink
+      data.promotion.affiliateLink
+    );
+
+    window.alert(
+      'Promotion created successfully.\\n\\n'+
+      'Promotion ID: '+
+      data.promotion.id+
+      '\\n\\nRevenue status: '+
+      data.promotion.revenueStatus
     );
 
   }catch(e){
 
     window.alert(
-      'Promotion link creation failed: '+
+      'Promotion creation failed: '+
       e.message
     );
 
   }
-  }
+}
   async function createAmazonLink(productUrl){
 
   try{
