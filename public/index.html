@@ -616,8 +616,7 @@ async function loadProductScoutResults(){
   try{
 
     const r=
-      await fetch(
-        '/api/product-scout/promotion-queue'
+      await fetch(API_BASE+'/api/product-scout/promotion-queue')
       );
 
     const data=
