@@ -1365,14 +1365,27 @@ async function runAutomation(){
    "Command Center coordinating ecosystem work"
   );
 
-  await executeCommandTask(
-   "revenue-intelligence",
-   "Research and evaluate revenue opportunities",
-   {},
-   ()=>work(
-    "revenue-intelligence"
+    if(
+   shouldRunScheduledAgent(
+    "revenue-intelligence",
+    REVENUE_INTELLIGENCE_INTERVAL
    )
-  );
+  ){
+
+   markScheduledAgentRun(
+    "revenue-intelligence"
+   );
+
+   await executeCommandTask(
+    "revenue-intelligence",
+    "Research and evaluate revenue opportunities",
+    {},
+    ()=>work(
+     "revenue-intelligence"
+    )
+   );
+
+    }
 
   await executeCommandTask(
    "product-scout",
