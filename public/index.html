@@ -699,8 +699,7 @@ async function createAmazonPromotionLink(productUrl){
 
     const r=
       await fetch(
-        '/api/amazon/promotion',
-        {
+  API_BASE+'/api/amazon/promotion',
           method:'POST',
           headers:{
             'Content-Type':
