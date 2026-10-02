@@ -1841,7 +1841,36 @@ app.post(
      "No revenue claimed."
     ]
    );
-
+   await pool.query(
+ `
+  INSERT INTO revenue_pipeline(
+   id,
+   promotion_id,
+   status,
+   clicks,
+   conversions,
+   verified_revenue,
+   evidence,
+   created_at,
+   updated_at
+  )
+  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)
+ `,
+ [
+  `pipeline-${id}`,
+  id,
+  "CREATED",
+  0,
+  0,
+  0,
+  JSON.stringify({
+   revenueStatus:
+    "No revenue claimed."
+  }),
+  createdAt,
+  createdAt
+ ]
+);
    const affiliateLink=
     buildAmazonSpecialLink(
      productUrl,
