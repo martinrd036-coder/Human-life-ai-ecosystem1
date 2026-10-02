@@ -820,11 +820,8 @@ window.prompt(
     try{
 
       const r=
-        await fetch(
-          '/api/amazon/revenue-pipeline'
-        );
-
-      const data=
+        await fetch(API_BASE+'/api/amazon/revenue-pipeline')
+        const data=
         await r.json();
 
       if(!r.ok || !data.success){
