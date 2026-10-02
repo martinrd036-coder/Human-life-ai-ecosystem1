@@ -2031,7 +2031,71 @@ app.post(
   }
  }
 );
+app.get(
+ "/api/amazon/revenue-pipeline",
+ async(req,res)=>{
+  try{
 
+   const result=
+    await pool.query(
+     `
+      SELECT
+       id,
+       opportunity_id,
+       product_id,
+       promotion_id,
+       status,
+       clicks,
+       conversions,
+       verified_revenue,
+       evidence,
+       created_at,
+       updated_at
+      FROM revenue_pipeline
+      ORDER BY updated_at DESC
+      LIMIT 100
+     `
+    );
+
+   const totals=
+    await pool.query(
+     `
+      SELECT
+       COUNT(*)::int AS promotions,
+       COALESCE(
+        SUM(clicks),0
+       )::int AS clicks,
+       COALESCE(
+        SUM(conversions),0
+       )::int AS conversions,
+       COALESCE(
+        SUM(verified_revenue),0
+       )::numeric AS verified_revenue
+      FROM revenue_pipeline
+     `
+    );
+
+   res.json({
+    success:true,
+    count:result.rows.length,
+    totals:totals.rows[0],
+    pipeline:result.rows,
+    revenueStatus:
+     "No revenue claimed unless supported by evidence."
+   });
+
+  }catch(e){
+
+   res.status(500).json({
+    success:false,
+    error:e.message,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }
+ }
+);
 app.get(
  "/api/amazon/go",
  async(req,res)=>{
