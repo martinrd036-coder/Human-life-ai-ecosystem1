@@ -230,9 +230,7 @@ const API_BASE=
 async function checkStatus(){
 try{
 
-const r=await fetch(API_BASE+'/api/command-center/cycle',{
-method:'POST'
-});
+const r=await fetch(API_BASE+'/api/command-center/status');
 
 const d=await r.json();
 
@@ -317,9 +315,7 @@ async function runCycle(){
 
 try{
 
-const r =
-  await fetch(
-    API_BASE+'/api/video-factory/queue',
+const r=await fetch(API_BASE+'/api/video-factory/queue',
     {
       cache:'no-store'
     }
