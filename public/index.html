@@ -1214,14 +1214,23 @@ result.textContent='🔵 '+agentName+' is working...';
 
 try{
 
-const r=await fetch(API_BASE+'/api/agents/run',{
+const endpoint =
+  agentId === 'product-scout'
+    ? API_BASE+'/api/product-scout/run'
+    : API_BASE+'/api/agents/run';
+
+const r=await fetch(endpoint,{
 method:'POST',
 headers:{
 'Content-Type':'application/json'
 },
-body:JSON.stringify({
-agentId:agentId
-})
+body:JSON.stringify(
+  agentId === 'product-scout'
+    ? {}
+    : {
+        agentId:agentId
+      }
+)
 });
 
 const d=await r.json();
