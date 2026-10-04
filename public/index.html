@@ -696,15 +696,19 @@ async function loadProductScoutResults(){
             item.qualification_score ?? 0
           }</small><br>
           ${
-       item.product_url
+      item.product_url
     ? '<br><button onclick="createAmazonLink(\''+
       escapeHtml(item.product_url)+
       '\')">Generate my Amazon link</button>'+
-      '<br><br><button onclick="createVideoProduction(\''+
-      escapeHtml(item.product_url)+
-      '\',\''+
-      escapeHtml(item.product_name || 'Amazon product')+
-      '\')">🎬 Create Video Production</button>'
+      (
+        item.qualification === 'QUALIFIED' &&
+        Array.isArray(item.video_concepts) &&
+        item.video_concepts.length > 0
+          ? '<br><br><button onclick="createVideoProduction(\''+
+            escapeHtml(item.id)+
+            '\',0)">🎬 Create Video Production</button>'
+          : ''
+      )
     : ''
           }
         </div>
