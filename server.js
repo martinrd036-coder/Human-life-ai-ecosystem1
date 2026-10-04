@@ -1116,10 +1116,44 @@ async function saveProductCandidates(
    {};
 
   if(!pi.sourceUrl){
-   continue;
-  }
+ continue;
+}
 
-  await pool.query(
+const videoConcepts=
+ Array.isArray(pi.videoConcepts)&&
+ pi.videoConcepts.length
+  ?pi.videoConcepts
+  :[
+    {
+     format:"Problem-to-solution short",
+     durationSeconds:20,
+     hook:`The simple reason ${pi.productName||item.title||"this product"} is worth a closer look`,
+     script:`Show ${pi.productName||item.title||"the product"}, identify one clear customer problem, demonstrate the product as a possible solution, and end with a simple call to action to learn more.`,
+     onScreenText:"Problem → Product → Solution",
+     callToAction:"See the product details",
+     disclosure:"#ad #CommissionsEarned"
+    },
+    {
+     format:"Curiosity short",
+     durationSeconds:15,
+     hook:`Would you use ${pi.productName||item.title||"this"} for this?`,
+     script:`Open with the product and the customer use case, show the key feature or benefit, then invite viewers to check the product details.`,
+     onScreenText:"Would you use this?",
+     callToAction:"Check the product details",
+     disclosure:"#ad #CommissionsEarned"
+    },
+    {
+     format:"Who is this for?",
+     durationSeconds:20,
+     hook:`Who actually needs ${pi.productName||item.title||"this product"}?`,
+     script:`Show the product, name the customer type or use case it may fit, demonstrate the relevant feature, and close with a clear next step.`,
+     onScreenText:"Who is this for?",
+     callToAction:"See if it fits your needs",
+     disclosure:"#ad #CommissionsEarned"
+    }
+   ];
+
+await pool.query(
    `
    INSERT INTO product_candidates(
     id,
