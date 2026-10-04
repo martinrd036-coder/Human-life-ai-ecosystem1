@@ -1276,7 +1276,6 @@ await pool.query(
     JSON.stringify(
  videoConcepts
 )
-    )
    ]
   );
  }
