@@ -668,9 +668,12 @@ async function loadVideoFactoryQueue(){
   try{
 
     const r =
-      await fetch(
-        API_BASE+'/api/product-scout/results'
-      );
+  await fetch(
+    API_BASE+'/api/product-scout/results',
+    {
+      cache:'no-store'
+    }
+  );
 
     const data =
       await r.json();
