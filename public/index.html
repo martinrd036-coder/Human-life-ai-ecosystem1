@@ -696,11 +696,16 @@ async function loadProductScoutResults(){
             item.qualification_score ?? 0
           }</small><br>
           ${
-            item.product_url
-              ? '<br><button onclick="createAmazonLink(\''+
-                escapeHtml(item.product_url)+
-                '\')">Generate my Amazon link</button>'
-              : ''
+       item.product_url
+    ? '<br><button onclick="createAmazonLink(\''+
+      escapeHtml(item.product_url)+
+      '\')">Generate my Amazon link</button>'+
+      '<br><br><button onclick="createVideoProduction(\''+
+      escapeHtml(item.product_url)+
+      '\',\''+
+      escapeHtml(item.product_name || 'Amazon product')+
+      '\')">🎬 Create Video Production</button>'
+    : ''
           }
         </div>
       `).join('');
