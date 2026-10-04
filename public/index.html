@@ -230,7 +230,9 @@ const API_BASE=
 async function checkStatus(){
 try{
 
-const r=await fetch(API_BASE+'/api/command-center/status');
+const r=await fetch(API_BASE+'/api/command-center/cycle',{
+method:'POST'
+});
 
 const d=await r.json();
 
