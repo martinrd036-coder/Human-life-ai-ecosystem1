@@ -415,7 +415,7 @@ async function researchOpportunities(topic) {
       } else {
         fallbackReason +=
           " Tavily fallback skipped because TAVILY_API_KEY is not configured; Exa results retained.";
-        }
+        
   } catch (exaError) {
     /*
      * FULL EXA FAILURE
