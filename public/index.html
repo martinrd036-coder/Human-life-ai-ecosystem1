@@ -257,8 +257,8 @@ async function loadCommandCenterActivity(){
 
 try{
 
-const r=await fetch(API_BASE+'/api/command-center/cycle',{
-method:'POST'
+const r=await fetch(API_BASE+'/api/command-center/status',{
+  cache:'no-store'
 });
 const d=await r.json();
 
