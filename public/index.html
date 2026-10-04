@@ -228,13 +228,50 @@ const API_BASE=
  'https://ecosystem-api-v2-production.up.railway.app';
 
 async function checkStatus(){
+
+const statusEl=
+document.getElementById('status');
+
+statusEl.textContent=
+'🟡 Connecting to Command Center...';
+
 try{
 
-const r=await fetch(API_BASE+'/api/command-center/status');
+const controller=
+new AbortController();
 
-const d=await r.json();
+const timeout=
+setTimeout(
+()=>controller.abort(),
+10000
+);
 
-document.getElementById('status').textContent=
+const r=
+await fetch(
+API_BASE+
+'/api/command-center/status?ts='+
+Date.now(),
+{
+cache:'no-store',
+signal:controller.signal
+}
+);
+
+clearTimeout(timeout);
+
+if(!r.ok){
+
+throw new Error(
+'API returned HTTP '+
+r.status
+);
+
+}
+
+const d=
+await r.json();
+
+statusEl.textContent=
 '🟢 Command Center online — '+
 (d.agents || []).length+
 ' registered agents.';
@@ -245,8 +282,11 @@ document.getElementById('cycle').textContent=
 
 }catch(e){
 
-document.getElementById('status').textContent=
-'🔴 Connection failed.';
+statusEl.textContent=
+'🔴 Command Center connection failed: '+
+(e.name === 'AbortError'
+? 'Request timed out.'
+: e.message);
 
 }
 
