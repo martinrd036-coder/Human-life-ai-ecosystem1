@@ -330,21 +330,93 @@ async function researchOpportunities(topic) {
 
     /*
      * QUALITY FALLBACK
-     *
-     * If either search is weak, use Tavily
-     * to supplement the research.
-     */
-    if (
-      !officialQuality.strong ||
-      !generalQuality.strong
-    ) {
-      const reasons = [];
+     /*
+ * QUALITY FALLBACK
+ *
+ * Exa remains the primary research provider.
+ * Only use Tavily when it is actually configured.
+ * If Tavily is unavailable, keep the Exa results
+ * instead of failing the entire research task.
+ */
+if (
+  !officialQuality.strong ||
+  !generalQuality.strong
+) {
+  const reasons = [];
 
-      if (!officialQuality.strong) {
-        reasons.push(
-          "Exa official-source results were insufficient."
-        );
-      }
+  if (!officialQuality.strong) {
+    reasons.push(
+      "Exa official-source results were insufficient."
+    );
+  }
+
+  if (!generalQuality.strong) {
+    reasons.push(
+      "Exa general research results were insufficient."
+    );
+  }
+
+  fallbackReason =
+    reasons.join(" ");
+
+  const tavilyConfigured =
+    Boolean(process.env.TAVILY_API_KEY);
+
+  if (tavilyConfigured) {
+    const tavilyOfficialData =
+      await tavilySearch(
+        officialQuery,
+        10,
+        officialDomains
+      );
+
+    const tavilyGeneralData =
+      await tavilySearch(
+        query,
+        10
+      );
+
+    const exaOfficialResults =
+      normalizeExaResults(
+        officialData
+      );
+
+    const exaGeneralResults =
+      normalizeExaResults(
+        generalData
+      );
+
+    const tavilyOfficialResults =
+      normalizeTavilyResults(
+        tavilyOfficialData
+      );
+
+    const tavilyGeneralResults =
+      normalizeTavilyResults(
+        tavilyGeneralData
+      );
+
+    officialData = {
+      results: [
+        ...exaOfficialResults,
+        ...tavilyOfficialResults
+      ]
+    };
+
+    generalData = {
+      results: [
+        ...exaGeneralResults,
+        ...tavilyGeneralResults
+      ]
+    };
+
+    researchProvider =
+      "exa+tavily_quality_fallback";
+  } else {
+    fallbackReason +=
+      " Tavily fallback skipped because TAVILY_API_KEY is not configured; Exa results retained.";
+  }
+}
 
       if (!generalQuality.strong) {
         reasons.push(
