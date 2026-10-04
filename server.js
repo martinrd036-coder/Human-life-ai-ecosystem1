@@ -1762,9 +1762,22 @@ app.get(
      LIMIT 100
     `);
 
+      const products=
+    r.rows.map(product=>({
+     ...product,
+     video_concepts:
+      Array.isArray(product.video_concepts)&&
+      product.video_concepts.length
+       ?product.video_concepts
+       :buildVideoConcepts(
+        product.product_name||
+        "this product"
+       )
+    }));
+
    res.json({
-    count:r.rows.length,
-    products:r.rows
+    count:products.length,
+    products
    });
 
   }catch(e){
