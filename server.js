@@ -254,8 +254,29 @@ await pool.query(`
   evidence JSONB,
   created_at TIMESTAMPTZ NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL
- )
-`);
+  )
+ `);
+
+ await pool.query(`
+  CREATE TABLE IF NOT EXISTS video_productions(
+   id TEXT PRIMARY KEY,
+   product_id TEXT,
+   promotion_id TEXT,
+   product_url TEXT NOT NULL,
+   product_name TEXT,
+   concept_format TEXT,
+   hook TEXT,
+   script TEXT,
+   on_screen_text TEXT,
+   call_to_action TEXT,
+   disclosure TEXT,
+   platform TEXT,
+   status TEXT NOT NULL,
+   video_url TEXT,
+   created_at TIMESTAMPTZ NOT NULL,
+   updated_at TIMESTAMPTZ NOT NULL
+  )
+ `);
 }
 const agentRegistry=[
  {
