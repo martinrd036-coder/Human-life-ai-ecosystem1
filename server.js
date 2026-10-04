@@ -18,6 +18,10 @@ const {
 }=require("./product-intelligence");
 
 const {
+ createVideo
+}=require("./higgsfield-provider");
+
+const {
  DEFAULT_RESEARCH_SOURCES,
  getResearchConfig
 }=require("./research");
