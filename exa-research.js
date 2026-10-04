@@ -352,6 +352,8 @@ async function researchOpportunities(topic) {
 
       fallbackReason =
         reasons.join(" ");
+      const tavilyConfigured =
+  Boolean(process.env.TAVILY_API_KEY);
         if (tavilyConfigured) {
         try {
           const tavilyOfficialData =
