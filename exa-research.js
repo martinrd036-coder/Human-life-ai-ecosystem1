@@ -480,7 +480,9 @@ async function researchOpportunities(topic) {
     searchedAt:
       new Date().toISOString()
   };
-  
+
+}
+      
 module.exports = {
   exaSearch,
   tavilySearch,
