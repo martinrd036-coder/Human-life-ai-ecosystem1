@@ -1625,6 +1625,38 @@ function startAutomation(){
   FIRST_AUTOMATION_DELAY
  );
 }
+function buildVideoConcepts(productName="this product"){
+
+ return[
+  {
+   format:"Problem-to-solution short",
+   durationSeconds:20,
+   hook:`The simple reason ${productName} is worth a closer look`,
+   script:`Show ${productName}, identify one clear customer problem, demonstrate the product as a possible solution, and end with a simple call to action to learn more.`,
+   onScreenText:"Problem → Product → Solution",
+   callToAction:"See the product details",
+   disclosure:"#ad #CommissionsEarned"
+  },
+  {
+   format:"Curiosity short",
+   durationSeconds:15,
+   hook:`Would you use ${productName} for this?`,
+   script:`Open with the product and the customer use case, show the key feature or benefit, then invite viewers to check the product details.`,
+   onScreenText:"Would you use this?",
+   callToAction:"Check the product details",
+   disclosure:"#ad #CommissionsEarned"
+  },
+  {
+   format:"Who is this for?",
+   durationSeconds:20,
+   hook:`Who actually needs ${productName}?`,
+   script:`Show the product, name the customer type or use case it may fit, demonstrate the relevant feature, and close with a clear next step.`,
+   onScreenText:"Who is this for?",
+   callToAction:"See if it fits your needs",
+   disclosure:"#ad #CommissionsEarned"
+  }
+ ];
+}
 app.get(
  "/api/health",
  async(req,res)=>{
