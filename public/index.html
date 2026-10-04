@@ -651,18 +651,27 @@ async function loadVideoFactoryQueue(){
   }
 
 }
-async function loadProductScoutResults(){
-  const box=document.getElementById('product-scout-results');
+  async function loadProductScoutResults(){
+
+  const box =
+    document.getElementById('product-scout-results');
 
   if(!box){
     return;
   }
 
-  box.innerHTML='Loading Product Scout research...';
+  box.innerHTML =
+    'Loading Product Scout research...';
 
   try{
-    const r=await fetch(API_BASE+'/api/product-scout/results')
-    const data=await r.json();
+
+    const r =
+      await fetch(
+        API_BASE+'/api/product-scout/results'
+      );
+
+    const data =
+      await r.json();
 
     if(!r.ok){
       throw new Error(
@@ -672,55 +681,93 @@ async function loadProductScoutResults(){
       );
     }
 
-    const results=Array.isArray(data.products)
-  ? data.products
-  : [];
+    const results =
+      Array.isArray(data.products)
+        ? data.products
+        : [];
 
     if(results.length===0){
-      box.innerHTML=
+
+      box.innerHTML =
         '<strong>No Product Scout research results yet.</strong>';
+
       return;
     }
 
-        box.innerHTML=
-      '<strong>Found '+
-      (data.count||results.length)+
-      ' research results</strong>'+
-      results.slice(0,10).map(item=>`
+    const sortedResults =
+      results
+        .slice()
+        .sort((a,b)=>
+          Number(
+            b.qualification_score || 0
+          ) -
+          Number(
+            a.qualification_score || 0
+          )
+        )
+        .slice(0,10);
+
+    box.innerHTML =
+      '<strong>Top Product Scout Results — Highest Score First</strong>'+
+      sortedResults.map((item,index)=>`
+
         <div class="result">
-          <strong>${escapeHtml(
-            item.product_name ||
-            'Amazon product'
-          )}</strong><br>
-          <small>Qualification score: ${
-            item.qualification_score ?? 0
-          }</small><br>
+
+          <strong>
+            #${index+1}
+            ${escapeHtml(
+              item.product_name ||
+              'Amazon product'
+            )}
+          </strong><br>
+
+          <small>
+            Qualification Score:
+            <strong>
+              ${item.qualification_score ?? 0}/100
+            </strong>
+          </small><br>
+
+          <small>
+            Qualification:
+            ${escapeHtml(
+              item.qualification ||
+              'NOT QUALIFIED'
+            )}
+          </small><br>
+
           ${
-      item.product_url
-    ? '<br><button onclick="createAmazonLink(\''+
-      escapeHtml(item.product_url)+
-      '\')">Generate my Amazon link</button>'+
-      (
-        item.qualification === 'QUALIFIED' &&
-        Array.isArray(item.video_concepts) &&
-        item.video_concepts.length > 0
-          ? '<br><br><button onclick="createVideoProduction(\''+
-            escapeHtml(item.id)+
-            '\',0)">🎬 Create Video Production</button>'
-          : ''
-      )
-    : ''
+            item.product_url
+              ? '<br><button onclick="createAmazonLink(\\''+
+                escapeHtml(item.product_url)+
+                '\\')">🔗 Generate my Amazon link</button>'
+              : ''
           }
+
+          ${
+            item.qualification === 'QUALIFIED' &&
+            Array.isArray(item.video_concepts) &&
+            item.video_concepts.length > 0
+              ? '<br><button onclick="createVideoProduction(\\''+
+                escapeHtml(item.id)+
+                '\\',0)">🎬 Create Video Production</button>'
+              : ''
+          }
+
         </div>
+
       `).join('');
 
   }catch(e){
-    box.innerHTML=
+
+    box.innerHTML =
       '<strong>Product Scout unavailable.</strong><br>'+
       '<small>'+
       escapeHtml(e.message)+
       '</small>';
+
   }
+
 }
   async function loadPromotionQueue(){
 
