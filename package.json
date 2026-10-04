@@ -21,7 +21,9 @@
   },
   "homepage": "https://github.com/martinrd036-coder/Human-life-ai-ecosystem1#readme",
   "dependencies": {
-    "express": "^5.2.1",
-    "pg": "^8.16.3"
+  "@higgsfield/client": "^1.0.0",
+  "express": "^5.2.1",
+  "pg": "^8.16.3"
+  }
   }
 }
