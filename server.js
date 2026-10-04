@@ -1854,7 +1854,9 @@ res.json({
   }
  }
 );
-  
+app.post(
+ "/api/video-factory/create",
+ async(req,res)=>{ 
      VALUES(
       $1,$2,$3,$4,$5,$6,$7,
      app.post(
