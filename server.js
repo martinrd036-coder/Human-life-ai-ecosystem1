@@ -1855,6 +1855,10 @@ res.json({
  }
 );
 app.post(
+  
+     VALUES(
+      $1,$2,$3,$4,$5,$6,$7,
+     app.post(
  "/api/video-factory/create",
  async(req,res)=>{
   try{
@@ -1922,34 +1926,34 @@ app.post(
    }
 
    const concepts=
- Array.isArray(
-  product.video_concepts
- )&&
- product.video_concepts.length
-  ?product.video_concepts
-  :buildVideoConcepts(
-   product.product_name||
-   "this product"
-  );
+    Array.isArray(
+     product.video_concepts
+    )&&
+    product.video_concepts.length
+     ?product.video_concepts
+     :buildVideoConcepts(
+      product.product_name||
+      "this product"
+     );
 
-if(
- !Array.isArray(
-  product.video_concepts
- )||
- !product.video_concepts.length
-){
- await pool.query(
-  `
-   UPDATE product_candidates
-   SET video_concepts=$1
-   WHERE id=$2
-  `,
-  [
-   JSON.stringify(concepts),
-   product.id
-  ]
- );
-}
+   if(
+    !Array.isArray(
+     product.video_concepts
+    )||
+    !product.video_concepts.length
+   ){
+    await pool.query(
+     `
+      UPDATE product_candidates
+      SET video_concepts=$1
+      WHERE id=$2
+     `,
+     [
+      JSON.stringify(concepts),
+      product.id
+     ]
+    );
+   }
 
    if(
     !concepts[conceptIndex]
@@ -2007,9 +2011,68 @@ if(
      concept.disclosure||
       "#ad #CommissionsEarned",
      "TikTok / YouTube Shorts",
-     "READY_FOR_PRODUCTION",
+     "GENERATING",
      createdAt,
      createdAt
+    ]
+   );
+
+   const production={
+    id,
+    product_id:
+     product.id,
+    product_url:
+     product.product_url,
+    product_name:
+     product.product_name,
+    concept_format:
+     concept.format||
+      "Short-form product video",
+    hook:
+     concept.hook||"",
+    script:
+     concept.script||"",
+    on_screen_text:
+     concept.onScreenText||"",
+    call_to_action:
+     concept.callToAction||"",
+    disclosure:
+     concept.disclosure||
+      "#ad #CommissionsEarned",
+    platform:
+     "TikTok / YouTube Shorts",
+    duration_seconds:
+     concept.durationSeconds||5
+   };
+
+   const video=
+    await createVideo(
+     production
+    );
+
+   const completedAt=
+    new Date().toISOString();
+
+   const finalStatus=
+    video.status==="COMPLETED"&&
+    video.videoUrl
+     ? "COMPLETED"
+     : "GENERATING";
+
+   await pool.query(
+    `
+     UPDATE video_productions
+     SET
+      status=$1,
+      video_url=$2,
+      updated_at=$3
+     WHERE id=$4
+    `,
+    [
+     finalStatus,
+     video.videoUrl||null,
+     completedAt,
+     id
     ]
    );
 
@@ -2025,7 +2088,15 @@ if(
       product.product_url,
      concept,
      status:
-      "READY_FOR_PRODUCTION",
+      finalStatus,
+     videoUrl:
+      video.videoUrl||null,
+     provider:
+      video.provider,
+     model:
+      video.model,
+     providerJobId:
+      video.providerJobId,
      revenueStatus:
       "No revenue claimed."
     }
@@ -2033,9 +2104,13 @@ if(
 
   }catch(e){
 
+   const errorMessage=
+    e?.message||
+    "Video production failed.";
+
    res.status(400).json({
     success:false,
-    error:e.message,
+    error:errorMessage,
     revenueStatus:
      "No revenue claimed."
    });
