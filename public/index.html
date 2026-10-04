@@ -315,14 +315,9 @@ document.getElementById('cc-status').textContent=
 
 async function runCycle(){
 
-try{
-
-const r=await fetch(API_BASE+'/api/video-factory/queue',
-    {
-      cache:'no-store'
-    }
-  );
-
+const r=await fetch(API_BASE+'/api/command-center/cycle',{
+method:'POST'
+});
 const d=await r.json();
 
 if(!r.ok){
