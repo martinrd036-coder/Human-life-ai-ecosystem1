@@ -1117,7 +1117,8 @@ async function saveProductCandidates(
     evidence,
     recommended_action,
     verification_checks,
-    test_plan
+    test_plan,
+    video_concepts
    )
    VALUES(
     $1,$2,$3,$4,$5,$6,$7,$8,$9,
