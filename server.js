@@ -1925,6 +1925,56 @@ app.post(
  }
 );
 app.get(
+ "/api/video-factory/queue",
+ async(req,res)=>{
+  try{
+
+   const r=
+    await pool.query(`
+     SELECT
+      id,
+      product_id,
+      promotion_id,
+      product_url,
+      product_name,
+      concept_format,
+      hook,
+      script,
+      on_screen_text,
+      call_to_action,
+      disclosure,
+      platform,
+      status,
+      video_url,
+      created_at,
+      updated_at
+     FROM video_productions
+     ORDER BY
+      created_at DESC
+     LIMIT 100
+    `);
+
+   res.json({
+    success:true,
+    count:r.rows.length,
+    productions:r.rows,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }catch(e){
+
+   res.status(500).json({
+    success:false,
+    error:e.message,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }
+ }
+);
+app.get(
  "/api/amazon/clicks",
  async(req,res)=>{
   try{
