@@ -352,65 +352,70 @@ async function researchOpportunities(topic) {
 
       fallbackReason =
         reasons.join(" ");
+        if (tavilyConfigured) {
+        try {
+          const tavilyOfficialData =
+            await tavilySearch(
+              officialQuery,
+              10,
+              officialDomains
+            );
 
-      const tavilyConfigured =
-        Boolean(process.env.TAVILY_API_KEY);
+          const tavilyGeneralData =
+            await tavilySearch(
+              query,
+              10
+            );
 
-      if (tavilyConfigured) {
-        const tavilyOfficialData =
-          await tavilySearch(
-            officialQuery,
-            10,
-            officialDomains
-          );
+          const exaOfficialResults =
+            normalizeExaResults(
+              officialData
+            );
 
-        const tavilyGeneralData =
-          await tavilySearch(
-            query,
-            10
-          );
+          const exaGeneralResults =
+            normalizeExaResults(
+              generalData
+            );
 
-        const exaOfficialResults =
-          normalizeExaResults(
-            officialData
-          );
+          const tavilyOfficialResults =
+            normalizeTavilyResults(
+              tavilyOfficialData
+            );
 
-        const exaGeneralResults =
-          normalizeExaResults(
-            generalData
-          );
+          const tavilyGeneralResults =
+            normalizeTavilyResults(
+              tavilyGeneralData
+            );
 
-        const tavilyOfficialResults =
-          normalizeTavilyResults(
-            tavilyOfficialData
-          );
+          officialData = {
+            results: [
+              ...exaOfficialResults,
+              ...tavilyOfficialResults
+            ]
+          };
 
-        const tavilyGeneralResults =
-          normalizeTavilyResults(
-            tavilyGeneralData
-          );
+          generalData = {
+            results: [
+              ...exaGeneralResults,
+              ...tavilyGeneralResults
+            ]
+          };
 
-        officialData = {
-          results: [
-            ...exaOfficialResults,
-            ...tavilyOfficialResults
-          ]
-        };
+          researchProvider =
+            "exa+tavily_quality_fallback";
 
-        generalData = {
-          results: [
-            ...exaGeneralResults,
-            ...tavilyGeneralResults
-          ]
-        };
+        } catch (tavilyError) {
+          fallbackReason +=
+            ` Tavily fallback failed (${tavilyError?.message || "unknown error"}); Exa results retained.`;
 
-        researchProvider =
-          "exa+tavily_quality_fallback";
+          researchProvider =
+            "exa";
+        }
+
       } else {
         fallbackReason +=
           " Tavily fallback skipped because TAVILY_API_KEY is not configured; Exa results retained.";
-      }
-    }
+        }
   } catch (exaError) {
     /*
      * FULL EXA FAILURE
