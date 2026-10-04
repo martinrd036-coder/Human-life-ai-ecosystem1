@@ -315,6 +315,8 @@ document.getElementById('cc-status').textContent=
 
 async function runCycle(){
 
+  try{
+
 const r=await fetch(API_BASE+'/api/command-center/cycle',{
 method:'POST'
 });
