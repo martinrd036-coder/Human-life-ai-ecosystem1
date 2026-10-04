@@ -1856,7 +1856,8 @@ res.json({
 );
 app.post(
  "/api/video-factory/create",
- async(req,res)=>{ 
+ async(req,res)=>{
+  try{
 
    const productId=
     req.body?.productId;
