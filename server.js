@@ -1918,11 +1918,34 @@ app.post(
    }
 
    const concepts=
-    Array.isArray(
-     product.video_concepts
-    )
-     ?product.video_concepts
-     :[];
+ Array.isArray(
+  product.video_concepts
+ )&&
+ product.video_concepts.length
+  ?product.video_concepts
+  :buildVideoConcepts(
+   product.product_name||
+   "this product"
+  );
+
+if(
+ !Array.isArray(
+  product.video_concepts
+ )||
+ !product.video_concepts.length
+){
+ await pool.query(
+  `
+   UPDATE product_candidates
+   SET video_concepts=$1
+   WHERE id=$2
+  `,
+  [
+   JSON.stringify(concepts),
+   product.id
+  ]
+ );
+}
 
    if(
     !concepts[conceptIndex]
