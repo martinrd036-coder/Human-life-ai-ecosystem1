@@ -1211,8 +1211,12 @@ async function saveProductCandidates(
      pi.verificationChecks||[]
     ),
 
-    JSON.stringify(
+        JSON.stringify(
      pi.testPlan||{}
+    ),
+
+    JSON.stringify(
+     pi.videoConcepts||[]
     )
    ]
   );
