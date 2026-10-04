@@ -810,6 +810,69 @@ async function loadProductScoutResults(){
 
   }
   }
+  async function createVideoProduction(productId, conceptIndex){
+
+  try{
+
+    if(!productId){
+      throw new Error(
+        'Product ID is required.'
+      );
+    }
+
+    const r =
+      await fetch(
+        API_BASE+'/api/video-factory/create',
+        {
+          method:'POST',
+          headers:{
+            'Content-Type':
+              'application/json'
+          },
+          body:JSON.stringify({
+            productId:productId,
+            conceptIndex:conceptIndex
+          })
+        }
+      );
+
+    const data =
+      await r.json();
+
+    if(!r.ok || !data.success){
+      throw new Error(
+        data.error ||
+        data.message ||
+        'Video production creation failed.'
+      );
+    }
+
+    window.alert(
+      '🎬 Video Production created successfully!\\n\\n'+
+      'Status: '+
+      (
+        data.production?.status ||
+        'READY_FOR_PRODUCTION'
+      )+
+      '\\n\\nRevenue status: '+
+      (
+        data.production?.revenueStatus ||
+        'No revenue claimed.'
+      )
+    );
+
+    await loadVideoFactoryQueue();
+
+  }catch(e){
+
+    window.alert(
+      '🎬 Video Production failed: '+
+      e.message
+    );
+
+  }
+
+  }
 async function createAmazonPromotionLink(productUrl){
 
   try{
