@@ -173,6 +173,7 @@ function normalizeTavilyResults(data) {
 
 
 function sourcePriority(url = "") {
+function sourcePriority(url = "") {
   if (!url) {
     return 0;
   }
@@ -215,6 +216,52 @@ function sourcePriority(url = "") {
       )
     ) {
       return 3;
+    }
+
+    if (
+      recognizedResearchDomains.some(domain =>
+        host === domain ||
+        host.endsWith(domain)
+      )
+    ) {
+      return 2;
+    }
+
+    return 1;
+  } catch (e) {
+    return 0;
+  }
+}
+
+
+function hasUsefulResults(data) {
+  const results = Array.isArray(data?.results)
+    ? data.results
+    : [];
+
+  const usable = results.filter(
+    result =>
+      Boolean(result?.url) &&
+      Boolean(result?.title)
+  );
+
+  const authoritative = usable.filter(
+    result =>
+      sourcePriority(result.url) >= 3
+  );
+
+  return {
+    usableCount: usable.length,
+    authoritativeCount:
+      authoritative.length,
+    strong:
+      usable.length >= 5 &&
+      authoritative.length >= 1
+  };
+}
+
+
+async function researchOpportunities(topic) {
 
 async function researchOpportunities(topic) {
   const query =
