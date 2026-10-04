@@ -1700,6 +1700,7 @@ app.get(
       qualification_score,
       recommended_action,
       content_angles,
+      video_concepts,
       evidence,
       verification_checks,
       test_plan,
