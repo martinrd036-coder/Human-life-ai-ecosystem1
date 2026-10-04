@@ -1758,6 +1758,172 @@ app.get(
   }
  }
 );
+app.post(
+ "/api/video-factory/create",
+ async(req,res)=>{
+  try{
+
+   const productId=
+    req.body?.productId;
+
+   const conceptIndex=
+    Number(
+     req.body?.conceptIndex
+    );
+
+   if(!productId){
+    throw new Error(
+     "Product ID is required."
+    );
+   }
+
+   if(
+    !Number.isInteger(
+     conceptIndex
+    )||
+    conceptIndex<0
+   ){
+    throw new Error(
+     "A valid video concept index is required."
+    );
+   }
+
+   const productResult=
+    await pool.query(
+     `
+      SELECT
+       id,
+       product_name,
+       product_url,
+       qualification,
+       qualification_score,
+       video_concepts
+      FROM product_candidates
+      WHERE id=$1
+      LIMIT 1
+     `,
+     [productId]
+    );
+
+   if(
+    !productResult.rows.length
+   ){
+    throw new Error(
+     "Product was not found."
+    );
+   }
+
+   const product=
+    productResult.rows[0];
+
+   if(
+    product.qualification!==
+    "QUALIFIED"
+   ){
+    throw new Error(
+     "Only qualified products can enter Video Factory."
+    );
+   }
+
+   const concepts=
+    Array.isArray(
+     product.video_concepts
+    )
+     ?product.video_concepts
+     :[];
+
+   if(
+    !concepts[conceptIndex]
+   ){
+    throw new Error(
+     "Selected video concept was not found."
+    );
+   }
+
+   const concept=
+    concepts[conceptIndex];
+
+   const id=
+    `video-${Date.now()}-`+
+    crypto.randomBytes(4)
+     .toString("hex");
+
+   const createdAt=
+    new Date().toISOString();
+
+   await pool.query(
+    `
+     INSERT INTO video_productions(
+      id,
+      product_id,
+      product_url,
+      product_name,
+      concept_format,
+      hook,
+      script,
+      on_screen_text,
+      call_to_action,
+      disclosure,
+      platform,
+      status,
+      created_at,
+      updated_at
+     )
+     VALUES(
+      $1,$2,$3,$4,$5,$6,$7,
+      $8,$9,$10,$11,$12,$13,$14
+     )
+    `,
+    [
+     id,
+     product.id,
+     product.product_url,
+     product.product_name,
+     concept.format||
+      "Short-form product video",
+     concept.hook||"",
+     concept.script||"",
+     concept.onScreenText||"",
+     concept.callToAction||"",
+     concept.disclosure||
+      "#ad #CommissionsEarned",
+     "TikTok / YouTube Shorts",
+     "READY_FOR_PRODUCTION",
+     createdAt,
+     createdAt
+    ]
+   );
+
+   res.json({
+    success:true,
+    production:{
+     id,
+     productId:
+      product.id,
+     productName:
+      product.product_name,
+     productUrl:
+      product.product_url,
+     concept,
+     status:
+      "READY_FOR_PRODUCTION",
+     revenueStatus:
+      "No revenue claimed."
+    }
+   });
+
+  }catch(e){
+
+   res.status(400).json({
+    success:false,
+    error:e.message,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }
+ }
+);
 app.get(
  "/api/amazon/clicks",
  async(req,res)=>{
