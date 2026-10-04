@@ -783,13 +783,11 @@ async function loadVideoFactoryQueue(){
               item.qualification ||
               'NOT QUALIFIED'
             )}
-          </small><br>
-
-          ${
+                    ${
             item.product_url
-              ? '<br><button onclick="createAmazonLink(\\''+
+              ? '<br><button onclick="createAmazonLink(\''+
                 escapeHtml(item.product_url)+
-                '\\')">🔗 Generate my Amazon link</button>'
+                '\')">🔗 Generate my Amazon link</button>'
               : ''
           }
 
@@ -797,12 +795,11 @@ async function loadVideoFactoryQueue(){
             item.qualification === 'QUALIFIED' &&
             Array.isArray(item.video_concepts) &&
             item.video_concepts.length > 0
-              ? '<br><button onclick="createVideoProduction(\\''+
+              ? '<br><button onclick="createVideoProduction(\''+
                 escapeHtml(item.id)+
-                '\\',0)">🎬 Create Video Production</button>'
+                '\',0)">🎬 Create Video Production</button>'
               : ''
           }
-
         </div>
 
       `).join('');
