@@ -185,7 +185,8 @@ async function init(){
   ADD COLUMN IF NOT EXISTS evidence JSONB,
   ADD COLUMN IF NOT EXISTS recommended_action TEXT,
   ADD COLUMN IF NOT EXISTS verification_checks JSONB,
-  ADD COLUMN IF NOT EXISTS test_plan JSONB
+  ADD COLUMN IF NOT EXISTS test_plan JSONB,
+  ADD COLUMN IF NOT EXISTS video_concepts JSONB
  `);
 
  await pool.query(`
