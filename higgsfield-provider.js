@@ -5,7 +5,12 @@ const {
 
 const MODEL=
   process.env.HIGGSFIELD_MODEL ||
-  "bytedance/seedance-2.5/text-to-video";
+  "bytedance/seedance-2.0/text-to-video";
+
+const DEFAULT_DURATION=5;
+const MAX_DURATION=15;
+const DEFAULT_RESOLUTION="720p";
+const DEFAULT_ASPECT_RATIO="9:16";
 
 function requireCredentials(){
 
@@ -40,7 +45,7 @@ function buildPrompt(production){
 
 }
 
-async function createVideo(production){
+async function createVideo(production={}){
 
   const credentials=
     requireCredentials();
@@ -49,14 +54,18 @@ async function createVideo(production){
     credentials
   });
 
+  const requestedDuration=
+    Number(
+      production.duration_seconds ||
+      DEFAULT_DURATION
+    );
+
   const duration=
     Math.min(
-      30,
+      MAX_DURATION,
       Math.max(
         4,
-        Number(
-          production.duration_seconds || 15
-        )
+        Math.floor(requestedDuration)
       )
     );
 
@@ -68,13 +77,13 @@ async function createVideo(production){
           prompt:
             buildPrompt(production),
 
-          aspect_ratio:
-            "9:16",
-
           duration,
 
           resolution:
-            "720p",
+            DEFAULT_RESOLUTION,
+
+          aspect_ratio:
+            DEFAULT_ASPECT_RATIO,
 
           generate_audio:
             true
@@ -96,6 +105,7 @@ async function createVideo(production){
   if(result.status==="failed"){
 
     throw new Error(
+      result.error ||
       "Higgsfield video generation failed."
     );
 
@@ -109,12 +119,20 @@ async function createVideo(production){
 
   }
 
+  if(result.status==="canceled"){
+
+    throw new Error(
+      "Higgsfield video generation was canceled."
+    );
+
+  }
+
   const videoUrl=
-    result?.jobs?.[0]?.results?.raw?.url ||
-    result?.jobs?.[0]?.results?.min?.url ||
+    result.video?.url ||
     null;
 
   return {
+
     provider:
       "higgsfield",
 
@@ -128,10 +146,10 @@ async function createVideo(production){
 
     providerJobId:
       result.request_id ||
-      result.id ||
       null,
 
     videoUrl
+
   };
 
 }
