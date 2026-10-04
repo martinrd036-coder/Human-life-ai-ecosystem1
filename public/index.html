@@ -792,9 +792,8 @@ async function loadVideoFactoryQueue(){
           }
 
           ${
-            item.qualification === 'QUALIFIED' &&
-            Array.isArray(item.video_concepts) &&
-            item.video_concepts.length > 0
+         item.qualification === 'QUALIFIED' &&
+    item.id
               ? '<br><button onclick="createVideoProduction(\''+
                 escapeHtml(item.id)+
                 '\',0)">🎬 Create Video Production</button>'
