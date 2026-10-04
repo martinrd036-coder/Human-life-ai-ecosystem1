@@ -1,24 +1,30 @@
-const { config, higgsfield } = require("@higgsfield/client/v2");
+const {
+  generate_video
+}=require("@higgsfield/client");
 
-const MODEL =
+const MODEL=
   process.env.HIGGSFIELD_MODEL ||
-  "kling-video/v3.0/std/text-to-video";
+  "seedance_2_5";
 
-function requireCredentials() {
-  const credentials =
+function requireCredentials(){
+
+  const credentials=
     process.env.HF_CREDENTIALS ||
     process.env.HF_KEY;
 
-  if (!credentials) {
+  if(!credentials){
+
     throw new Error(
       "Higgsfield is not configured. Add HF_CREDENTIALS to Railway."
     );
+
   }
 
   return credentials;
 }
 
-function buildPrompt(production) {
+function buildPrompt(production){
+
   return [
     `Create a vertical short-form product video for ${production.product_name}.`,
     `Format: ${production.concept_format || "product promotion"}.`,
@@ -30,66 +36,60 @@ function buildPrompt(production) {
     "Do not invent product specifications, prices, guarantees, testimonials, or performance claims.",
     "Keep the presentation suitable for a social-media product promotion."
   ].join("\n");
+
 }
 
-async function createVideo(production) {
-  const credentials = requireCredentials();
+async function createVideo(production){
 
-  config({
-    credentials
-  });
+  requireCredentials();
 
-  const duration =
+  const duration=
     Math.min(
-      15,
+      30,
       Math.max(
-        5,
-        Number(production.duration_seconds || 15)
+        4,
+        Number(
+          production.duration_seconds || 15
+        )
       )
     );
 
-  const result =
-    await higgsfield.subscribe(
-      MODEL,
-      {
-        input: {
-          prompt:
-            buildPrompt(production),
-          duration,
-          aspect_ratio:
-            "9:16",
-          sound:
-            "on"
-        },
-        withPolling: true
+  const result=
+    await generate_video({
+      params:{
+        model:MODEL,
+        mode:"t2v",
+        prompt:buildPrompt(production),
+        duration,
+        aspect_ratio:"9:16",
+        resolution:"720p",
+        generate_audio:true
       }
-    );
+    });
 
-  const videoUrl =
-    result?.video?.url ||
-    result?.video?.public_url ||
-    result?.video_url ||
-    result?.url ||
+  const jobId=
+    result?.job_ids?.[0] ||
+    result?.id ||
     null;
 
-  if (!videoUrl) {
+  if(!jobId){
+
     throw new Error(
-      "Higgsfield completed without returning a video URL."
+      "Higgsfield accepted no video generation job."
     );
+
   }
 
   return {
-    provider: "higgsfield",
-    model: MODEL,
-    status: "COMPLETED",
-    videoUrl,
-    providerJobId:
-      result?.id ||
-      result?.request_id ||
-      null
+    provider:"higgsfield",
+    model:MODEL,
+    status:"GENERATING",
+    providerJobId:jobId,
+    videoUrl:null
   };
+
 }
 
-module.exports = {
+module.exports={
   createVideo
 };
