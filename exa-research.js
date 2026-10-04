@@ -171,8 +171,6 @@ function normalizeTavilyResults(data) {
   );
 }
 
-
-function sourcePriority(url = "") {
 function sourcePriority(url = "") {
   if (!url) {
     return 0;
@@ -260,8 +258,6 @@ function hasUsefulResults(data) {
   };
 }
 
-
-async function researchOpportunities(topic) {
 
 async function researchOpportunities(topic) {
   const query =
