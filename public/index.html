@@ -359,7 +359,9 @@ document.getElementById('scout-results');
 
 try{
 
-const r=await fetch(API_BASE+'/api/opportunities')
+const r=await fetch(API_BASE+'/api/opportunities',{
+  cache:'no-store'
+})
 const d=await r.json();
 
 if(
