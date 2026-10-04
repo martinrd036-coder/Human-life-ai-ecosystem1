@@ -553,6 +553,104 @@ button.disabled=false;
 }
 
 }
+async function loadVideoFactoryQueue(){
+
+  const box =
+    document.getElementById('video-factory-results');
+
+  const status =
+    document.getElementById('video-factory-status');
+
+  if(!box || !status){
+    return;
+  }
+
+  status.textContent =
+    '🔵 Loading Video Production Queue...';
+
+  try{
+
+    const r =
+      await fetch(
+        API_BASE+'/api/video-factory/queue'
+      );
+
+    const data =
+      await r.json();
+
+    if(!r.ok){
+      throw new Error(
+        data.error ||
+        data.message ||
+        'Video Factory request failed.'
+      );
+    }
+
+    const productions =
+      Array.isArray(data.productions)
+        ? data.productions
+        : [];
+
+    if(productions.length === 0){
+
+      status.textContent =
+        '🟡 Video Factory connected — no productions queued yet.';
+
+      box.innerHTML =
+        '<strong>No video productions queued yet.</strong>';
+
+      return;
+    }
+
+    status.textContent =
+      '🟢 Video Factory connected — '+
+      productions.length+
+      ' production(s) found.';
+
+    box.innerHTML =
+      productions.map(item => `
+        <div class="result">
+
+          <strong>${escapeHtml(
+            item.title ||
+            item.product_name ||
+            'Video production'
+          )}</strong><br>
+
+          <small>
+            Status:
+            ${escapeHtml(
+              item.status ||
+              'UNKNOWN'
+            )}
+          </small><br>
+
+          ${
+            item.video_url
+              ? '<br><a href="'+
+                escapeHtml(item.video_url)+
+                '" target="_blank" rel="noopener">'+
+                'Open finished video</a>'
+              : '<small>🎬 Video not finished yet.</small>'
+          }
+
+        </div>
+      `).join('');
+
+  }catch(e){
+
+    status.textContent =
+      '🔴 Video Factory connection failed.';
+
+    box.innerHTML =
+      '<strong>Could not load Video Factory queue.</strong><br>'+
+      '<small>'+
+      escapeHtml(e.message)+
+      '</small>';
+
+  }
+
+}
 async function loadProductScoutResults(){
   const box=document.getElementById('product-scout-results');
 
