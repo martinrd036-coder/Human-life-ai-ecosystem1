@@ -1274,7 +1274,8 @@ await pool.query(
     ),
 
     JSON.stringify(
-     pi.videoConcepts||[]
+ videoConcepts
+)
     )
    ]
   );
