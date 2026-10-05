@@ -201,7 +201,8 @@ function sourcePriority(url = "") {
       "meta.com",
       "stripe.com",
       "hubspot.com",
-      "semrush.com"
+      "semrush.com",
+      "reddit.com"
     ];
 
     const recognizedResearchDomains = [
