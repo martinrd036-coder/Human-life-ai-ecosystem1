@@ -932,6 +932,178 @@ app.get(
   }
  }
 );
+app.patch(
+ "/api/income-experiments/:id",
+ async(req,res)=>{
+  try{
+
+   const id=
+    req.params.id;
+
+   const body=req.body||{};
+
+   const fields=[];
+   const values=[];
+   let index=1;
+
+   const allowed={
+    status:"status",
+    clicks:"clicks",
+    responses:"responses",
+    conversions:"conversions",
+    result:"result",
+    decision:"decision",
+    nextAction:"next_action"
+   };
+
+   for(
+    const key of Object.keys(allowed)
+   ){
+
+    if(
+     body[key]!==undefined
+    ){
+
+     fields.push(
+      `${allowed[key]}=$${index}`
+     );
+
+     values.push(
+      body[key]
+     );
+
+     index++;
+    }
+   }
+
+   if(
+    body.verifiedRevenue!==undefined
+   ){
+
+    const revenue=
+     Number(
+      body.verifiedRevenue
+     );
+
+    if(
+     !Number.isFinite(revenue)||
+     revenue<0
+    ){
+
+     return res.status(400).json({
+      success:false,
+      error:
+       "verifiedRevenue must be a non-negative number."
+     });
+
+    }
+
+    fields.push(
+     `verified_revenue=$${index}`
+    );
+
+    values.push(revenue);
+
+    index++;
+   }
+
+   if(
+    body.evidence!==undefined
+   ){
+
+    fields.push(
+     `evidence=$${index}`
+    );
+
+    values.push(
+     JSON.stringify(
+      body.evidence
+     )
+    );
+
+    index++;
+   }
+
+   if(
+    body.status===
+     "COMPLETED" &&
+    body.decision &&
+    ![
+     "KEEP",
+     "IMPROVE",
+     "KILL"
+    ].includes(
+     String(body.decision)
+      .toUpperCase()
+    )
+   ){
+
+    return res.status(400).json({
+     success:false,
+     error:
+      "Completed experiments require decision KEEP, IMPROVE, or KILL."
+    });
+
+   }
+
+   if(!fields.length){
+
+    return res.status(400).json({
+     success:false,
+     error:
+      "No experiment fields supplied."
+    });
+
+   }
+
+   fields.push(
+    `updated_at=$${index}`
+   );
+
+   values.push(
+    new Date().toISOString()
+   );
+
+   values.push(id);
+
+   const r=
+    await pool.query(
+     `
+     UPDATE income_experiments
+     SET ${fields.join(", ")}
+     WHERE id=$${index+1}
+     RETURNING *
+     `,
+     values
+    );
+
+   if(!r.rows.length){
+
+    return res.status(404).json({
+     success:false,
+     error:
+      "Income experiment not found."
+    });
+
+   }
+
+   res.json({
+    success:true,
+    experiment:r.rows[0],
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }catch(e){
+
+   res.status(500).json({
+    success:false,
+    error:e.message
+   });
+
+  }
+ }
+);
 
 function cleanProductDescription(
  value=""
