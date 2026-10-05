@@ -269,21 +269,29 @@ async function researchOpportunities(topic) {
     " official program official company official terms requirements eligibility fees";
 
   const officialDomains = [
-    "amazon.com",
-    "youtube.com",
-    "tiktok.com",
-    "walmart.com",
-    "etsy.com",
-    "ebay.com",
-    "shopify.com",
-    "upwork.com",
-    "fiverr.com",
-    "linkedin.com",
-    "usa.gov",
-    "usajobs.gov",
-    "dol.gov",
-    "bls.gov"
-  ];
+  "amazon.com",
+  "youtube.com",
+  "tiktok.com",
+  "walmart.com",
+  "etsy.com",
+  "ebay.com",
+  "shopify.com",
+  "upwork.com",
+  "fiverr.com",
+  "linkedin.com",
+  "usa.gov",
+  "usajobs.gov",
+  "dol.gov",
+  "bls.gov",
+  "openai.com",
+  "anthropic.com",
+  "google.com",
+  "microsoft.com",
+  "meta.com",
+  "stripe.com",
+  "hubspot.com",
+  "semrush.com"
+];
 
   const officialSearchQuery =
     officialQuery +
