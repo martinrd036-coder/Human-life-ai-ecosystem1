@@ -182,7 +182,7 @@ function sourcePriority(url = "") {
         .hostname
         .toLowerCase();
 
-    const authoritativeDomains = [
+        const authoritativeDomains = [
       ".gov",
       "amazon.com",
       "youtube.com",
@@ -193,7 +193,15 @@ function sourcePriority(url = "") {
       "shopify.com",
       "upwork.com",
       "fiverr.com",
-      "linkedin.com"
+      "linkedin.com",
+      "openai.com",
+      "anthropic.com",
+      "google.com",
+      "microsoft.com",
+      "meta.com",
+      "stripe.com",
+      "hubspot.com",
+      "semrush.com"
     ];
 
     const recognizedResearchDomains = [
