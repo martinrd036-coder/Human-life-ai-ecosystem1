@@ -260,7 +260,31 @@ await pool.query(`
   updated_at TIMESTAMPTZ NOT NULL
   )
  `);
-
+ await pool.query(`
+  CREATE TABLE IF NOT EXISTS income_experiments(
+   id TEXT PRIMARY KEY,
+   opportunity_id TEXT,
+   branch TEXT NOT NULL,
+   title TEXT NOT NULL,
+   objective TEXT,
+   startup_cost NUMERIC(12,2) NOT NULL DEFAULT 0,
+   test_budget NUMERIC(12,2) NOT NULL DEFAULT 0,
+   status TEXT NOT NULL DEFAULT 'PLANNED',
+   first_action TEXT,
+   success_metrics JSONB,
+   stop_rules JSONB,
+   clicks INTEGER NOT NULL DEFAULT 0,
+   responses INTEGER NOT NULL DEFAULT 0,
+   conversions INTEGER NOT NULL DEFAULT 0,
+   verified_revenue NUMERIC(12,2) NOT NULL DEFAULT 0,
+   evidence JSONB,
+   result TEXT,
+   decision TEXT,
+   next_action TEXT,
+   created_at TIMESTAMPTZ NOT NULL,
+   updated_at TIMESTAMPTZ NOT NULL
+  )
+ `);
  await pool.query(`
   CREATE TABLE IF NOT EXISTS video_productions(
    id TEXT PRIMARY KEY,
