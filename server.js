@@ -762,6 +762,176 @@ async function runLog(
   ]
  );
 }
+app.post(
+ "/api/income-experiments",
+ async(req,res)=>{
+  try{
+
+   const body=req.body||{};
+
+   const now=
+    new Date().toISOString();
+
+   const id=
+    `exp-${Date.now()}-${Math.random()
+     .toString(36)
+     .slice(2,7)}`;
+
+   const experiment={
+    id,
+    opportunityId:
+     body.opportunityId||
+     null,
+    branch:
+     body.branch||
+     "general",
+    title:
+     body.title||
+     "Income experiment",
+    objective:
+     body.objective||
+     "Run the smallest measurable test.",
+    startupCost:
+     Number(body.startupCost||0),
+    testBudget:
+     Number(body.testBudget||0),
+    status:
+     "PLANNED",
+    firstAction:
+     body.firstAction||
+     "Verify eligibility, requirements, costs, and monetization terms.",
+    successMetrics:
+     body.successMetrics||
+     [],
+    stopRules:
+     body.stopRules||
+     [],
+    clicks:0,
+    responses:0,
+    conversions:0,
+    verifiedRevenue:0,
+    evidence:
+     body.evidence||
+     [],
+    result:null,
+    decision:null,
+    nextAction:
+     body.nextAction||
+     "Run the first verification step.",
+    createdAt:now,
+    updatedAt:now
+   };
+
+   await pool.query(
+    `
+    INSERT INTO income_experiments(
+     id,
+     opportunity_id,
+     branch,
+     title,
+     objective,
+     startup_cost,
+     test_budget,
+     status,
+     first_action,
+     success_metrics,
+     stop_rules,
+     clicks,
+     responses,
+     conversions,
+     verified_revenue,
+     evidence,
+     result,
+     decision,
+     next_action,
+     created_at,
+     updated_at
+    )
+    VALUES(
+     $1,$2,$3,$4,$5,$6,$7,$8,$9,
+     $10,$11,$12,$13,$14,$15,$16,
+     $17,$18,$19,$20,$21
+    )
+    `,
+    [
+     experiment.id,
+     experiment.opportunityId,
+     experiment.branch,
+     experiment.title,
+     experiment.objective,
+     experiment.startupCost,
+     experiment.testBudget,
+     experiment.status,
+     experiment.firstAction,
+     JSON.stringify(
+      experiment.successMetrics
+     ),
+     JSON.stringify(
+      experiment.stopRules
+     ),
+     experiment.clicks,
+     experiment.responses,
+     experiment.conversions,
+     experiment.verifiedRevenue,
+     JSON.stringify(
+      experiment.evidence
+     ),
+     experiment.result,
+     experiment.decision,
+     experiment.nextAction,
+     experiment.createdAt,
+     experiment.updatedAt
+    ]
+   );
+
+   res.status(201).json({
+    success:true,
+    experiment,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }catch(e){
+
+   res.status(500).json({
+    success:false,
+    error:e.message
+   });
+
+  }
+ }
+);
+
+app.get(
+ "/api/income-experiments",
+ async(req,res)=>{
+  try{
+
+   const r=
+    await pool.query(`
+     SELECT *
+     FROM income_experiments
+     ORDER BY
+      created_at DESC
+   `);
+
+   res.json({
+    count:r.rows.length,
+    experiments:r.rows,
+    revenueStatus:
+     "No revenue claimed."
+   });
+
+  }catch(e){
+
+   res.status(500).json({
+    success:false,
+    error:e.message
+   });
+
+  }
+ }
+);
 
 function cleanProductDescription(
  value=""
