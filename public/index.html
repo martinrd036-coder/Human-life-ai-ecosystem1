@@ -569,8 +569,8 @@ results.innerHTML='';
 d.opportunities
  .slice()
  .sort((a,b)=>
-  ((b.evidenceScore||0)*0.6+(b.testabilityScore||0)*0.4)-
-  ((a.evidenceScore||0)*0.6+(a.testabilityScore||0)*0.4)
+  ((b.evidence_score||0)*0.6+(b.testability_score||0)*0.4)-
+  ((a.evidence_score||0)*0.6+(a.testability_score||0)*0.4)
  )
  .slice(0,10)
  .forEach(item=>{
@@ -587,13 +587,13 @@ item.title ||
 '</strong><br>'+
 '<small>Priority Score: '+
 Math.round(
-((item.evidenceScore||0)*0.6)+
-((item.testabilityScore||0)*0.4)
+((item.evidence_score||0)*0.6)+
+((item.testability_score||0)*0.4)
 )+
 ' | Evidence: '+
-(item.evidenceScore||0)+
+(item.evidence_score||0)+
 ' | Testability: '+
-(item.testabilityScore||0)+
+(item.testability_score||0)+
 '</small><br>'+
 (
 item.url
