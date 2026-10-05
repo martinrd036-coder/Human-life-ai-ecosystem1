@@ -371,7 +371,128 @@ document.getElementById('cc-status').textContent=
 
 }
 
+async function loadIncomeExperiments(){
 
+ const status=
+  document.getElementById(
+   'income-experiments-status'
+  );
+
+ const results=
+  document.getElementById(
+   'income-experiments-results'
+  );
+
+ try{
+
+  const r=
+   await fetch(
+    API_BASE+
+    '/api/income-experiments',
+    {
+     cache:'no-store'
+    }
+   );
+
+  const d=
+   await r.json();
+
+  if(!r.ok){
+
+   throw new Error(
+    d.error||
+    'Could not load income experiments.'
+   );
+
+  }
+
+  const experiments=
+   d.experiments||
+   [];
+
+  status.textContent=
+   '🟢 '+experiments.length+
+   ' income experiments tracked.';
+
+  if(!experiments.length){
+
+   results.innerHTML=
+    '<div class="result">'+
+    'No income experiments created yet.'+
+    '</div>';
+
+   return;
+
+  }
+
+  results.innerHTML='';
+
+  experiments.forEach(
+   experiment=>{
+
+    const div=
+     document.createElement(
+      'div'
+     );
+
+    div.className='result';
+
+    div.innerHTML=
+     '<strong>'+
+     escapeHtml(
+      experiment.title||
+      'Income experiment'
+     )+
+     '</strong><br>'+
+     '<small>'+
+     'Branch: '+
+     escapeHtml(
+      experiment.branch||
+      'general'
+     )+
+     ' | Status: '+
+     escapeHtml(
+      experiment.status||
+      'PLANNED'
+     )+
+     '</small><br>'+
+     '<small>'+
+     'Clicks: '+
+     (experiment.clicks||0)+
+     ' | Responses: '+
+     (experiment.responses||0)+
+     ' | Conversions: '+
+     (experiment.conversions||0)+
+     '</small><br>'+
+     '<small>'+
+     'Verified Revenue: $'+
+     Number(
+      experiment.verified_revenue||
+      0
+     ).toFixed(2)+
+     '</small>';
+
+    results.appendChild(
+     div
+    );
+
+   }
+  );
+
+ }catch(e){
+
+  status.textContent=
+   '🔴 Income Experiments error: '+
+   e.message;
+
+  results.innerHTML=
+   '<div class="result">'+
+   'Could not load income experiments.'+
+   '</div>';
+
+ }
+
+      }
 async function runCycle(){
 
   try{
