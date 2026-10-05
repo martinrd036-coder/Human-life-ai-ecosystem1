@@ -546,11 +546,14 @@ const r=await fetch(API_BASE+'/api/opportunities',{
 })
 const d=await r.json();
 
-if(
-!d.opportunities ||
-d.opportunities.length===0
-){
+const opportunities =
+ Array.isArray(d)
+  ? d
+  : (d.opportunities || []);
 
+if(
+!opportunities.length
+){
 results.innerHTML=
 '<div class="result">'+
 'No saved opportunities yet.'+
