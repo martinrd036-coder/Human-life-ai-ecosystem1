@@ -549,7 +549,8 @@ const d=await r.json();
 const opportunities =
  Array.isArray(d)
   ? d
-  : (d.opportunities || []);
+  opportunities
+ .slice()
 
 if(
 !opportunities.length
