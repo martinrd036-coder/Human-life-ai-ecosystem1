@@ -40,7 +40,8 @@ function getSourceQuality(url = "") {
       "meta.com",
       "stripe.com",
       "hubspot.com",
-      "semrush.com"
+      "semrush.com",
+      "reddit.com"
     ];
 
     const isAuthoritative = authoritativeDomains.some(domain =>
