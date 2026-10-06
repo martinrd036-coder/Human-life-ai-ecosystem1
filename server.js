@@ -1847,7 +1847,25 @@ async function runAutomation(){
    "running",
    "Command Center coordinating ecosystem work"
   );
+    if(
+   shouldRunScheduledAgent(
+    "opportunity-scout",
+    COOLDOWN
+   )
+  ){
 
+   markScheduledAgentRun(
+    "opportunity-scout"
+   );
+
+   await executeCommandTask(
+    "opportunity-scout",
+    "Discover and score legitimate evidence-backed revenue opportunities",
+    {},
+    ()=>scout()
+   );
+
+    }
     if(
    shouldRunScheduledAgent(
     "revenue-intelligence",
