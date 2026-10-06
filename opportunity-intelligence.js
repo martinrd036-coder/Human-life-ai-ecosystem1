@@ -21,7 +21,18 @@ function getSourceQuality(url = "") {
       "shopify.com",
       "upwork.com",
       "fiverr.com",
-      "linkedin.com"
+      "linkedin.com",
+      "upwork.com",
+      "fiverr.com",
+      "linkedin.com",
+      "openai.com",
+      "anthropic.com",
+      "google.com",
+      "microsoft.com",
+      "meta.com",
+      "stripe.com",
+      "hubspot.com",
+      "semrush.com"
     ];
 
     const recognizedResearchDomains = [
