@@ -1,3 +1,84 @@
+const providerHealth = {
+  exa: {
+    status: "UNKNOWN",
+    lastError: "",
+    failedAt: null,
+    retryAfter: 0
+  },
+  tavily: {
+    status: "UNKNOWN",
+    lastError: "",
+    failedAt: null,
+    retryAfter: 0
+  }
+};
+
+const PROVIDER_COOLDOWN_MS =
+  60 * 60 * 1000;
+
+function providerIsAvailable(provider) {
+  const health =
+    providerHealth[provider];
+
+  if (!health) {
+    return false;
+  }
+
+  if (
+    health.retryAfter &&
+    Date.now() < health.retryAfter
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function markProviderFailure(
+  provider,
+  error
+) {
+  const health =
+    providerHealth[provider];
+
+  if (!health) {
+    return;
+  }
+
+  health.status = "UNAVAILABLE";
+  health.lastError =
+    error?.message ||
+    "Provider request failed.";
+  health.failedAt =
+    new Date().toISOString();
+  health.retryAfter =
+    Date.now() +
+    PROVIDER_COOLDOWN_MS;
+}
+
+function markProviderSuccess(
+  provider
+) {
+  const health =
+    providerHealth[provider];
+
+  if (!health) {
+    return;
+  }
+
+  health.status = "HEALTHY";
+  health.lastError = "";
+  health.failedAt = null;
+  health.retryAfter = 0;
+}
+
+function getProviderHealth() {
+  return JSON.parse(
+    JSON.stringify(
+      providerHealth
+    )
+  );
+}
 async function exaSearch(
   query,
   numResults = 10,
