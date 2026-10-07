@@ -84,10 +84,27 @@ async function exaSearch(
   numResults = 10,
   includeDomains = []
 ) {
-  const apiKey = process.env.EXA_API_KEY;
+  if (!providerIsAvailable("exa")) {
+    throw new Error(
+      "Exa provider is temporarily unavailable."
+    );
+  }
+
+  const apiKey =
+    process.env.EXA_API_KEY;
 
   if (!apiKey) {
-    throw new Error("EXA_API_KEY is not configured.");
+    const error =
+      new Error(
+        "EXA_API_KEY is not configured."
+      );
+
+    markProviderFailure(
+      "exa",
+      error
+    );
+
+    throw error;
   }
 
   const body = {
@@ -105,30 +122,53 @@ async function exaSearch(
     Array.isArray(includeDomains) &&
     includeDomains.length > 0
   ) {
-    body.includeDomains = includeDomains;
+    body.includeDomains =
+      includeDomains;
   }
 
-  const response = await fetch(
-    "https://api.exa.ai/search",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey
-      },
-      body: JSON.stringify(body)
+  try {
+    const response =
+      await fetch(
+        "https://api.exa.ai/search",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            "x-api-key":
+              apiKey
+          },
+          body:
+            JSON.stringify(body)
+        }
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        "Exa API returned " +
+        response.status
+      );
     }
-  );
 
-  if (!response.ok) {
-    throw new Error(
-      "Exa API returned " + response.status
+    const data =
+      await response.json();
+
+    markProviderSuccess(
+      "exa"
     );
+
+    return data;
+
+  } catch (error) {
+
+    markProviderFailure(
+      "exa",
+      error
+    );
+
+    throw error;
   }
-
-  return response.json();
 }
-
 
 async function tavilySearch(
   query,
