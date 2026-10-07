@@ -175,11 +175,25 @@ async function tavilySearch(
   numResults = 10,
   includeDomains = []
 ) {
-  const apiKey = process.env.TAVILY_API_KEY;
+  const apiKey =
+    process.env.TAVILY_API_KEY;
 
   if (!apiKey) {
+    providerHealth.tavily.status =
+      "NOT_CONFIGURED";
+    providerHealth.tavily.lastError =
+      "TAVILY_API_KEY is not configured.";
+    providerHealth.tavily.failedAt = null;
+    providerHealth.tavily.retryAfter = 0;
+
     throw new Error(
       "TAVILY_API_KEY is not configured."
+    );
+  }
+
+  if (!providerIsAvailable("tavily")) {
+    throw new Error(
+      "Tavily provider is temporarily unavailable."
     );
   }
 
@@ -196,27 +210,50 @@ async function tavilySearch(
     Array.isArray(includeDomains) &&
     includeDomains.length > 0
   ) {
-    body.include_domains = includeDomains;
+    body.include_domains =
+      includeDomains;
   }
 
-  const response = await fetch(
-    "https://api.tavily.com/search",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
+  try {
+    const response =
+      await fetch(
+        "https://api.tavily.com/search",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body:
+            JSON.stringify(body)
+        }
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        "Tavily API returned " +
+        response.status
+      );
     }
-  );
 
-  if (!response.ok) {
-    throw new Error(
-      "Tavily API returned " + response.status
+    const data =
+      await response.json();
+
+    markProviderSuccess(
+      "tavily"
     );
-  }
 
-  return response.json();
+    return data;
+
+  } catch (error) {
+
+    markProviderFailure(
+      "tavily",
+      error
+    );
+
+    throw error;
+  }
 }
 
 
