@@ -302,8 +302,10 @@ function identifyExpansionAreas(
 
  }
 
- return areas;
+  return areas;
 }
+
+// INSERT NEW ARCHITECTURE ANALYZER HERE
 
 async function runExpansionEngineer(){
 
