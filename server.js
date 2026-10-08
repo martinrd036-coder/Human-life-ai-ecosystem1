@@ -1790,6 +1790,7 @@ async function runProductScout(
   throw e;
  }
 }
+
 async function runAutomation(){
 
  if(automationRunning){
@@ -1806,14 +1807,13 @@ async function runAutomation(){
  ){
 
   const assignment=
-   await
-   commandCenter.assignTask(
+   await commandCenter.assignTask(
     agentId,
     taskName,
     details
    );
-   
- await commandCenter.startTask(
+
+  await commandCenter.startTask(
    assignment.id
   );
 
@@ -1830,13 +1830,44 @@ async function runAutomation(){
    return result;
 
   }catch(e){
-   
+
    await commandCenter.failTask(
     assignment.id,
     e.message
    );
 
    throw e;
+  }
+ }
+
+ async function runIsolatedAgent(
+  agentId,
+  taskName,
+  details,
+  runner
+ ){
+
+  try{
+
+   return await executeCommandTask(
+    agentId,
+    taskName,
+    details,
+    runner
+   );
+
+  }catch(e){
+
+   console.error(
+    `[Automation] ${agentId} failed:`,
+    e.message
+   );
+
+   return{
+    success:false,
+    agentId,
+    error:e.message
+   };
   }
  }
 
@@ -1847,112 +1878,124 @@ async function runAutomation(){
    "running",
    "Command Center coordinating ecosystem work"
   );
-    if(
+
+  if(
    shouldRunScheduledAgent(
     "opportunity-scout",
     COOLDOWN
    )
   ){
 
-   markScheduledAgentRun(
-    "opportunity-scout"
-   );
+   const result=
+    await runIsolatedAgent(
+     "opportunity-scout",
+     "Discover and score legitimate evidence-backed revenue opportunities",
+     {},
+     ()=>scout()
+    );
 
-   await executeCommandTask(
-    "opportunity-scout",
-    "Discover and score legitimate evidence-backed revenue opportunities",
-    {},
-    ()=>scout()
-   );
+   if(result?.success!==false){
+    markScheduledAgentRun(
+     "opportunity-scout"
+    );
+   }
+  }
 
-    }
-    if(
+  if(
    shouldRunScheduledAgent(
     "revenue-intelligence",
     REVENUE_INTELLIGENCE_INTERVAL
    )
   ){
 
-   markScheduledAgentRun(
-    "revenue-intelligence"
-   );
+   const result=
+    await runIsolatedAgent(
+     "revenue-intelligence",
+     "Research and evaluate revenue opportunities",
+     {},
+     ()=>work(
+      "revenue-intelligence"
+     )
+    );
 
-   await executeCommandTask(
-    "revenue-intelligence",
-    "Research and evaluate revenue opportunities",
-    {},
-    ()=>work(
+   if(result?.success!==false){
+    markScheduledAgentRun(
      "revenue-intelligence"
-    )
-   );
+    );
+   }
+  }
 
-    }
-
-    if(
+  if(
    shouldRunScheduledAgent(
     "product-scout",
     PRODUCT_SCOUT_INTERVAL
    )
   ){
 
-   markScheduledAgentRun(
-    "product-scout"
-   );
+   const result=
+    await runIsolatedAgent(
+     "product-scout",
+     "Research and qualify Amazon products",
+     {},
+     ()=>runProductScout()
+    );
 
-   await executeCommandTask(
-    "product-scout",
-    "Research and qualify Amazon products",
-    {},
-    ()=>runProductScout()
-   );
+   if(result?.success!==false){
+    markScheduledAgentRun(
+     "product-scout"
+    );
+   }
+  }
 
-    }
-
-    if(
+  if(
    shouldRunScheduledAgent(
     "affiliate-intelligence",
     AFFILIATE_INTELLIGENCE_INTERVAL
    )
   ){
 
-   markScheduledAgentRun(
-    "affiliate-intelligence"
-   );
+   const result=
+    await runIsolatedAgent(
+     "affiliate-intelligence",
+     "Research legitimate affiliate programs",
+     {},
+     ()=>work(
+      "affiliate-intelligence"
+     )
+    );
 
-   await executeCommandTask(
-    "affiliate-intelligence",
-    "Research legitimate affiliate programs",
-    {},
-    ()=>work(
+   if(result?.success!==false){
+    markScheduledAgentRun(
      "affiliate-intelligence"
-    )
-   );
+    );
+   }
+  }
 
-    }
-
-    if(
+  if(
    shouldRunScheduledAgent(
     "viral-content",
     VIRAL_CONTENT_INTERVAL
    )
   ){
 
-   markScheduledAgentRun(
-    "viral-content"
-   );
+   const result=
+    await runIsolatedAgent(
+     "viral-content",
+     "Research content and traffic opportunities",
+     {},
+     ()=>work(
+      "viral-content"
+     )
+    );
 
-   await executeCommandTask(
-    "viral-content",
-    "Research content and traffic opportunities",
-    {},
-    ()=>work(
+   if(result?.success!==false){
+    markScheduledAgentRun(
      "viral-content"
-    )
-   );
+    );
+   }
+  }
 
-    }
-
-  await executeCommandTask(
+  await runIsolatedAgent(
    "analytics",
    "Measure ecosystem activity and results",
    {},
@@ -1961,7 +2004,7 @@ async function runAutomation(){
    )
   );
 
-  await executeCommandTask(
+  await runIsolatedAgent(
    "guardian",
    "Check ecosystem health and safety",
    {},
@@ -1970,7 +2013,7 @@ async function runAutomation(){
    )
   );
 
-  await executeCommandTask(
+  await runIsolatedAgent(
    "engineering-guardian",
    "Check technical health and reliability",
    {},
@@ -1982,16 +2025,31 @@ async function runAutomation(){
   await beat(
    "agent1",
    "online",
-   "Command Center completed assigned ecosystem tasks"
+   "Command Center completed ecosystem tasks"
   );
 
  }catch(e){
 
-  await beat(
-   "agent1",
-   "error",
-   `Command Center task cycle failed: ${e.message}`
+  console.error(
+   "[Automation] Command Center cycle failed:",
+   e.message
   );
+
+  try{
+
+   await beat(
+    "agent1",
+    "error",
+    `Command Center task cycle failed: ${e.message}`
+   );
+
+  }catch(heartbeatError){
+
+   console.error(
+    "[Automation] Agent 1 heartbeat failed:",
+    heartbeatError.message
+   );
+  }
 
  }finally{
 
