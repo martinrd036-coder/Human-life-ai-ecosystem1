@@ -2201,12 +2201,46 @@ async function runAutomation(){
    {},
    ()=>runEngineeringGuardian()
   );
-  await runIsolatedAgent(
- "expansion-engineer",
- "Inspect the ecosystem and identify safe expansion opportunities",
- {},
- ()=>runExpansionEngineer()
- );
+     await runIsolatedAgent(
+    "expansion-engineer",
+    "Inspect the ecosystem and identify safe expansion opportunities",
+    {},
+    async()=>{
+     const start=
+      new Date().toISOString();
+
+     const result=
+      await runExpansionEngineer();
+
+     const status=
+      result.success
+       ? "online"
+       : "error";
+
+     const activity=
+      result.success
+       ? "Expansion inspection completed"
+       : "Expansion inspection failed";
+
+     await beat(
+      "expansion-engineer",
+      status,
+      activity
+     );
+
+     await runLog(
+      "expansion-engineer",
+      result.success
+       ? "completed"
+       : "failed",
+      activity,
+      result,
+      start
+     );
+
+     return result;
+    }
+   );
   await beat(
    "agent1",
    "online",
