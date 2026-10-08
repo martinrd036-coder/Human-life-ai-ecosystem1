@@ -318,7 +318,98 @@ function normalizeSearchResults(
     provider
   }));
 }
+async function serperSearch(
+  query,
+  numResults = 10,
+  includeDomains = []
+) {
+  const apiKey =
+    process.env.SERPER_API_KEY;
 
+  if (!apiKey) {
+    providerHealth.serper.status =
+      "NOT_CONFIGURED";
+    providerHealth.serper.lastError =
+      "SERPER_API_KEY is not configured.";
+    providerHealth.serper.failedAt = null;
+    providerHealth.serper.retryAfter = 0;
+
+    throw new Error(
+      "SERPER_API_KEY is not configured."
+    );
+  }
+
+  if (!providerIsAvailable("serper")) {
+    throw new Error(
+      "Serper provider is temporarily unavailable."
+    );
+  }
+
+  const body = {
+    q: query,
+    num: numResults
+  };
+
+  if (
+    Array.isArray(includeDomains) &&
+    includeDomains.length > 0
+  ) {
+    body.site =
+      includeDomains
+        .map(domain =>
+          "site:" + domain
+        )
+        .join(" OR ");
+  }
+
+  try {
+    const response =
+      await fetch(
+        "https://google.serper.dev/search",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            "X-API-KEY":
+              apiKey
+          },
+          body:
+            JSON.stringify(body)
+        }
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        "Serper API returned " +
+        response.status
+      );
+    }
+
+    const data =
+      await response.json();
+
+    markProviderSuccess(
+      "serper"
+    );
+
+    return {
+      results:
+        Array.isArray(data?.organic)
+          ? data.organic
+          : []
+    };
+
+  } catch (error) {
+
+    markProviderFailure(
+      "serper",
+      error
+    );
+
+    throw error;
+  }
+}
 
 function normalizeExaResults(data) {
   return normalizeSearchResults(
