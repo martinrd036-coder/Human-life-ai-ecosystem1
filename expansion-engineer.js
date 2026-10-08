@@ -43,22 +43,7 @@ function githubRequest(path){
          response.statusCode<200 ||
          response.statusCode>=300
         ){
-
-         reject(
-          new Error(
-           `GitHub request failed: ${response.statusCode}`
-          )
-         );
-
-         return;
         }
-
-        try{
-
-         resolve(
-          JSON.parse(body)
-         );
-
         }catch(error){
 
          reject(error);
