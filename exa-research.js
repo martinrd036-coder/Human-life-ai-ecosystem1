@@ -127,7 +127,7 @@ function researchGovernor() {
       RESEARCH_GOVERNOR.sessions
   };
 }
-}
+
 async function exaSearch(
   query,
   numResults = 10,
