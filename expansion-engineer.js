@@ -652,6 +652,10 @@ async function runExpansionEngineer(){
    analyzeEcosystemArchitecture(
     inspection
    );
+   const revenuePath=
+ analyzeRevenuePath(
+  architecture
+ );
   return{
    success:true,
 
