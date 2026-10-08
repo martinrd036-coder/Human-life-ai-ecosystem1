@@ -637,6 +637,8 @@ function hasUsefulResults(data) {
 
 
 async function researchOpportunities(topic) {
+    const governor =
+    researchGovernor();
   const query =
     topic ||
     "legitimate ways to make money online through AI automation, affiliate programs, creator programs, freelance work, remote jobs, digital products, and reputable opportunities";
