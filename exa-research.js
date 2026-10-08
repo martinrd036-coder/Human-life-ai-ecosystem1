@@ -636,14 +636,13 @@ async function researchOpportunities(topic) {
       hasUsefulResults(
         generalData
       );
-
-    /*
+        /*
      * QUALITY FALLBACK
      *
      * Exa remains the primary research provider.
-     * Only use Tavily when it is actually configured.
-     * If Tavily is unavailable, keep the Exa results
-     * instead of failing the entire research task.
+     * Use Tavily first when configured.
+     * If Tavily fails, use Serper when configured.
+     * If both fail, preserve the Exa results.
      */
     if (
       !officialQuality.strong ||
@@ -664,57 +663,32 @@ async function researchOpportunities(topic) {
       }
 
       fallbackReason =
-  reasons.join(" ");
+        reasons.join(" ");
 
-const tavilyConfigured =
-  Boolean(process.env.TAVILY_API_KEY);
+      const tavilyConfigured =
+        Boolean(process.env.TAVILY_API_KEY);
 
-const serperConfigured =
-  Boolean(process.env.SERPER_API_KEY);
-        if (
-  tavilyConfigured ||
-  serperConfigured
-) {
+      const serperConfigured =
+        Boolean(process.env.SERPER_API_KEY);
+
+      if (
+        tavilyConfigured
+      ) {
         try {
-  let fallbackOfficialData;
-  let fallbackGeneralData;
-  let fallbackProvider;
+          const fallbackOfficialData =
+            await tavilySearch(
+              officialQuery,
+              10,
+              officialDomains
+            );
 
-  if (tavilyConfigured) {
-    fallbackOfficialData =
-      await tavilySearch(
-        officialQuery,
-        10,
-        officialDomains
-      );
+          const fallbackGeneralData =
+            await tavilySearch(
+              query,
+              10
+            );
 
-    fallbackGeneralData =
-      await tavilySearch(
-        query,
-        10
-      );
-
-    fallbackProvider =
-      "tavily";
-  } else {
-    fallbackOfficialData =
-      await serperSearch(
-        officialQuery,
-        10,
-        officialDomains
-      );
-
-    fallbackGeneralData =
-      await serperSearch(
-        query,
-        10
-      );
-
-    fallbackProvider =
-      "serper";
-  }
-
-                    const exaOfficialResults =
+          const exaOfficialResults =
             normalizeExaResults(
               officialData
             );
@@ -724,48 +698,40 @@ const serperConfigured =
               generalData
             );
 
-          const fallbackOfficialResults =
-            fallbackProvider === "tavily"
-              ? normalizeTavilyResults(
-                  fallbackOfficialData
-                )
-              : normalizeSerperResults(
-                  fallbackOfficialData
-                );
+          const tavilyOfficialResults =
+            normalizeTavilyResults(
+              fallbackOfficialData
+            );
 
-          const fallbackGeneralResults =
-            fallbackProvider === "tavily"
-              ? normalizeTavilyResults(
-                  fallbackGeneralData
-                )
-              : normalizeSerperResults(
-                  fallbackGeneralData
-                );
+          const tavilyGeneralResults =
+            normalizeTavilyResults(
+              fallbackGeneralData
+            );
 
           officialData = {
             results: [
               ...exaOfficialResults,
-              ...fallbackOfficialResults
+              ...tavilyOfficialResults
             ]
           };
 
           generalData = {
             results: [
               ...exaGeneralResults,
-              ...fallbackGeneralResults
+              ...tavilyGeneralResults
             ]
           };
 
           researchProvider =
-  "exa+" +
-  fallbackProvider +
-  "_quality_fallback";
+            "exa+tavily_quality_fallback";
 
-                } catch (tavilyError) {
+        } catch (tavilyError) {
           fallbackReason +=
             ` Tavily fallback failed (${tavilyError?.message || "unknown error"}).`;
 
-          if (serperConfigured) {
+          if (
+            serperConfigured
+          ) {
             try {
               const serperOfficialData =
                 await serperSearch(
@@ -785,75 +751,27 @@ const serperConfigured =
                   officialData
                 );
 
-                 const tavilyConfigured =
-      Boolean(process.env.TAVILY_API_KEY);
+              const exaGeneralResults =
+                normalizeExaResults(
+                  generalData
+                );
 
-    const serperConfigured =
-      Boolean(process.env.SERPER_API_KEY);
+              const serperOfficialResults =
+                normalizeSerperResults(
+                  serperOfficialData
+                );
 
-    if (tavilyConfigured) {
-      try {
-        officialData =
-          await tavilySearch(
-            officialQuery,
-            10,
-            officialDomains
-          );
+              const serperGeneralResults =
+                normalizeSerperResults(
+                  serperGeneralData
+                );
 
-        generalData =
-          await tavilySearch(
-            query,
-            10
-          );
-
-        researchProvider =
-          "tavily_fallback";
-
-      } catch (tavilyError) {
-        fallbackReason +=
-          ` Tavily full fallback failed (${tavilyError?.message || "unknown error"}).`;
-
-        if (serperConfigured) {
-          officialData =
-            await serperSearch(
-              officialQuery,
-              10,
-              officialDomains
-            );
-
-          generalData =
-            await serperSearch(
-              query,
-              10
-            );
-
-          researchProvider =
-            "serper_fallback";
-        } else {
-          throw exaError;
-        }
-      }
-
-    } else if (serperConfigured) {
-      officialData =
-        await serperSearch(
-          officialQuery,
-          10,
-          officialDomains
-        );
-
-      generalData =
-        await serperSearch(
-          query,
-          10
-        );
-
-      researchProvider =
-        "serper_fallback";
-
-    } else {
-      throw exaError;
-          }
+              officialData = {
+                results: [
+                  ...exaOfficialResults,
+                  ...serperOfficialResults
+                ]
+              };
 
               generalData = {
                 results: [
@@ -879,11 +797,77 @@ const serperConfigured =
             researchProvider =
               "exa";
           }
+        }
+
+      } else if (
+        serperConfigured
+      ) {
+        try {
+          const serperOfficialData =
+            await serperSearch(
+              officialQuery,
+              10,
+              officialDomains
+            );
+
+          const serperGeneralData =
+            await serperSearch(
+              query,
+              10
+            );
+
+          const exaOfficialResults =
+            normalizeExaResults(
+              officialData
+            );
+
+          const exaGeneralResults =
+            normalizeExaResults(
+              generalData
+            );
+
+          const serperOfficialResults =
+            normalizeSerperResults(
+              serperOfficialData
+            );
+
+          const serperGeneralResults =
+            normalizeSerperResults(
+              serperGeneralData
+            );
+
+          officialData = {
+            results: [
+              ...exaOfficialResults,
+              ...serperOfficialResults
+            ]
+          };
+
+          generalData = {
+            results: [
+              ...exaGeneralResults,
+              ...serperGeneralResults
+            ]
+          };
+
+          researchProvider =
+            "exa+serper_quality_fallback";
+
+        } catch (serperError) {
+          fallbackReason +=
+            ` Serper fallback failed (${serperError?.message || "unknown error"}); Exa results retained.`;
+
+          researchProvider =
+            "exa";
+        }
 
       } else {
         fallbackReason +=
-          " Tavily fallback skipped because TAVILY_API_KEY is not configured; Exa results retained.";
-        }
+          " Tavily and Serper fallbacks are not configured; Exa results retained.";
+
+        researchProvider =
+          "exa";
+      }
     }
   } catch (exaError) {
     /*
