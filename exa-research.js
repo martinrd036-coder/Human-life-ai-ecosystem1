@@ -5,7 +5,13 @@ const providerHealth = {
     failedAt: null,
     retryAfter: 0
   },
-  tavily: {
+    tavily: {
+    status: "UNKNOWN",
+    lastError: "",
+    failedAt: null,
+    retryAfter: 0
+  },
+  serper: {
     status: "UNKNOWN",
     lastError: "",
     failedAt: null,
