@@ -980,9 +980,8 @@ async function researchOpportunities(topic) {
             fallbackReason +=
               ` Serper full fallback failed (${serperError?.message || "unknown error"}).`;
 
-             throw new 
-          Error(fallbackReason);
-
+                         throw new Error(fallbackReason);
+          }
         } else {
           fallbackReason +=
             " Serper fallback skipped because SERPER_API_KEY is not configured.";
