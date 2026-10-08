@@ -85,6 +85,78 @@ function getProviderHealth() {
     )
   );
 }
+const RESEARCH_GOVERNOR = {
+  cooldownMs:
+    30 * 60 * 1000,
+
+  maxSessions:
+    8,
+
+  sessions:
+    0,
+
+  windowStartedAt:
+    Date.now(),
+
+  lastStartedAt:
+    0
+};
+
+function researchGovernor() {
+
+  const now =
+    Date.now();
+
+  const windowMs =
+    24 * 60 * 60 * 1000;
+
+  if (
+    now -
+    RESEARCH_GOVERNOR.windowStartedAt
+    >= windowMs
+  ) {
+    RESEARCH_GOVERNOR.sessions =
+      0;
+
+    RESEARCH_GOVERNOR.windowStartedAt =
+      now;
+  }
+
+  if (
+    RESEARCH_GOVERNOR.sessions >=
+    RESEARCH_GOVERNOR.maxSessions
+  ) {
+    throw new Error(
+      "Research governor limit reached. Research paused until the next 24-hour window."
+    );
+  }
+
+  if (
+    RESEARCH_GOVERNOR.lastStartedAt &&
+    now -
+    RESEARCH_GOVERNOR.lastStartedAt
+    <
+    RESEARCH_GOVERNOR.cooldownMs
+  ) {
+    throw new Error(
+      "Research governor cooldown active. Research paused to protect provider usage."
+    );
+  }
+
+  RESEARCH_GOVERNOR.sessions++;
+
+  RESEARCH_GOVERNOR.lastStartedAt =
+    now;
+
+  return {
+    allowed:true,
+    sessionsUsed:
+      RESEARCH_GOVERNOR.sessions,
+    sessionsRemaining:
+      RESEARCH_GOVERNOR.maxSessions -
+      RESEARCH_GOVERNOR.sessions
+  };
+}
 async function exaSearch(
   query,
   numResults = 10,
