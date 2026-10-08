@@ -2188,9 +2188,7 @@ async function runAutomation(){
    "engineering-guardian",
    "Check technical health and reliability",
    {},
-   ()=>work(
-    "engineering-guardian"
-   )
+   ()=>runEngineeringGuardian()
   );
 
   await beat(
