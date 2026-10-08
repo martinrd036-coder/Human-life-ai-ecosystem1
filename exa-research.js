@@ -664,9 +664,13 @@ async function researchOpportunities(topic) {
       }
 
       fallbackReason =
-        reasons.join(" ");
-      const tavilyConfigured =
+  reasons.join(" ");
+
+const tavilyConfigured =
   Boolean(process.env.TAVILY_API_KEY);
+
+const serperConfigured =
+  Boolean(process.env.SERPER_API_KEY);
         if (tavilyConfigured) {
         try {
           const tavilyOfficialData =
