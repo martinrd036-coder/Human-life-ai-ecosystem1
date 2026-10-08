@@ -130,6 +130,59 @@ async function inspectRepository(){
       )
    : [];
 
+   const importantFiles=[
+  "AGENTS.md",
+  "package.json",
+  "server.js",
+  "exa-research.js",
+  "product-intelligence.js",
+  "amazon-affiliate.js",
+  "command-center.js",
+  "higgsfield-provider.js",
+  "expansion-engineer.js"
+ ];
+
+ const sourceSnapshots={};
+
+ for(
+  const filePath
+  of importantFiles
+ ){
+
+  if(
+   !files.includes(filePath)
+  ){
+   continue;
+  }
+
+  try{
+
+   const content=
+    await githubFile(
+     filePath
+    );
+
+   if(
+    content
+   ){
+
+    sourceSnapshots[filePath]=
+     content.slice(
+      0,
+      12000
+     );
+
+   }
+
+  }catch(error){
+
+   sourceSnapshots[filePath]=
+    `Unable to read file: ${error.message}`;
+
+  }
+
+ }
+
  return{
   repository:{
    name:
