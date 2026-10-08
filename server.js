@@ -1473,9 +1473,7 @@ async function work(
    revenueStatus:
     "No revenue claimed."
   };
-    revenueStatus:
-      "No revenue claimed."
-  };
+    
   }
 
   const activity=
