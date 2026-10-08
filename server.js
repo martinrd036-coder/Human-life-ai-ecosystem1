@@ -359,11 +359,17 @@ const agentRegistry=[
   purpose:
    "Monitor ecosystem health, safety, failures, stale work, and protected operations"
  },
+{
+ id:"engineering-guardian",
+ name:"Engineering Guardian",
+ purpose:
+  "Monitor, diagnose, test, verify, and safely repair technical systems"
+ },
  {
-  id:"engineering-guardian",
-  name:"Engineering Guardian",
+  id:"expansion-engineer",
+  name:"Expansion Engineer",
   purpose:
-   "Monitor, diagnose, test, verify, and safely repair technical systems"
+   "Inspect the ecosystem, identify safe improvements, and prepare controlled engineering expansions"
  }
 ].map(a=>({
  ...a,
