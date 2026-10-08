@@ -921,13 +921,7 @@ const serperConfigured =
     }
   }
 
-  /*
-   * NORMALIZE RESULTS
-   */
-  let officialResults;
-  let generalResults;
-
-  if (
+    if (
     researchProvider ===
     "tavily_fallback"
   ) {
@@ -940,15 +934,33 @@ const serperConfigured =
       normalizeTavilyResults(
         generalData
       );
+
   } else if (
     researchProvider ===
-    "exa+tavily_quality_fallback"
+    "serper_fallback"
+  ) {
+    officialResults =
+      normalizeSerperResults(
+        officialData
+      );
+
+    generalResults =
+      normalizeSerperResults(
+        generalData
+      );
+
+  } else if (
+    researchProvider ===
+    "exa+tavily_quality_fallback" ||
+    researchProvider ===
+    "exa+serper_quality_fallback"
   ) {
     officialResults =
       officialData.results || [];
 
     generalResults =
       generalData.results || [];
+
   } else {
     officialResults =
       normalizeExaResults(
@@ -960,7 +972,6 @@ const serperConfigured =
         generalData
       );
   }
-
   /*
    * COMBINE + DEDUPLICATE
    */
