@@ -1459,17 +1459,20 @@ async function work(
      "Research governor"
     )
    ) {
-  await beat(
-    id,
-    "paused",
-    error.message
+    await beat(
+   id,
+   "paused",
+   e.message
   );
 
   return {
-    success: false,
-    paused: true,
-    reason:
-      error.message,
+   success: false,
+   paused: true,
+   reason:
+    e.message,
+   revenueStatus:
+    "No revenue claimed."
+  };
     revenueStatus:
       "No revenue claimed."
   };
