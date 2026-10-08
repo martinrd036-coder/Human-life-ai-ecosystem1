@@ -305,7 +305,221 @@ function identifyExpansionAreas(
   return areas;
 }
 
-// INSERT NEW ARCHITECTURE ANALYZER HERE
+function analyzeEcosystemArchitecture(
+ inspection
+){
+
+ const source=
+  inspection.sourceSnapshots || {};
+
+ const has=
+  (...terms)=>{
+
+   const text=
+    Object.values(source)
+     .join("\n")
+     .toLowerCase();
+
+   return terms.some(
+    term=>
+     text.includes(
+      term.toLowerCase()
+     )
+   );
+
+  };
+
+ const capabilities={
+
+  agentCoordination:
+   has(
+    "commandCenter",
+    "assignTask",
+    "startTask",
+    "completeTask"
+   ),
+
+  research:
+   has(
+    "researchOpportunities",
+    "exaSearch",
+    "tavilySearch",
+    "serperSearch"
+   ),
+
+  opportunityDiscovery:
+   has(
+    "Opportunity Scout",
+    "opportunity-scout",
+    "scoreOpportunity"
+   ),
+
+  productIntelligence:
+   has(
+    "analyzeProduct",
+    "Product Scout",
+    "product-intelligence"
+   ),
+
+  affiliateTracking:
+   has(
+    "buildAmazonSpecialLink",
+    "recordAmazonClick",
+    "getAmazonClickStats"
+   ),
+
+  contentProduction:
+   has(
+    "createVideo",
+    "higgsfield",
+    "video"
+   ),
+
+  distribution:
+   has(
+    "publish",
+    "publisher",
+    "distribution"
+   ),
+
+  conversionTracking:
+   has(
+    "conversion",
+    "conversions",
+    "sale"
+   ),
+
+  revenueVerification:
+   has(
+    "verified revenue",
+    "revenueStatus",
+    "No revenue claimed"
+   ),
+
+  engineeringSafety:
+   has(
+    "engineering-guardian",
+    "runEngineeringGuardian"
+   ),
+
+  testing:
+   has(
+    "npm test",
+    "test/",
+    "tests"
+   ),
+
+  agentCommunication:
+   has(
+    "agent_runs",
+    "assignTask",
+    "agent_id"
+   )
+ };
+
+ const priorities=[
+  {
+   capability:
+    "revenueVerification",
+   priority:1,
+   goal:
+    "Produce measurable verified revenue evidence without fabricating results."
+  },
+  {
+   capability:
+    "conversionTracking",
+   priority:2,
+   goal:
+    "Measure clicks, conversions, and funnel movement."
+  },
+  {
+   capability:
+    "opportunityDiscovery",
+   priority:3,
+   goal:
+    "Find legitimate opportunities with a credible path to income."
+  },
+  {
+   capability:
+    "contentProduction",
+   priority:4,
+   goal:
+    "Turn qualified opportunities into usable content."
+  },
+  {
+   capability:
+    "distribution",
+   priority:5,
+   goal:
+    "Move completed content toward real audiences and traffic."
+  },
+  {
+   capability:
+    "research",
+   priority:6,
+   goal:
+    "Improve source quality and opportunity intelligence."
+  },
+  {
+   capability:
+    "engineeringSafety",
+   priority:7,
+   goal:
+    "Keep autonomous improvements safe, testable, and reviewable."
+  },
+  {
+   capability:
+    "testing",
+   priority:8,
+   goal:
+    "Increase confidence before changes reach production."
+  }
+ ];
+
+ const missingCapabilities=
+  priorities
+   .filter(
+    item=>
+     !capabilities[item.capability]
+   )
+   .map(
+    item=>({
+     capability:
+      item.capability,
+     priority:
+      item.priority,
+     goal:
+      item.goal
+    })
+   );
+
+ return{
+  mission:
+   "Build legitimate measurable income while preserving system safety and truthful reporting.",
+
+  capabilities,
+
+  missingCapabilities,
+
+  priorities,
+
+  communicationRequirements:[
+   "Agents must be able to create and receive structured tasks.",
+   "Agents must report status and measurable results.",
+   "Agent activity must remain separate from verified revenue.",
+   "Agents must share useful results without allowing unsupported revenue claims.",
+   "Engineering Guardian must be able to review risky technical changes."
+  ],
+
+  incomeRequirements:[
+   "Every income experiment must have a measurable funnel.",
+   "Opportunity discovery must lead toward an actionable test.",
+   "Content production must be distinguished from publication.",
+   "Clicks must be distinguished from conversions.",
+   "Revenue must only be reported when independently supported by evidence."
+  ]
+ };
+}
 
 async function runExpansionEngineer(){
 
