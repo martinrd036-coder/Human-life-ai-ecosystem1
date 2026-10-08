@@ -1798,7 +1798,7 @@ async function runProductScout(
 async function runEngineeringGuardian(){
 
  const start=
-  Date.now();
+  new Date().toISOString()
 
  const findings=[];
 
