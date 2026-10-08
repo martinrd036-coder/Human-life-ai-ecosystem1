@@ -1014,8 +1014,11 @@ const serperConfigured =
 module.exports = {
   exaSearch,
   tavilySearch,
+  serperSearch,
   normalizeExaResults,
   normalizeTavilyResults,
+  normalizeSerperResults,
+  getProviderHealth,
   sourcePriority,
   researchOpportunities
 };
