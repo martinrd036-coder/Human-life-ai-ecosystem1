@@ -757,7 +757,9 @@ const serperConfigured =
           };
 
           researchProvider =
-            "exa+tavily_quality_fallback";
+  "exa+" +
+  fallbackProvider +
+  "_quality_fallback";
 
         } catch (tavilyError) {
           fallbackReason +=
