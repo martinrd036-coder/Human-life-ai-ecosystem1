@@ -1791,6 +1791,177 @@ async function runProductScout(
  }
 }
 
+async function runEngineeringGuardian(){
+
+ const start=
+  Date.now();
+
+ const findings=[];
+
+ try{
+
+  await pool.query(
+   "SELECT NOW()"
+  );
+
+  findings.push({
+   check:"database",
+   status:"healthy",
+   message:"Database connection is working."
+  });
+
+ }catch(e){
+
+  findings.push({
+   check:"database",
+   status:"error",
+   message:e.message
+  });
+ }
+
+ const checks={
+  exaConfigured:
+   Boolean(
+    process.env.EXA_API_KEY
+   ),
+
+  tavilyConfigured:
+   Boolean(
+    process.env.TAVILY_API_KEY
+   ),
+
+  amazonTagConfigured:
+   Boolean(
+    process.env.AMAZON_ASSOCIATE_TAG
+   ),
+
+  databaseConfigured:
+   Boolean(
+    process.env.DATABASE_URL
+   )
+ };
+
+ findings.push({
+  check:"configuration",
+  status:
+   Object.values(checks).every(Boolean)
+    ? "healthy"
+    : "warning",
+  checks
+ });
+
+ findings.push({
+  check:"server",
+  status:"healthy",
+  message:"Application process is running."
+ });
+
+ findings.push({
+  check:"automation",
+  status:
+   automationRunning
+    ? "running"
+    : "idle",
+  message:
+   "Automation execution state inspected."
+ });
+
+ const errors=
+  await pool.query(
+   `
+   SELECT
+    agent_id,
+    status,
+    message,
+    created_at
+   FROM agent_runs
+   WHERE status='failed'
+   ORDER BY created_at DESC
+   LIMIT 10
+   `
+  ).catch(
+   ()=>({rows:[]})
+  );
+
+ if(errors.rows.length){
+
+  findings.push({
+   check:"recent_failures",
+   status:"warning",
+   count:errors.rows.length,
+   failures:errors.rows
+  });
+
+ }else{
+
+  findings.push({
+   check:"recent_failures",
+   status:"healthy",
+   count:0,
+   message:"No recent failed agent runs found."
+  });
+ }
+
+ const warnings=
+  findings.filter(
+   x=>x.status==="warning"
+  ).length;
+
+ const failures=
+  findings.filter(
+   x=>x.status==="error"
+  ).length;
+
+ const overall=
+  failures>0
+   ? "error"
+   : warnings>0
+    ? "warning"
+    : "healthy";
+
+ const result={
+  success:
+   failures===0,
+
+  agentId:
+   "engineering-guardian",
+
+  overall,
+
+  durationMs:
+   Date.now()-start,
+
+  findings,
+
+  nextAction:
+   failures>0
+    ? "Investigate failed checks before making repairs."
+    : warnings>0
+     ? "Review warnings and determine the smallest safe repair."
+     : "No immediate engineering repair required.",
+
+  revenueStatus:
+   "No revenue claimed."
+ };
+
+ await beat(
+  "engineering-guardian",
+  overall==="error"
+   ? "error"
+   : "online",
+  `Engineering inspection completed: ${overall}`
+ );
+
+ await runLog(
+  "engineering-guardian",
+  "completed",
+  `Engineering inspection completed: ${overall}`,
+  result,
+  start
+ );
+
+ return result;
+}
 async function runAutomation(){
 
  if(automationRunning){
