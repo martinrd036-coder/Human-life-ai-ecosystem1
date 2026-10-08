@@ -1008,17 +1008,15 @@ async function researchOpportunities(topic) {
         researchProvider =
           "serper_fallback";
 
-      } catch (serperError) {
+            } catch (serperError) {
         fallbackReason +=
           ` Serper full fallback failed (${serperError?.message || "unknown error"}).`;
 
-           throw new 
-       Error(fallbackReason);
-
+        throw new Error(fallbackReason);
+      }
     } else {
       throw exaError;
     }
-  }
     if (
     researchProvider ===
     "tavily_fallback"
