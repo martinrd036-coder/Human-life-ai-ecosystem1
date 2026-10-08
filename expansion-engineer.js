@@ -3,7 +3,6 @@ const https = require("https");
 const REPOSITORY =
   process.env.GITHUB_REPOSITORY ||
   "martinrd036-coder/Human-life-ai-ecosystem1";
-
 function githubRequest(path){
 
  return new Promise(
@@ -43,34 +42,28 @@ function githubRequest(path){
          response.statusCode<200 ||
          response.statusCode>=300
         ){
+
+         reject(
+          new Error(
+           `GitHub request failed: ${response.statusCode}`
+          )
+         );
+
+         return;
         }
+
+        try{
+
+         resolve(
+          JSON.parse(body)
+         );
+
         }catch(error){
 
          reject(error);
 
         }
-async function githubFile(path){
 
- const file=
-  await githubRequest(
-   `/repos/${REPOSITORY}/contents/${path}`
-  );
-
- if(
-  !file ||
-  file.type!=="file" ||
-  !file.content
- ){
-  return null;
- }
-
- return Buffer
-  .from(
-   file.content,
-   "base64"
-  )
-  .toString("utf8");
-}
        }
       );
 
@@ -87,7 +80,6 @@ async function githubFile(path){
   }
  );
 }
-
 async function inspectRepository(){
 
  const repository=
