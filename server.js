@@ -1878,8 +1878,8 @@ async function runEngineeringGuardian(){
    FROM agent_runs
    WHERE status='failed'
    ORDER BY started_at DESC
-   LIMIT 10
-  '
+      LIMIT 10
+  `
   ).catch(
    ()=>({rows:[]})
   );
