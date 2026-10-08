@@ -556,7 +556,8 @@ async function runExpansionEngineer(){
      inspection.fileCount
    },
 
-   expansionAreas,
+   expansionAreas, 
+    architecture,
 
    nextSteps:[
     "Inspect each proposed expansion against existing architecture.",
