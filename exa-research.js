@@ -425,6 +425,47 @@ function normalizeTavilyResults(data) {
     "tavily"
   );
 }
+function normalizeSerperResults(data) {
+  const results =
+    Array.isArray(data?.results)
+      ? data.results
+      : [];
+
+  return results.map(result => ({
+    title:
+      result.title ||
+      "Untitled",
+
+    url:
+      result.link ||
+      "",
+
+    publishedDate:
+      result.date ||
+      "",
+
+    author:
+      "",
+
+    source:
+      result.link
+        ? new URL(result.link).hostname
+        : "Unknown",
+
+    description:
+      result.snippet ||
+      "",
+
+    highlights:
+      [],
+
+    score:
+      null,
+
+    provider:
+      "serper"
+  }));
+}
 
 function sourcePriority(url = "") {
   if (!url) {
