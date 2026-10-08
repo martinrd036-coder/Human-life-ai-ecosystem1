@@ -523,6 +523,121 @@ function analyzeEcosystemArchitecture(
 
 async function runExpansionEngineer(){
 
+  function analyzeRevenuePath(
+ architecture
+){
+
+ const capabilities=
+  architecture.capabilities || {};
+
+ const stages=[
+  {
+   stage:"opportunity",
+   capability:"opportunityDiscovery",
+   exists:
+    !!capabilities.opportunityDiscovery,
+   goal:
+    "Find legitimate opportunities with a credible path to income."
+  },
+  {
+   stage:"qualification",
+   capability:"productIntelligence",
+   exists:
+    !!capabilities.productIntelligence,
+   goal:
+    "Qualify offers or products before promotion."
+  },
+  {
+   stage:"monetization",
+   capability:"affiliateTracking",
+   exists:
+    !!capabilities.affiliateTracking,
+   goal:
+    "Create and track monetizable links."
+  },
+  {
+   stage:"content",
+   capability:"contentProduction",
+   exists:
+    !!capabilities.contentProduction,
+   goal:
+    "Create useful content that can promote qualified opportunities."
+  },
+  {
+   stage:"distribution",
+   capability:"distribution",
+   exists:
+    !!capabilities.distribution,
+   goal:
+    "Publish or distribute content to real audiences."
+  },
+  {
+   stage:"click",
+   capability:"affiliateTracking",
+   exists:
+    !!capabilities.affiliateTracking,
+   goal:
+    "Measure people reaching the monetization link."
+  },
+  {
+   stage:"conversion",
+   capability:"conversionTracking",
+   exists:
+    !!capabilities.conversionTracking,
+   goal:
+    "Measure completed conversions or sales."
+  },
+  {
+   stage:"verifiedRevenue",
+   capability:"revenueVerification",
+   exists:
+    !!capabilities.revenueVerification,
+   goal:
+    "Verify actual revenue with evidence."
+  }
+ ];
+
+ const blockedStages=
+  stages
+   .filter(
+    stage=>
+     !stage.exists
+   );
+
+ const firstBlocker=
+  blockedStages.length
+   ? blockedStages[0]
+   : null;
+
+ return{
+  funnel:
+   stages.map(
+    stage=>({
+     stage:stage.stage,
+     status:
+      stage.exists
+       ? "capability_detected"
+       : "capability_missing"
+    })
+   ),
+
+  firstBlocker,
+
+  priority:
+   firstBlocker
+    ? "Build or repair the earliest missing revenue stage before adding lower-priority automation."
+    : "All major revenue stages have detectable capabilities; prioritize measurement and verified conversions.",
+
+  revenueRule:
+   "No revenue is considered real until supported by evidence.",
+
+  recommendedAction:
+   firstBlocker
+    ? firstBlocker.goal
+    : "Run measurable income experiments and improve conversion performance."
+ };
+  }
+
  const started=
   Date.now();
 
