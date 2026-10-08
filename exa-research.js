@@ -785,27 +785,75 @@ const serperConfigured =
                   officialData
                 );
 
-              const exaGeneralResults =
-                normalizeExaResults(
-                  generalData
-                );
+                 const tavilyConfigured =
+      Boolean(process.env.TAVILY_API_KEY);
 
-              const serperOfficialResults =
-                normalizeSerperResults(
-                  serperOfficialData
-                );
+    const serperConfigured =
+      Boolean(process.env.SERPER_API_KEY);
 
-              const serperGeneralResults =
-                normalizeSerperResults(
-                  serperGeneralData
-                );
+    if (tavilyConfigured) {
+      try {
+        officialData =
+          await tavilySearch(
+            officialQuery,
+            10,
+            officialDomains
+          );
 
-              officialData = {
-                results: [
-                  ...exaOfficialResults,
-                  ...serperOfficialResults
-                ]
-              };
+        generalData =
+          await tavilySearch(
+            query,
+            10
+          );
+
+        researchProvider =
+          "tavily_fallback";
+
+      } catch (tavilyError) {
+        fallbackReason +=
+          ` Tavily full fallback failed (${tavilyError?.message || "unknown error"}).`;
+
+        if (serperConfigured) {
+          officialData =
+            await serperSearch(
+              officialQuery,
+              10,
+              officialDomains
+            );
+
+          generalData =
+            await serperSearch(
+              query,
+              10
+            );
+
+          researchProvider =
+            "serper_fallback";
+        } else {
+          throw exaError;
+        }
+      }
+
+    } else if (serperConfigured) {
+      officialData =
+        await serperSearch(
+          officialQuery,
+          10,
+          officialDomains
+        );
+
+      generalData =
+        await serperSearch(
+          query,
+          10
+        );
+
+      researchProvider =
+        "serper_fallback";
+
+    } else {
+      throw exaError;
+          }
 
               generalData = {
                 results: [
