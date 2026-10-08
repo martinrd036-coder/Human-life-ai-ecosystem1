@@ -1453,6 +1453,27 @@ async function work(
   return result;
 
  }catch(e){
+  if (
+  error.message &&
+  error.message.startsWith(
+    "Research governor"
+  )
+) {
+  await beat(
+    id,
+    "paused",
+    error.message
+  );
+
+  return {
+    success: false,
+    paused: true,
+    reason:
+      error.message,
+    revenueStatus:
+      "No revenue claimed."
+  };
+  }
 
   const activity=
    `Work failed: ${e.message}`;
