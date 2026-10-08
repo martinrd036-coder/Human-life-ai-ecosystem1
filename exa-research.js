@@ -869,14 +869,18 @@ async function researchOpportunities(topic) {
           "exa";
       }
     }
-  } catch (exaError) {
+    } catch (exaError) {
     /*
      * FULL EXA FAILURE
      *
-     * Tavily is optional. If it is not configured,
-     * preserve the real Exa error instead of creating
-     * a misleading Tavily configuration failure.
+     * Exa is the primary provider.
+     * If Exa fails completely:
+     * 1. Try Tavily when configured.
+     * 2. If Tavily fails, try Serper.
+     * 3. If Serper is unavailable or fails,
+     *    preserve the original Exa failure.
      */
+
     fallbackReason =
       exaError?.message ||
       "Exa request failed.";
@@ -884,27 +888,93 @@ async function researchOpportunities(topic) {
     const tavilyConfigured =
       Boolean(process.env.TAVILY_API_KEY);
 
+    const serperConfigured =
+      Boolean(process.env.SERPER_API_KEY);
+
     if (tavilyConfigured) {
-      officialData =
-        await tavilySearch(
-          officialQuery,
-          10,
-          officialDomains
-        );
+      try {
+        officialData =
+          await tavilySearch(
+            officialQuery,
+            10,
+            officialDomains
+          );
 
-      generalData =
-        await tavilySearch(
-          query,
-          10
-        );
+        generalData =
+          await tavilySearch(
+            query,
+            10
+          );
 
-      researchProvider =
-        "tavily_fallback";
+        researchProvider =
+          "tavily_fallback";
+
+      } catch (tavilyError) {
+        fallbackReason +=
+          ` Tavily full fallback failed (${tavilyError?.message || "unknown error"}).`;
+
+        if (serperConfigured) {
+          try {
+            officialData =
+              await serperSearch(
+                officialQuery,
+                10,
+                officialDomains
+              );
+
+            generalData =
+              await serperSearch(
+                query,
+                10
+              );
+
+            researchProvider =
+              "serper_fallback";
+
+          } catch (serperError) {
+            fallbackReason +=
+              ` Serper full fallback failed (${serperError?.message || "unknown error"}).`;
+
+            throw exaError;
+          }
+
+        } else {
+          fallbackReason +=
+            " Serper fallback skipped because SERPER_API_KEY is not configured.";
+
+          throw exaError;
+        }
+      }
+
+    } else if (serperConfigured) {
+      try {
+        officialData =
+          await serperSearch(
+            officialQuery,
+            10,
+            officialDomains
+          );
+
+        generalData =
+          await serperSearch(
+            query,
+            10
+          );
+
+        researchProvider =
+          "serper_fallback";
+
+      } catch (serperError) {
+        fallbackReason +=
+          ` Serper full fallback failed (${serperError?.message || "unknown error"}).`;
+
+        throw exaError;
+      }
+
     } else {
       throw exaError;
     }
   }
-
     if (
     researchProvider ===
     "tavily_fallback"
