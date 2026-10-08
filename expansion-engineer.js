@@ -65,7 +65,6 @@ function githubRequest(path){
 
         }
 async function githubFile(path){
-async function githubFile(path){
 
  const file=
   await githubRequest(
