@@ -761,13 +761,76 @@ const serperConfigured =
   fallbackProvider +
   "_quality_fallback";
 
-        } catch (tavilyError) {
+                } catch (tavilyError) {
           fallbackReason +=
-            ` Tavily fallback failed (${tavilyError?.message || "unknown error"}); Exa results retained.`;
+            ` Tavily fallback failed (${tavilyError?.message || "unknown error"}).`;
 
-          researchProvider =
-            "exa";
-        }
+          if (serperConfigured) {
+            try {
+              const serperOfficialData =
+                await serperSearch(
+                  officialQuery,
+                  10,
+                  officialDomains
+                );
+
+              const serperGeneralData =
+                await serperSearch(
+                  query,
+                  10
+                );
+
+              const exaOfficialResults =
+                normalizeExaResults(
+                  officialData
+                );
+
+              const exaGeneralResults =
+                normalizeExaResults(
+                  generalData
+                );
+
+              const serperOfficialResults =
+                normalizeSerperResults(
+                  serperOfficialData
+                );
+
+              const serperGeneralResults =
+                normalizeSerperResults(
+                  serperGeneralData
+                );
+
+              officialData = {
+                results: [
+                  ...exaOfficialResults,
+                  ...serperOfficialResults
+                ]
+              };
+
+              generalData = {
+                results: [
+                  ...exaGeneralResults,
+                  ...serperGeneralResults
+                ]
+              };
+
+              researchProvider =
+                "exa+serper_quality_fallback";
+
+            } catch (serperError) {
+              fallbackReason +=
+                ` Serper fallback failed (${serperError?.message || "unknown error"}); Exa results retained.`;
+
+              researchProvider =
+                "exa";
+            }
+          } else {
+            fallbackReason +=
+              " Serper fallback skipped because SERPER_API_KEY is not configured.";
+
+            researchProvider =
+              "exa";
+          }
 
       } else {
         fallbackReason +=
