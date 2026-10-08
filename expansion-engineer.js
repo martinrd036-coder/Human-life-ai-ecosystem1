@@ -535,7 +535,10 @@ async function runExpansionEngineer(){
    identifyExpansionAreas(
     inspection
    );
-
+    const architecture=
+   analyzeEcosystemArchitecture(
+    inspection
+   );
   return{
    success:true,
 
