@@ -1869,16 +1869,17 @@ async function runEngineeringGuardian(){
  const errors=
   await pool.query(
    `
-   SELECT
+      SELECT
     agent_id,
     status,
-    message,
-    created_at
+    activity,
+    started_at,
+    completed_at
    FROM agent_runs
    WHERE status='failed'
-   ORDER BY created_at DESC
+   ORDER BY started_at DESC
    LIMIT 10
-   `
+   
   ).catch(
    ()=>({rows:[]})
   );
