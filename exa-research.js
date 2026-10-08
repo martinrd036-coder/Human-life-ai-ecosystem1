@@ -671,7 +671,10 @@ const tavilyConfigured =
 
 const serperConfigured =
   Boolean(process.env.SERPER_API_KEY);
-        if (tavilyConfigured) {
+        if (
+  tavilyConfigured ||
+  serperConfigured
+) {
         try {
           const tavilyOfficialData =
             await tavilySearch(
