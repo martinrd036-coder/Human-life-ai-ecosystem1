@@ -80,6 +80,28 @@ function githubRequest(path){
   }
  );
 }
+async function githubFile(path){
+
+ const file=
+  await githubRequest(
+   `/repos/${REPOSITORY}/contents/${path}`
+  );
+
+ if(
+  !file ||
+  file.type!=="file" ||
+  !file.content
+ ){
+  return null;
+ }
+
+ return Buffer
+  .from(
+   file.content,
+   "base64"
+  )
+  .toString("utf8");
+}
 async function inspectRepository(){
 
  const repository=
