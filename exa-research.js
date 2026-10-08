@@ -714,13 +714,7 @@ const serperConfigured =
       "serper";
   }
 
-          const tavilyGeneralData =
-            await tavilySearch(
-              query,
-              10
-            );
-
-          const exaOfficialResults =
+                    const exaOfficialResults =
             normalizeExaResults(
               officialData
             );
@@ -730,27 +724,35 @@ const serperConfigured =
               generalData
             );
 
-          const tavilyOfficialResults =
-            normalizeTavilyResults(
-              tavilyOfficialData
-            );
+          const fallbackOfficialResults =
+            fallbackProvider === "tavily"
+              ? normalizeTavilyResults(
+                  fallbackOfficialData
+                )
+              : normalizeSerperResults(
+                  fallbackOfficialData
+                );
 
-          const tavilyGeneralResults =
-            normalizeTavilyResults(
-              tavilyGeneralData
-            );
+          const fallbackGeneralResults =
+            fallbackProvider === "tavily"
+              ? normalizeTavilyResults(
+                  fallbackGeneralData
+                )
+              : normalizeSerperResults(
+                  fallbackGeneralData
+                );
 
           officialData = {
             results: [
               ...exaOfficialResults,
-              ...tavilyOfficialResults
+              ...fallbackOfficialResults
             ]
           };
 
           generalData = {
             results: [
               ...exaGeneralResults,
-              ...tavilyGeneralResults
+              ...fallbackGeneralResults
             ]
           };
 
