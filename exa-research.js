@@ -676,12 +676,43 @@ const serperConfigured =
   serperConfigured
 ) {
         try {
-          const tavilyOfficialData =
-            await tavilySearch(
-              officialQuery,
-              10,
-              officialDomains
-            );
+  let fallbackOfficialData;
+  let fallbackGeneralData;
+  let fallbackProvider;
+
+  if (tavilyConfigured) {
+    fallbackOfficialData =
+      await tavilySearch(
+        officialQuery,
+        10,
+        officialDomains
+      );
+
+    fallbackGeneralData =
+      await tavilySearch(
+        query,
+        10
+      );
+
+    fallbackProvider =
+      "tavily";
+  } else {
+    fallbackOfficialData =
+      await serperSearch(
+        officialQuery,
+        10,
+        officialDomains
+      );
+
+    fallbackGeneralData =
+      await serperSearch(
+        query,
+        10
+      );
+
+    fallbackProvider =
+      "serper";
+  }
 
           const tavilyGeneralData =
             await tavilySearch(
