@@ -1016,6 +1016,7 @@ async function researchOpportunities(topic) {
       }
     } else {
       throw exaError;
+       }
     }
     if (
     researchProvider ===
