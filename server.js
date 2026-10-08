@@ -1452,13 +1452,13 @@ async function work(
 
   return result;
 
- }catch(e){
-  if (
-  error.message &&
-  error.message.startsWith(
-    "Research governor"
-  )
-) {
+  }catch(e){
+   if (
+    e.message &&
+    e.message.startsWith(
+     "Research governor"
+    )
+   ) {
   await beat(
     id,
     "paused",
