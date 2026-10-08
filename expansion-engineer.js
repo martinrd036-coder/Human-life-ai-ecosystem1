@@ -208,7 +208,9 @@ async function inspectRepository(){
       )
     : [],
 
-  files,
+    files,
+
+  sourceSnapshots,
 
   fileCount:
    files.length
