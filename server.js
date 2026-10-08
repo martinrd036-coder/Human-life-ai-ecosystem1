@@ -2195,7 +2195,12 @@ async function runAutomation(){
    {},
    ()=>runEngineeringGuardian()
   );
-
+  await runIsolatedAgent(
+ "expansion-engineer",
+ "Inspect the ecosystem and identify safe expansion opportunities",
+ {},
+ ()=>runExpansionEngineer()
+ );
   await beat(
    "agent1",
    "online",
