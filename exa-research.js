@@ -1013,8 +1013,8 @@ async function researchOpportunities(topic) {
         fallbackReason +=
           ` Serper full fallback failed (${serperError?.message || "unknown error"}).`;
 
-        throw exaError;
-      }
+           throw new 
+       Error(fallbackReason);
 
     } else {
       throw exaError;
