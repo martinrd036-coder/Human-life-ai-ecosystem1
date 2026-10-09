@@ -2297,6 +2297,20 @@ async function runAutomation(){
 }
 
 function startAutomation(){
+function startAutomation(){
+
+ const schedulerEnabled=
+  String(
+   process.env.ECOSYSTEM_SCHEDULER_ENABLED||
+   ""
+  ).toLowerCase()==="true";
+
+ if(!schedulerEnabled){
+  console.log(
+   "[Automation] Scheduler disabled. Set ECOSYSTEM_SCHEDULER_ENABLED=true only on the designated worker."
+  );
+  return;
+ }
 
  setTimeout(
   async()=>{
