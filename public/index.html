@@ -785,46 +785,32 @@ async function loadVideoFactoryQueue(){
       status.textContent =
         '🟡 Video Factory connected — no productions queued yet.';
 
-      box.innerHTML =
-        '<strong>No video productions queued yet.</strong>';
-
-      return;
-    }
-
-    status.textContent =
-      '🟢 Video Factory connected — '+
-      productions.length+
-      ' production(s) found.';
-
+      
     box.innerHTML =
       productions.map(item => `
         <div class="result">
-
           <strong>${escapeHtml(
-            item.title ||
-            item.product_name ||
-            'Video production'
+            item.product_name || 'Video production'
           )}</strong><br>
 
-          <small>
-            Status:
-            ${escapeHtml(
-              item.status ||
-              'UNKNOWN'
-            )}
-          </small><br>
+          <small>Status: ${escapeHtml(
+            item.status || 'UNKNOWN'
+          )}</small><br>
 
           ${
             item.video_url
-              ? '<br><a href="'+
-                escapeHtml(item.video_url)+
-                '" target="_blank" rel="noopener">'+
-                'Open finished video</a>'
-              : '<small>🎬 Video not finished yet.</small>'
+              ? '<a href="' +
+                escapeHtml(item.video_url) +
+                '" target="_blank" rel="noopener">Open finished video</a>'
+              : item.status === 'READY_FOR_PRODUCTION'
+                ? '<button onclick="approveVideoDraft(\'' +
+                  escapeHtml(item.id) +
+                  '\')">Approve Draft</button>'
+                : '<small>🎬 No finished video yet.</small>'
           }
-
         </div>
       `).join('');
+
 
   }catch(e){
 
