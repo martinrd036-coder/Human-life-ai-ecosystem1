@@ -739,7 +739,42 @@ button.disabled=false;
 }
 
 }
-async function loadVideoFactoryQueue(){
+
+
+async function approveVideoDraft(productionId) {
+  if (!confirm(
+    'Approve this draft? This will NOT generate a video or spend credits.'
+  )) {
+    return;
+  }
+
+  const status = document.getElementById('video-factory-status');
+  status.textContent = 'Approving draft...';
+
+  try {
+    const response = await fetch(
+      API_BASE + '/api/video-factory/approve-draft',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productionId })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Approval failed.');
+    }
+
+    status.textContent = '✅ Draft approved. No video generated.';
+    await loadVideoFactoryQueue();
+
+  } catch (error) {
+    status.textContent = '🔴 Approval failed: ' + error.message;
+  }
+}
+
 
 async function loadVideoFactoryQueue() {
   const box = document.getElementById('video-factory-results');
