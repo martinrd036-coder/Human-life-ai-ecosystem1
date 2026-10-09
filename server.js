@@ -2571,6 +2571,7 @@ app.get(
       product_name,
       product_url,
       qualification,
+      verification_status,
       qualification_score,
       recommended_action,
       content_angles,
@@ -2686,6 +2687,16 @@ app.post(
    ){
     throw new Error(
      "Only qualified products can enter Video Factory."
+    );
+   }
+
+   
+   if(
+    product.verification_status!==
+    "human_verified_by_user"
+   ){
+    throw new Error(
+     "Human product review and approval are required before video creation."
     );
    }
 
