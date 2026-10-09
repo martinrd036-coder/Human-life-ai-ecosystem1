@@ -2486,6 +2486,79 @@ app.get(
     }
  }
 );
+
+app.post(
+ "/api/product-scout/review",
+ async(req,res)=>{
+  try{
+   const productId=
+    String(req.body?.productId||"").trim();
+
+   const decision=
+    String(req.body?.decision||"")
+     .trim()
+     .toLowerCase();
+
+   if(!productId){
+    return res.status(400).json({
+     success:false,
+     error:"Product ID is required."
+    });
+   }
+
+   if(
+    decision!=="approve"&&
+    decision!=="reject"
+   ){
+    return res.status(400).json({
+     success:false,
+     error:"Decision must be approve or reject."
+    });
+   }
+
+   const result=await pool.query(
+    `
+     UPDATE product_candidates
+     SET verification_status=$1
+     WHERE id=$2
+       AND qualification='QUALIFIED'
+       AND product_url ~*
+        'https?://(www\\.)?amazon\\.com/(dp|gp/product)/[a-z0-9]{10}'
+     RETURNING
+      id,
+      product_name,
+      verification_status
+    `,
+    [
+     decision==="approve"
+      ?"human_verified_by_user"
+      :"human_rejected_by_user",
+     productId
+    ]
+   );
+
+   if(!result.rows.length){
+    return res.status(404).json({
+     success:false,
+     error:"Qualified Amazon product not found."
+    });
+   }
+
+   res.json({
+    success:true,
+    product:result.rows[0],
+    revenueStatus:"No revenue claimed."
+   });
+
+  }catch(e){
+   res.status(500).json({
+    success:false,
+    error:e.message
+   });
+  }
+ }
+);
+
 app.get(
  "/api/product-scout/promotion-queue",
  async(req,res)=>{
