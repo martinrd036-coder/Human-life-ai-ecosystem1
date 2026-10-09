@@ -776,23 +776,54 @@ async function approveVideoDraft(productionId) {
 }
 
 
+async function copyVideoText(button) {
+  const textToCopy = button.getAttribute('data-copy') || '';
+  const status = document.getElementById('video-factory-status');
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(textToCopy);
+    } else {
+      const temporary = document.createElement('textarea');
+      temporary.value = textToCopy;
+      temporary.setAttribute('readonly', '');
+      temporary.style.position = 'fixed';
+      temporary.style.opacity = '0';
+      document.body.appendChild(temporary);
+      temporary.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(temporary);
+
+      if (!copied) throw new Error('Copy was blocked.');
+    }
+
+    const oldLabel = button.textContent;
+    button.textContent = 'Copied!';
+    if (status) status.textContent = 'Copied! Paste it into your editor or notes.';
+    setTimeout(() => { button.textContent = oldLabel; }, 1500);
+  } catch (error) {
+    if (status) {
+      status.textContent =
+        'Copy was blocked. Press and hold the text to copy it manually.';
+    }
+  }
+}
+
 async function loadVideoFactoryQueue() {
   const box = document.getElementById('video-factory-results');
   const status = document.getElementById('video-factory-status');
 
   if (!box || !status) return;
-
-  status.textContent = '🔵 Loading Video Production Queue...';
+  status.textContent = 'Loading Video Production Queue...';
 
   try {
     const response = await fetch(
       API_BASE + '/api/video-factory/queue',
       { cache: 'no-store' }
     );
-
     const data = await response.json();
 
-    if (!response.ok) {
+    if (!response.ok || !data.success) {
       throw new Error(data.error || data.message || 'Queue request failed.');
     }
 
@@ -800,170 +831,76 @@ async function loadVideoFactoryQueue() {
       ? data.productions
       : [];
 
-    if (productions.length === 0) {
-      status.textContent = '🟡 No productions queued yet.';
+    if (!productions.length) {
+      status.textContent = 'No productions queued yet.';
       box.innerHTML = '<strong>No video productions queued yet.</strong>';
       return;
     }
 
     status.textContent =
-      '🟢 Video Factory connected — ' +
-      productions.length +
+      'Video Factory connected — ' + productions.length +
       ' production(s) found.';
 
+    const field = (label, value) => {
+      const text = String(value || '').trim();
+      if (!text) return '';
+
+      return '<div style="margin-top:8px"><strong>' + label +
+        '</strong><p style="white-space:pre-wrap;margin:4px 0">' +
+        escapeHtml(text) +
+        '</p><button type="button" onclick="copyVideoText(this)" data-copy="' +
+        escapeHtml(text) + '">Copy ' + label + '</button></div>';
+    };
+
     box.innerHTML = productions.map(item => {
-      let action = '<small>🎬 No finished video yet.</small>';
+      let action = '<small>No finished video yet.</small>';
 
       if (item.video_url) {
-        action =
-          '<a href="' + escapeHtml(item.video_url) +
+        action = '<a href="' + escapeHtml(item.video_url) +
           '" target="_blank" rel="noopener">Open finished video</a>';
       } else if (item.status === 'READY_FOR_PRODUCTION') {
-        action =
-          '<button onclick="approveVideoDraft(\'' +
-          escapeHtml(item.id) +
-          '\')">Approve Draft</button>';
+        action = '<button type="button" onclick="approveVideoDraft(this.getAttribute(&quot;data-id&quot;))" data-id="' +
+          escapeHtml(item.id) + '">Approve Draft</button>';
+      } else if (item.status === 'APPROVED_FOR_PRODUCTION') {
+        action = '<strong>Approved — ready to assemble manually.</strong><br>' +
+          '<small>No video has been generated and no credits were spent.</small>';
+      } else if (item.status === 'FAILED') {
+        action = '<small>This attempt failed. Draft text may still be available below.</small>';
       }
 
-      return `
-        <div class="result">
-          <strong>${escapeHtml(
-            item.product_name || 'Video production'
-          )}</strong><br>
-          <small>Status: ${escapeHtml(
-            item.status || 'UNKNOWN'
-          )}</small><br>
-          ${action}
-        </div>
-      `;
+      const isDraft =
+        item.status === 'READY_FOR_PRODUCTION' ||
+        item.status === 'APPROVED_FOR_PRODUCTION';
+
+      const content = isDraft
+        ? field('Hook', item.hook) +
+          field('Script', item.script) +
+          field('On-screen text', item.on_screen_text) +
+          field('Call to action', item.call_to_action) +
+          field('Affiliate disclosure', item.disclosure)
+        : '';
+
+      const productLink =
+        /^https?:\/\//i.test(String(item.product_url || ''))
+          ? '<p><a href="' + escapeHtml(item.product_url) +
+            '" target="_blank" rel="noopener">Open product page</a></p>'
+          : '';
+
+      return '<div class="result">' +
+        '<strong>' + escapeHtml(item.product_name || 'Video production') +
+        '</strong><br><small>Status: ' +
+        escapeHtml(item.status || 'UNKNOWN') + '</small><br>' +
+        productLink + action + content + '</div>';
     }).join('');
 
   } catch (error) {
-    status.textContent = '🔴 Video Factory connection failed.';
+    status.textContent = 'Video Factory connection failed.';
     box.innerHTML =
       '<strong>Could not load Video Factory queue.</strong><br>' +
       '<small>' + escapeHtml(error.message) + '</small>';
   }
 }
 
-  async function loadProductScoutResults(){
-
-  const box =
-    document.getElementById('product-scout-results');
-
-  if(!box){
-    return;
-  }
-
-  box.innerHTML =
-    'Loading Product Scout research...';
-
-  try{
-
-    const r =
-  await fetch(
-    API_BASE+'/api/product-scout/results',
-    {
-      cache:'no-store'
-    }
-  );
-
-    const data =
-      await r.json();
-
-    if(!r.ok){
-      throw new Error(
-        data.error ||
-        data.message ||
-        'Product Scout request failed.'
-      );
-    }
-
-    const results =
-      Array.isArray(data.products)
-        ? data.products
-        : [];
-
-    if(results.length===0){
-
-      box.innerHTML =
-        '<strong>No Product Scout research results yet.</strong>';
-
-      return;
-    }
-
-    const sortedResults =
-      results
-        .slice()
-        .sort((a,b)=>
-          Number(
-            b.qualification_score || 0
-          ) -
-          Number(
-            a.qualification_score || 0
-          )
-        )
-        .slice(0,10);
-
-    box.innerHTML =
-      '<strong>Top Product Scout Results — Highest Score First</strong>'+
-      sortedResults.map((item,index)=>`
-
-        <div class="result">
-
-          <strong>
-            #${index+1}
-            ${escapeHtml(
-              item.product_name ||
-              'Amazon product'
-            )}
-          </strong><br>
-
-          <small>
-            Qualification Score:
-            <strong>
-              ${item.qualification_score ?? 0}/100
-            </strong>
-          </small><br>
-
-          <small>
-            Qualification:
-            ${escapeHtml(
-              item.qualification ||
-              'NOT QUALIFIED'
-            )}
-                    ${
-            item.product_url
-              ? '<br><button onclick="createAmazonLink(\''+
-                escapeHtml(item.product_url)+
-                '\')">🔗 Generate my Amazon link</button>'
-              : ''
-          }
-
-                    ${
-         item.qualification === 'QUALIFIED' &&
-         item.verification_status === 'human_verified_by_user' &&
-         item.id
-              ? '<br><button onclick="createVideoProduction(\''+
-                escapeHtml(item.id)+
-                '\',0)">🎬 Create Video Production</button>'
-              : ''
-              }
-        </div>
-
-      `).join('');
-
-  }catch(e){
-
-    box.innerHTML =
-      '<strong>Product Scout unavailable.</strong><br>'+
-      '<small>'+
-      escapeHtml(e.message)+
-      '</small>';
-
-  }
-
-}
   async function loadPromotionQueue(){
 
   const box=
