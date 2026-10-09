@@ -2661,6 +2661,7 @@ app.post(
        product_name,
        product_url,
        qualification,
+       verification_status,
        qualification_score,
        video_concepts
       FROM product_candidates
