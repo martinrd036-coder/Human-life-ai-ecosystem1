@@ -2960,6 +2960,17 @@ app.get(
  "/api/video-factory/queue",
  async(req,res)=>{
   try{
+   
+   // Safely flag abandoned generation attempts.
+// This does not call the video provider or spend credits.
+const staleTasks = await pool.query("UPDATE video_productions SET status = 'FAILED', updated_at = NOW() WHERE status = 'GENERATING' AND video_url IS NULL AND created_at < NOW() - INTERVAL '30 minutes' RETURNING id");
+
+if (staleTasks.rowCount > 0) {
+console.log(
+'[Video Factory] Marked stale tasks FAILED:',
+staleTasks.rowCount
+);
+}
 
    const r=
     await pool.query(`
