@@ -3017,6 +3017,60 @@ staleTasks.rowCount
   }
  }
 );
+
+app.post(
+ "/api/video-factory/approve-draft",
+ async (req, res) => {
+  try {
+   const productionId = req.body?.productionId;
+
+   if (!productionId) {
+    return res.status(400).json({
+     success: false,
+     error: "Production ID is required."
+    });
+   }
+
+   const result = await pool.query(
+    `UPDATE video_productions
+     SET status = 'APPROVED_FOR_PRODUCTION',
+         updated_at = NOW()
+     WHERE id = $1
+       AND status = 'READY_FOR_PRODUCTION'
+       AND video_url IS NULL
+     RETURNING id, product_name, status`,
+    [productionId]
+   );
+
+   if (result.rowCount === 0) {
+    return res.status(409).json({
+     success: false,
+     error: "Draft not found or not eligible for approval."
+    });
+   }
+
+   return res.json({
+    success: true,
+    production: result.rows[0],
+    message: "Draft approved. No video was generated.",
+    revenueStatus: "No revenue claimed."
+   });
+
+  } catch (e) {
+   console.error(
+    "[Video Factory] Draft approval failed:",
+    e.message
+   );
+
+   return res.status(500).json({
+    success: false,
+    error: "Could not approve draft.",
+    revenueStatus: "No revenue claimed."
+   });
+  }
+ }
+);
+
 app.get(
  "/api/amazon/clicks",
  async(req,res)=>{
