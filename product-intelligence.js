@@ -264,11 +264,11 @@ if (title) {
     source: source || "Unknown source",
 
     verificationStatus:
-      title && url && description && recognizedSource
-        ? "product_verified"
-        : title && url
-          ? "product_details_need_verification"
-          : "product_not_verified",
+  qualification === "QUALIFIED"
+    ? "automated_checks_passed_needs_human_review"
+    : title && url
+      ? "product_details_need_verification"
+      : "product_not_verified",
 
     qualification,
 
