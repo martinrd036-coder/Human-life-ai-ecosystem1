@@ -2824,10 +2824,50 @@ app.post(
      concept.durationSeconds||5
    };
 
-   const video=
+   
+   if (
+    process.env.VIDEO_GENERATION_ENABLED !== "true"
+   ) {
+    const draftAt = new Date().toISOString();
+
+    await pool.query(
+     `
+      UPDATE video_productions
+      SET status=$1, updated_at=$2
+      WHERE id=$3
+     `,
+     [
+      "READY_FOR_PRODUCTION",
+      draftAt,
+      id
+     ]
+    );
+
+    return res.json({
+     success: true,
+     production: {
+      id,
+      productId: product.id,
+      productName: product.product_name,
+      productUrl: product.product_url,
+      concept,
+      status: "READY_FOR_PRODUCTION",
+      videoUrl: null,
+      provider: "draft-only",
+      model: "not-run",
+      providerJobId: null,
+      revenueStatus: "No revenue claimed."
+     },
+     message:
+      "Draft saved. Paid video generation is disabled."
+    });
+   }
+
+   const video =
     await createVideo(
      production
     );
+
 
    const completedAt=
     new Date().toISOString();
