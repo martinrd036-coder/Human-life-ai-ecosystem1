@@ -2921,40 +2921,39 @@ app.post(
     }
    });
 
-      if (currentProductionId) {
-    try {
-     await pool.query(
-      `UPDATE video_productions
-       SET status=$1, updated_at=$2
-       WHERE id=$3`,
-      [
-       "FAILED",
-       new Date().toISOString(),
-       currentProductionId
-      ]
-     );
-    } catch (updateError) {
-     console.error(
-      "[Video Factory] Could not mark task FAILED:",
-      updateError.message
-     );
-    }
+      
+  } catch (e) {
+    const errorMessage =
+      e?.message ||
+      "Video production failed.";
+
+    if (currentProductionId) {
+      try {
+        await pool.query(
+          `UPDATE video_productions
+           SET status=$1, updated_at=$2
+           WHERE id=$3`,
+          [
+            "FAILED",
+            new Date().toISOString(),
+            currentProductionId
+          ]
+        );
+      } catch (updateError) {
+        console.error(
+          "[Video Factory] Could not mark task FAILED:",
+          updateError.message
+        );
       }
-   
-  }catch(e){
+    }
 
-   const errorMessage=
-    e?.message||
-    "Video production failed.";
-
-   res.status(400).json({
-    success:false,
-    error:errorMessage,
-    revenueStatus:
-     "No revenue claimed."
-   });
-
+    return res.status(400).json({
+      success: false,
+      error: errorMessage,
+      revenueStatus: "No revenue claimed."
+    });
   }
+
  }
 );
 app.get(
