@@ -3297,6 +3297,52 @@ app.get(
 );
 
 
+app.post("/api/diagnostics/serper", async (req, res) => {
+  const expectedToken = process.env.RESEARCH_DIAGNOSTIC_TOKEN;
+  const suppliedToken = req.get("x-research-diagnostic-token");
+
+  if (!expectedToken || !suppliedToken ||
+      suppliedToken !== expectedToken) {
+    return res.status(401).json({
+      success: false,
+      error: "Unauthorized diagnostic request."
+    });
+  }
+
+  try {
+    const data = await serperSearch(
+      "official Amazon Associates program",
+      3
+    );
+
+    const results = Array.isArray(data?.results)
+      ? data.results
+      : [];
+
+    return res.json({
+      success: true,
+      provider: "serper",
+      resultCount: results.length,
+      results: results.map(item => ({
+        title: item.title || "Untitled",
+        url: item.link || item.url || ""
+      }))
+    });
+  } catch (error) {
+    console.error(
+      "[Serper diagnostic] Failed:",
+      error.message
+    );
+
+    return res.status(502).json({
+      success: false,
+      provider: "serper",
+      error: error.message
+    });
+  }
+});
+
+
 app.get(
  "/api/research/config",
  (req,res)=>{
