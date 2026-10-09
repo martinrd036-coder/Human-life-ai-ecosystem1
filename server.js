@@ -3296,6 +3296,50 @@ app.get(
  }
 );
 
+app.get("/serper-test", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.type("html").send(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serper Test</title>
+</head>
+<body style="font:16px sans-serif;max-width:600px;margin:30px auto;padding:16px">
+<h2>Test Serper Search</h2>
+<p>Enter the temporary diagnostic password from Railway. This page does not save it.</p>
+<input id="token" type="password" placeholder="Diagnostic password"
+style="box-sizing:border-box;width:100%;padding:12px">
+<button id="run" style="padding:12px;margin-top:10px">Test Serper</button>
+<pre id="result" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+<script>
+document.getElementById("run").onclick=async()=>{
+ const input=document.getElementById("token");
+ const button=document.getElementById("run");
+ const output=document.getElementById("result");
+ if(!input.value){output.textContent="Enter the password first.";return;}
+ button.disabled=true;
+ output.textContent="Testing…";
+ try{
+  const response=await fetch("/api/diagnostics/serper",{
+   method:"POST",
+   headers:{"x-research-diagnostic-token":input.value}
+  });
+  const data=await response.json();
+  output.textContent=JSON.stringify(data,null,2);
+ }catch(e){
+  output.textContent="Request failed: "+e.message;
+ }finally{
+  input.value="";
+  button.disabled=false;
+ }
+};
+</script>
+</body>
+</html>`);
+});
+
+
 
 app.post("/api/diagnostics/serper", async (req, res) => {
   const expectedToken = process.env.RESEARCH_DIAGNOSTIC_TOKEN;
