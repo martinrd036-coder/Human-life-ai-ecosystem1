@@ -741,91 +741,76 @@ button.disabled=false;
 }
 async function loadVideoFactoryQueue(){
 
-  const box =
-    document.getElementById('video-factory-results');
+async function loadVideoFactoryQueue() {
+  const box = document.getElementById('video-factory-results');
+  const status = document.getElementById('video-factory-status');
 
-  const status =
-    document.getElementById('video-factory-status');
+  if (!box || !status) return;
 
-  if(!box || !status){
-    return;
-  }
+  status.textContent = '🔵 Loading Video Production Queue...';
 
-  status.textContent =
-    '🔵 Loading Video Production Queue...';
+  try {
+    const response = await fetch(
+      API_BASE + '/api/video-factory/queue',
+      { cache: 'no-store' }
+    );
 
-  try{
+    const data = await response.json();
 
-    const r =
-  await fetch(
-    API_BASE+'/api/video-factory/queue',
-    {
-      cache:'no-store'
-    }
-  );
-
-    const data =
-      await r.json();
-
-    if(!r.ok){
-      throw new Error(
-        data.error ||
-        data.message ||
-        'Video Factory request failed.'
-      );
+    if (!response.ok) {
+      throw new Error(data.error || data.message || 'Queue request failed.');
     }
 
-    const productions =
-      Array.isArray(data.productions)
-        ? data.productions
-        : [];
+    const productions = Array.isArray(data.productions)
+      ? data.productions
+      : [];
 
-    if(productions.length === 0){
+    if (productions.length === 0) {
+      status.textContent = '🟡 No productions queued yet.';
+      box.innerHTML = '<strong>No video productions queued yet.</strong>';
+      return;
+    }
 
-      status.textContent =
-        '🟡 Video Factory connected — no productions queued yet.';
+    status.textContent =
+      '🟢 Video Factory connected — ' +
+      productions.length +
+      ' production(s) found.';
 
-      
-    box.innerHTML =
-      productions.map(item => `
+    box.innerHTML = productions.map(item => {
+      let action = '<small>🎬 No finished video yet.</small>';
+
+      if (item.video_url) {
+        action =
+          '<a href="' + escapeHtml(item.video_url) +
+          '" target="_blank" rel="noopener">Open finished video</a>';
+      } else if (item.status === 'READY_FOR_PRODUCTION') {
+        action =
+          '<button onclick="approveVideoDraft(\'' +
+          escapeHtml(item.id) +
+          '\')">Approve Draft</button>';
+      }
+
+      return `
         <div class="result">
           <strong>${escapeHtml(
             item.product_name || 'Video production'
           )}</strong><br>
-
           <small>Status: ${escapeHtml(
             item.status || 'UNKNOWN'
           )}</small><br>
-
-          ${
-            item.video_url
-              ? '<a href="' +
-                escapeHtml(item.video_url) +
-                '" target="_blank" rel="noopener">Open finished video</a>'
-              : item.status === 'READY_FOR_PRODUCTION'
-                ? '<button onclick="approveVideoDraft(\'' +
-                  escapeHtml(item.id) +
-                  '\')">Approve Draft</button>'
-                : '<small>🎬 No finished video yet.</small>'
-          }
+          ${action}
         </div>
-      `).join('');
+      `;
+    }).join('');
 
-
-  }catch(e){
-
-    status.textContent =
-      '🔴 Video Factory connection failed.';
-
+  } catch (error) {
+    status.textContent = '🔴 Video Factory connection failed.';
     box.innerHTML =
-      '<strong>Could not load Video Factory queue.</strong><br>'+
-      '<small>'+
-      escapeHtml(e.message)+
-      '</small>';
-
+      '<strong>Could not load Video Factory queue.</strong><br>' +
+      '<small>' + escapeHtml(error.message) + '</small>';
   }
-
 }
+
   async function loadProductScoutResults(){
 
   const box =
