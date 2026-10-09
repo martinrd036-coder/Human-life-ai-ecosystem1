@@ -1066,6 +1066,51 @@ async function loadVideoFactoryQueue(){
 
   }
   }
+  async function reviewAmazonProduct(productId, decision){
+
+try{
+
+  const r = await fetch(
+    API_BASE+'/api/product-scout/review',
+    {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        productId:productId,
+        decision:decision
+      })
+    }
+  );
+
+  const data = await r.json();
+
+  if(!r.ok || !data.success){
+    throw new Error(
+      data.error ||
+      'Product review failed.'
+    );
+  }
+
+  window.alert(
+    decision==='approve'
+      ? 'Product approved for video creation.'
+      : 'Product rejected.'
+  );
+
+  await loadPromotionQueue();
+
+}catch(e){
+
+  window.alert(
+    'Product review failed: '+e.message
+  );
+
+}
+
+  }
+  
   async function createVideoProduction(productId, conceptIndex){
 
   try{
