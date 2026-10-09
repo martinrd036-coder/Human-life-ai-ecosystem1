@@ -1023,12 +1023,28 @@ async function loadVideoFactoryQueue(){
           </small><br>
 
           <small>
-            Status:
-            ${escapeHtml(
-              item.qualification ||
-              'QUALIFIED'
-            )}
-          </small><br>
+        Qualification:
+        ${escapeHtml(
+          item.qualification ||
+          'QUALIFIED'
+        )}
+      </small><br>
+
+      <small>
+        Human review:
+        ${escapeHtml(
+          item.verification_status ||
+          'Needs review'
+        )}
+      </small><br>
+
+      <button onclick="reviewAmazonProduct('${escapeHtml(item.id)}','approve')">
+        Approve Product
+      </button>
+
+      <button onclick="reviewAmazonProduct('${escapeHtml(item.id)}','reject')">
+        Reject Product
+      </button><br>
 
           ${
             item.product_url
