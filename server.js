@@ -2551,6 +2551,7 @@ res.json({
 app.post(
  "/api/video-factory/create",
  async(req,res)=>{
+  let currentProductionId = null;
   try{
 
    const productId=
@@ -2655,12 +2656,15 @@ app.post(
 
    const concept=
     concepts[conceptIndex];
+   
 
    const id=
     `video-${Date.now()}-`+
     crypto.randomBytes(4)
      .toString("hex");
-
+   
+   currentProductionId = id;
+   
    const createdAt=
     new Date().toISOString();
 
@@ -2792,6 +2796,26 @@ app.post(
     }
    });
 
+      if (currentProductionId) {
+    try {
+     await pool.query(
+      `UPDATE video_productions
+       SET status=$1, updated_at=$2
+       WHERE id=$3`,
+      [
+       "FAILED",
+       new Date().toISOString(),
+       currentProductionId
+      ]
+     );
+    } catch (updateError) {
+     console.error(
+      "[Video Factory] Could not mark task FAILED:",
+      updateError.message
+     );
+    }
+      }
+   
   }catch(e){
 
    const errorMessage=
