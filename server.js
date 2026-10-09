@@ -2297,7 +2297,6 @@ async function runAutomation(){
 }
 
 function startAutomation(){
-function startAutomation(){
 
  const schedulerEnabled=
   String(
