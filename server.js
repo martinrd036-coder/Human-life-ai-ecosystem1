@@ -3440,6 +3440,17 @@ app.post(
  async(req,res)=>{
   try{
 
+      const schedulerEnabled =
+    String(
+     process.env.ECOSYSTEM_SCHEDULER_ENABLED || ""
+    ).toLowerCase() === "true";
+
+   if (!schedulerEnabled) {
+    return res.status(403).json({
+     success: false,
+     error: "Automation is disabled on this service. Use the designated API worker."
+    });
+   }
       const cycle=
     commandCenter.runCycle(
      await agents()
