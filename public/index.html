@@ -934,14 +934,15 @@ async function loadVideoFactoryQueue(){
               : ''
           }
 
-          ${
+                    ${
          item.qualification === 'QUALIFIED' &&
-    item.id
+         item.verification_status === 'human_verified_by_user' &&
+         item.id
               ? '<br><button onclick="createVideoProduction(\''+
                 escapeHtml(item.id)+
                 '\',0)">🎬 Create Video Production</button>'
               : ''
-          }
+              }
         </div>
 
       `).join('');
