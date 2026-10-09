@@ -1047,6 +1047,14 @@ async function loadVideoFactoryQueue(){
         Reject Product
       </button><br>
 
+                ${
+            item.verification_status === 'human_verified_by_user'
+              ? '<button onclick="createVideoProduction(\''+
+                escapeHtml(item.id)+
+                '\',0)">🎬 Create Video Production</button><br>'
+              : ''
+                }
+
           ${
             item.product_url
               ? '<br><button onclick="createAmazonPromotionLink(\''+
