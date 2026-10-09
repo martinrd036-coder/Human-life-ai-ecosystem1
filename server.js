@@ -9,9 +9,7 @@ const {
  buildExperimentPlan
 }=require("./opportunity-intelligence");
 
-const {
- researchOpportunities
-}=require("./exa-research");
+const { researchOpportunities, serperSearch }=require("./exa-research");
 
 const {
  analyzeProduct
