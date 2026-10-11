@@ -2060,10 +2060,21 @@ async function runAutomation(){
 
   }catch(e){
 
-   console.error(
-    `[Automation] ${agentId} failed:`,
-    e.message
-   );
+    console.error(
+     `[Automation] ${agentId} failed:`,
+     e.message
+    );
+
+    // Record the failed attempt so the scheduler
+    // respects this agent's normal run interval.
+    markScheduledAgentRun(agentId);
+
+    return{
+     success:false,
+     agentId,
+     error:e.message
+    };
+  }
 
    return{
     success:false,
