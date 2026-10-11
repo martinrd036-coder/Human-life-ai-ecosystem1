@@ -2069,13 +2069,6 @@ async function runAutomation(){
     // respects this agent's normal run interval.
     markScheduledAgentRun(agentId);
 
-    return{
-     success:false,
-     agentId,
-     error:e.message
-    };
-  }
-
    return{
     success:false,
     agentId,
