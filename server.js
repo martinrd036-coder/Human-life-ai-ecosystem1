@@ -1706,9 +1706,9 @@ async function runProductScout(
     "Find actual products from Amazon, Walmart, Etsy, eBay, and verified Shopify stores. Return direct product-page URLs, specific product names, useful customer problems, clear use cases, product details, and content potential. Exclude search pages, category pages, affiliate-program pages, and general store information. Do not claim affiliate eligibility or revenue without evidence."
    );
 
-  for (
-const x of r.results
-) {
+  const productResults = [];
+
+for (const x of r.results) {
 const url = x.url || "";
 const title = (x.title || "").toLowerCase();
 
@@ -1739,10 +1739,7 @@ productResults.push({
  merchantVerification: verification
 });
 
-  }
-
-   productResults.push(x);
-  }
+}
 
   const results=
    productResults.map(x=>{
