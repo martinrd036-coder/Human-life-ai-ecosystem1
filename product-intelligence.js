@@ -98,7 +98,7 @@ function analyzeProduct(item = {}) {
     qualificationChecks.push("Direct product URL is missing.");
   }
 
-  if (scoreChecks.directAmazonProduct) {
+if (scoreChecks.directProductPage) {
     qualificationScore += 20;
     evidence.push("direct_amazon_product_page");
   } else {
