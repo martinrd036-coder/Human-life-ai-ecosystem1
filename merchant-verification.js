@@ -1,4 +1,66 @@
 
+function classifyProductUrl(value) {
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+    const path = url.pathname;
+
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      return { accepted: false, merchant: null };
+    }
+
+    let merchant = null;
+    let validProductPath = false;
+
+    if (
+      /(^|\.)amazon\.(com|ca|co\.uk|de|fr|it|es|nl|se|pl|co\.jp|in|com\.au)$/.test(host)
+    ) {
+      merchant = "Amazon";
+      validProductPath = /\/(dp|gp\/product)\/[A-Z0-9]{10}/i.test(path);
+    } else if (
+      /(^|\.)walmart\.com$/.test(host)
+    ) {
+      merchant = "Walmart";
+      validProductPath = /\/ip\/[^/]+\/\d+/i.test(path);
+    } else if (
+      /(^|\.)etsy\.com$/.test(host)
+    ) {
+      merchant = "Etsy";
+      validProductPath = /\/listing\/\d+/i.test(path);
+    } else if (
+      /(^|\.)ebay\.(com|ca|co\.uk|de|com\.au)$/.test(host)
+    ) {
+      merchant = "eBay";
+      validProductPath = /\/itm\/\d+/i.test(path);
+    } else if (
+      /(^|\.)myshopify\.com$/.test(host)
+    ) {
+      merchant = "Shopify";
+      validProductPath = /\/products\/[^/]+/i.test(path);
+    }
+
+    if (!merchant || !validProductPath) {
+      return {
+        accepted: false,
+        merchant,
+        reason: "Unsupported merchant or product URL."
+      };
+    }
+
+    return {
+      accepted: true,
+      merchant,
+      url: url.href
+    };
+  } catch (error) {
+    return {
+      accepted: false,
+      merchant: null,
+      reason: "Invalid product URL."
+    };
+  }
+}
+
 async function verifyProductPage(value) {
   const classification = classifyProductUrl(value);
 
