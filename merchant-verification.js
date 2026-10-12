@@ -1,124 +1,4 @@
 
-"use strict";
-
-const SHOP_DOMAINS = {
-  amazon: ["amazon.com"],
-  walmart: ["walmart.com"],
-  etsy: ["etsy.com"],
-  ebay: ["ebay.com"],
-  shopify: ["myshopify.com"]
-};
-
-function normalizeHost(host) {
-  return String(host || "")
-    .toLowerCase()
-    .replace(/\.$/, "");
-}
-
-function hostMatches(host, domain) {
-  return host === domain || host.endsWith("." + domain);
-}
-
-function getVerifiedShopifyDomains() {
-  return String(
-    process.env.SHOPIFY_VERIFIED_DOMAINS || ""
-  )
-    .split(",")
-    .map(normalizeHost)
-    .filter(Boolean);
-}
-
-function classifyProductUrl(value) {
-  let parsed;
-
-  try {
-    parsed = new URL(value);
-  } catch {
-    return {
-      accepted: false,
-      merchant: null,
-      host: "",
-      reason: "Invalid product URL."
-    };
-  }
-
-  if (
-    !["https:", "http:"].includes(parsed.protocol) ||
-    parsed.username ||
-    parsed.password ||
-    parsed.port
-  ) {
-    return {
-      accepted: false,
-      merchant: null,
-      host: "",
-      reason: "Unsafe or unsupported URL format."
-    };
-  }
-
-  const host = normalizeHost(parsed.hostname);
-
-  let merchant = null;
-
-  for (const [name, domains] of Object.entries(SHOP_DOMAINS)) {
-    if (domains.some(domain => hostMatches(host, domain))) {
-      merchant = name;
-      break;
-    }
-  }
-
-  // Custom Shopify domains must be individually approved
-  // through SHOPIFY_VERIFIED_DOMAINS.
-  if (!merchant) {
-    const approvedShopifyDomains =
-      getVerifiedShopifyDomains();
-
-    if (approvedShopifyDomains.includes(host)) {
-      merchant = "shopify";
-    }
-  }
-
-  if (!merchant) {
-    return {
-      accepted: false,
-      merchant: null,
-      host,
-      reason: "Merchant domain is not supported or verified."
-    };
-  }
-
-  const path = parsed.pathname;
-
-  const productPathPatterns = {
-    amazon:
-      /\/(?:dp|gp\/product|gp\/aw\/d)\/[A-Z0-9]{10}(?:\/|$)/i,
-    walmart:
-      /\/ip\/(?:[^/?#]+\/)?\d+(?:\/|$)/i,
-    etsy:
-      /\/listing\/\d+(?:\/|$)/i,
-    ebay:
-      /\/itm\/(?:[^/?#]+\/)?\d+(?:\/|$)/i,
-    shopify:
-      /\/products\/[^/?#]+(?:\/|$)/i
-  };
-
-  if (!productPathPatterns[merchant].test(path)) {
-    return {
-      accepted: false,
-      merchant,
-      host,
-      reason: "URL does not match a supported product-page pattern."
-    };
-  }
-
-  return {
-    accepted: true,
-    merchant,
-    host,
-    reason: "Supported merchant and product URL pattern."
-  };
-}
-
 async function verifyProductPage(value) {
   const classification = classifyProductUrl(value);
 
@@ -130,32 +10,69 @@ async function verifyProductPage(value) {
   }
 
   try {
-    const response = await fetch(value, {
-      method: "GET",
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (compatible; ProductResearchBot/1.0)"
-      },
-      redirect: "follow",
-      signal: AbortSignal.timeout(8000)
-    });
+    let currentUrl = value;
+    let response;
 
-    let finalUrl;
+    // Check each redirect before requesting its destination.
+    for (let redirects = 0; redirects <= 4; redirects++) {
+      response = await fetch(currentUrl, {
+        method: "GET",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (compatible; ProductResearchBot/1.0)"
+        },
+        redirect: "manual",
+        signal: AbortSignal.timeout(8000)
+      });
 
-    try {
-      finalUrl = classifyProductUrl(response.url || value);
-    } catch {
-      finalUrl = { accepted: false };
+      const isRedirect =
+        response.status >= 300 && response.status < 400;
+
+      if (!isRedirect) break;
+
+      const location = response.headers.get("location");
+
+      if (!location || redirects === 4) {
+        return {
+          ...classification,
+          status: "needs_verification",
+          reason: "Redirect could not be safely verified."
+        };
+      }
+
+      let nextUrl;
+
+      try {
+        nextUrl = new URL(location, currentUrl).href;
+      } catch {
+        return {
+          ...classification,
+          status: "needs_verification",
+          reason: "Redirect destination was invalid."
+        };
+      }
+
+      const next = classifyProductUrl(nextUrl);
+
+      if (
+        !next.accepted ||
+        next.merchant !== classification.merchant
+      ) {
+        return {
+          ...classification,
+          status: "needs_verification",
+          reason: "Redirect destination is not an approved product URL."
+        };
+      }
+
+      currentUrl = nextUrl;
     }
 
-    if (
-      !finalUrl.accepted ||
-      finalUrl.merchant !== classification.merchant
-    ) {
+    if (!response) {
       return {
         ...classification,
         status: "needs_verification",
-        reason: "Redirect destination could not be verified."
+        reason: "No response was received."
       };
     }
 
@@ -204,7 +121,7 @@ async function verifyProductPage(value) {
         : "needs_verification",
       reason: hasProductEvidence
         ? "Product-page evidence found; human review is still required."
-        : "A supported URL was found, but product-page evidence was inconclusive."
+        : "Product-page evidence was inconclusive."
     };
   } catch (error) {
     return {
