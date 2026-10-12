@@ -16,6 +16,11 @@ const {
 }=require("./product-intelligence");
 
 const {
+ classifyProductUrl,
+ verifyProductPage
+}=require("./merchant-verification");
+
+const {
  createVideo
 }=require("./higgsfield-provider");
 
@@ -1698,44 +1703,41 @@ async function runProductScout(
   const r=
    await researchOpportunities(
     details.topic||
-    "Find actual Amazon products with direct Amazon product pages, useful customer problems, clear use cases, content potential, and evidence that can support legitimate product research. Return specific products, not affiliate-program information."
+    "Find actual products from Amazon, Walmart, Etsy, eBay, and verified Shopify stores. Return direct product-page URLs, specific product names, useful customer problems, clear use cases, product details, and content potential. Exclude search pages, category pages, affiliate-program pages, and general store information. Do not claim affiliate eligibility or revenue without evidence."
    );
 
   const productResults=[];
 
-  for(
-   const x of r.results
-  ){
+   const url = x.url || "";
+   const title = (x.title || "").toLowerCase();
 
-   const url=
-    (x.url||"").toLowerCase();
-
-   const title=
-    (x.title||"").toLowerCase();
-
-   const directProduct=
-    /amazon\.com\/dp\/[a-z0-9]{10}/i
-     .test(url)||
-    /amazon\.com\/gp\/product\/[a-z0-9]{10}/i
-     .test(url);
-
-   const blocked=
-    /\/(help|stores|gp\/browse|s|hz)\//i
-     .test(url)||
+   const blocked =
+    /\/(help|stores|gp\/browse|s|hz)\//i.test(url) ||
     /associates|affiliate-program|application review|affiliate information/i
-     .test(title+" "+url);
+     .test(title + " " + url);
 
-   if(
-    !directProduct||
-    blocked
-   ){
+   if (blocked) {
     continue;
    }
 
-   const live=
-    await verifyAmazonProductPage(
-     x.url
-    );
+   const classification = classifyProductUrl(url);
+
+   if (!classification.accepted) {
+    continue;
+   }
+
+   const verification = await verifyProductPage(url);
+
+   if (verification.status === "rejected") {
+    continue;
+   }
+
+   productResults.push({
+    ...x,
+    merchant: classification.merchant,
+    merchantVerification: verification
+   });
+
 
    if(!live){
     continue;
