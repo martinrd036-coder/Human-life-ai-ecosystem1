@@ -290,7 +290,7 @@ if (title) {
 
     testPlan: {
       objective:
-        "Identify promising Amazon products, create content tests, drive traffic through the affiliate link, and measure views, clicks, qualifying purchases, and verified commissions.",
+        "Identify promising products across supported merchants, create content tests, drive traffic through eligible affiliate links, and measure views, clicks, qualifying purchases, and verified commissions.",
 
       firstAction:
         "Confirm the product page and current product information, then prepare a content test using the user's Amazon affiliate link and track views, clicks, qualifying purchases, and verified commissions.",
