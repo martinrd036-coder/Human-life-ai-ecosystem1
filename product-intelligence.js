@@ -76,7 +76,7 @@ function analyzeProduct(item = {}) {
   const scoreChecks = {
     productName: Boolean(title),
     directUrl: Boolean(url),
-    directAmazonProduct,
+    directProductPage,,
     cleanDetails:
       description.length >= 120 && !hasGarbage,
     recognizedSource,
