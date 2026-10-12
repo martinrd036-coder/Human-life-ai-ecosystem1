@@ -293,8 +293,7 @@ if (title) {
         "Identify promising products across supported merchants, create content tests, drive traffic through eligible affiliate links, and measure views, clicks, qualifying purchases, and verified commissions.",
 
       firstAction:
-        "Confirm the product page and current product information, then prepare a content test using the user's Amazon affiliate link and track views, clicks, qualifying purchases, and verified commissions.",
-
+        "Confirm the product page and current product information, then prepare a content test using an eligible affiliate link for that merchant and track views, clicks, qualifying purchases, and verified commissions.",
       successMetrics: [
         "product verified",
         "affiliate eligibility verified",
