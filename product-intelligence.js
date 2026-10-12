@@ -144,7 +144,7 @@ if (scoreChecks.directProductPage) {
       }
   let qualification;
     if (
-    directAmazonProduct &&
+    scoreChecks.directProductPage &&
     title &&
     url &&
     scoreChecks.cleanDetails &&
