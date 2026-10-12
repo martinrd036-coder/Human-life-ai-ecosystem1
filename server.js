@@ -1706,42 +1706,40 @@ async function runProductScout(
     "Find actual products from Amazon, Walmart, Etsy, eBay, and verified Shopify stores. Return direct product-page URLs, specific product names, useful customer problems, clear use cases, product details, and content potential. Exclude search pages, category pages, affiliate-program pages, and general store information. Do not claim affiliate eligibility or revenue without evidence."
    );
 
-  const productResults=[];
+  for (
+const x of r.results
+) {
+const url = x.url || "";
+const title = (x.title || "").toLowerCase();
 
-   const url = x.url || "";
-   const title = (x.title || "").toLowerCase();
+const blocked =
+ /\/(help|stores|gp\/browse|s|hz)\//i.test(url) ||
+ /associates|affiliate-program|application review|affiliate information/i
+  .test(title + " " + url);
 
-   const blocked =
-    /\/(help|stores|gp\/browse|s|hz)\//i.test(url) ||
-    /associates|affiliate-program|application review|affiliate information/i
-     .test(title + " " + url);
+if (blocked) {
+ continue;
+}
 
-   if (blocked) {
-    continue;
-   }
+const classification = classifyProductUrl(url);
 
-   const classification = classifyProductUrl(url);
+if (!classification.accepted) {
+ continue;
+}
 
-   if (!classification.accepted) {
-    continue;
-   }
+const verification = await verifyProductPage(url);
 
-   const verification = await verifyProductPage(url);
+if (verification.status === "rejected") {
+ continue;
+}
 
-   if (verification.status === "rejected") {
-    continue;
-   }
+productResults.push({
+ ...x,
+ merchant: classification.merchant,
+ merchantVerification: verification
+});
 
-   productResults.push({
-    ...x,
-    merchant: classification.merchant,
-    merchantVerification: verification
-   });
-
-
-   if(!live){
-    continue;
-   }
+  }
 
    productResults.push(x);
   }
