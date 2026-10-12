@@ -103,7 +103,7 @@ if (scoreChecks.directProductPage) {
     evidence.push("recognized_direct_product_page");
   } else {
     qualificationChecks.push(
-      "Confirm this is a direct Amazon product page."
+      "Confirm this is a direct product page."
     );
   }
 
