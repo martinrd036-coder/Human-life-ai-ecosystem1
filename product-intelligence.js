@@ -100,7 +100,7 @@ function analyzeProduct(item = {}) {
 
 if (scoreChecks.directProductPage) {
     qualificationScore += 20;
-    evidence.push("direct_amazon_product_page");
+    evidence.push("recognized_direct_product_page");
   } else {
     qualificationChecks.push(
       "Confirm this is a direct Amazon product page."
